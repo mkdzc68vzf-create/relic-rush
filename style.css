@@ -1,0 +1,206 @@
+
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  color: white;
+  background:
+    radial-gradient(ellipse at top left, #30205f, transparent 45%),
+    radial-gradient(ellipse at bottom right, #123e69, transparent 45%),
+    #080b18;
+}
+
+header {
+  text-align: center;
+  padding: 35px 15px;
+  background: rgba(10, 12, 30, 0.85);
+  border-bottom: 1px solid #5543a5;
+}
+
+header h1 {
+  color: #8edbff;
+  font-size: clamp(28px, 5vw, 42px);
+  letter-spacing: 4px;
+  text-shadow: 0 0 18px #427dff;
+  margin-bottom: 10px;
+}
+
+header p {
+  color: #c4c8e8;
+}
+
+main {
+  max-width: 1000px;
+  margin: 35px auto;
+  padding: 0 18px;
+}
+
+section {
+  background: rgba(24, 27, 55, 0.92);
+  border: 1px solid #393c70;
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+section h2 {
+  color: #bca6ff;
+  margin-top: 0;
+}
+
+section p {
+  color: #d0d4e9;
+  line-height: 1.6;
+}
+
+button {
+  background: linear-gradient(135deg, #426bff, #8a43e8);
+  color: white;
+  border: 1px solid #a6aaff;
+  border-radius: 10px;
+  padding: 13px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px #6959ff;
+}
+
+.collection-section {
+  background: linear-gradient(145deg, #171b38, #0d1228);
+  border-color: #454b83;
+}
+
+.collection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.collection-header h2 {
+  margin-bottom: 5px;
+}
+
+.coin-badge {
+  background: #25274b;
+  border: 1px solid #8275ff;
+  color: #ffe38a;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: bold;
+}
+
+#result {
+  background: #10162d;
+  border: 1px solid #303b68;
+  border-radius: 10px;
+  padding: 13px;
+  color: #b8dcff;
+  margin: 20px 0;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.item-card {
+  background: linear-gradient(160deg, #252b4d, #12172d);
+  border: 2px solid #596080;
+  border-radius: 15px;
+  padding: 18px 12px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 22px #7464ff33;
+}
+
+.item-icon {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.item-name {
+  color: white;
+  font-weight: bold;
+  margin: 6px 0;
+}
+
+.item-rarity {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+.item-count {
+  color: #c7cce5;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.rarity-common {
+  border-color: #8b96a8;
+}
+.rarity-common .item-rarity {
+  color: #bdc6d6;
+}
+
+.rarity-uncommon {
+  border-color: #44cb87;
+}
+.rarity-uncommon .item-rarity {
+  color: #5ce6a1;
+}
+
+.rarity-rare {
+  border-color: #49a9ff;
+}
+.rarity-rare .item-rarity {
+  color: #66bdff;
+}
+
+.rarity-epic {
+  border-color: #bc69ff;
+}
+.rarity-epic .item-rarity {
+  color: #d19aff;
+}
+
+.rarity-legendary {
+  border-color: #ffc64d;
+  box-shadow: 0 0 12px #ffc64d18;
+}
+.rarity-legendary .item-rarity {
+  color: #ffd36e;
+}
+
+.empty-inventory {
+  color: #9ba5cb;
+  padding: 15px 0;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #9298bd;
+  border-top: 1px solid #292d51;
+}
