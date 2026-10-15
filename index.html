@@ -6,800 +6,688 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relic Rush</title>
 <style>
-:root{
-  --bg:#101321;--panel:#1c2237;--panel2:#272f49;
-  --accent:#8b5cf6;--text:#f5f6ff;--muted:#b8bfd7;
-  --green:#36d399;--red:#fb7185;--gold:#fbbf24;
+:root {
+  --bg:#080518;
+  --panel:#100a28;
+  --card:#171035;
+  --purple:#8b35ff;
+  --bright:#bd83ff;
+  --gold:#ffca55;
+  --text:#f6f1ff;
+  --muted:#a79cbd;
+  --border:#302052;
+  --green:#52e0a0;
+  --red:#ff647d;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-header{padding:22px 14px;text-align:center;background:linear-gradient(135deg,#24154b,#412477,#17203c);border-bottom:2px solid var(--accent)}
-header h1{margin:0 0 7px;font-size:32px}
-header p{margin:0;color:var(--muted)}
-.stats{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:14px}
-.stat{background:var(--panel);padding:10px 15px;border-radius:12px;border:1px solid #343b58}
-nav{display:flex;gap:7px;padding:10px;justify-content:center;flex-wrap:wrap;background:#15192a;position:sticky;top:0;z-index:5}
-button{font:inherit;color:white;background:var(--accent);border:0;border-radius:9px;padding:11px 15px;cursor:pointer;font-weight:bold}
-button:hover{filter:brightness(1.15)}
+body{
+  margin:0;background:radial-gradient(ellipse at top,#201044 0%,var(--bg) 55%);
+  color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh
+}
+button{font:inherit;cursor:pointer;border:0}
 button:disabled{opacity:.45;cursor:not-allowed}
-nav button{background:var(--panel2)}
-nav button.active{background:var(--accent)}
-main{max-width:1100px;margin:auto;padding:16px}
-.tab{display:none}
-.tab.active{display:block}
-.card{background:var(--panel);border:1px solid #343b58;border-radius:14px;padding:17px;margin-bottom:14px}
-h2,h3{margin-top:0}
-p{line-height:1.45}
-.muted,small{color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.item{background:var(--panel2);border-radius:12px;padding:15px;border:1px solid #414967;overflow-wrap:anywhere}
-.item h3{margin-bottom:8px}
-.big-icon{font-size:42px;margin:8px 0}
-.common{color:#d0d5e3}
-.rare{color:#55b8ff}
-.epic{color:#c58aff}
-.legendary{color:var(--gold)}
-.gold-relic{
-  border:2px solid #fbbf24!important;
-  box-shadow:0 0 14px rgba(251,191,36,.28);
-  background:linear-gradient(145deg,#3a3018,#272f49 70%)!important;
+header{
+  position:sticky;top:0;z-index:5;background:#0c0723ed;
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+  padding:14px 18px
 }
-.gold-label{
-  display:inline-block;
-  background:linear-gradient(90deg,#f59e0b,#fde68a,#d97706);
-  color:#271600;font-size:11px;font-weight:900;
-  padding:4px 7px;border-radius:5px;margin-left:5px;
-  vertical-align:middle;
-}
-.gold-text{color:#fbbf24;font-weight:bold}
-input,select{width:100%;padding:11px;margin:7px 0 12px;background:#111629;color:white;border:1px solid #515a7a;border-radius:8px}
-.secondary{background:#424c6a}
-.danger{background:#a83252}
-.green{background:#14845f}
-#gameCanvas{width:100%;display:block;background:#101b25;border:2px solid #586481;border-radius:12px;touch-action:none}
-.game-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.joystick-area{display:flex;justify-content:space-between;gap:18px;align-items:center;margin:14px auto;max-width:500px}
-.pad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,44px);gap:4px}
-.pad button{padding:4px;background:#343d5b;touch-action:none}
-.attack-button{background:#a83252;min-width:110px;min-height:80px}
-.progress{background:#101629;height:12px;border-radius:9px;overflow:hidden;margin:8px 0}
-.progress div{height:100%;background:var(--green);width:100%}
-#packResult{text-align:center;padding:16px;margin-top:12px;background:#111629;border-radius:12px}
-#reel{font-size:44px;min-height:65px}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:11px;border-bottom:1px solid #414967}
-th{color:var(--muted)}
-.rank{font-size:21px;font-weight:bold;color:var(--gold)}
-.achievement-done{border-color:#36d399}
-.achievement-locked{opacity:.8}
-footer{text-align:center;padding:22px;color:var(--muted)}
-@media(max-width:500px){
-  main{padding:10px}
-  nav{gap:5px}
-  nav button{padding:9px;font-size:13px}
-  .card{padding:13px}
+.header-inner{max-width:1250px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-size:25px;font-weight:900;letter-spacing:1px}
+.logo span{color:var(--bright)}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--border);padding:9px 12px;border-radius:12px;font-weight:bold}
+nav{display:flex;gap:7px;flex-wrap:wrap;max-width:1250px;margin:14px auto 0}
+nav button{background:transparent;color:var(--muted);padding:10px 13px;border-radius:9px;font-weight:bold}
+nav button.active,nav button:hover{background:#29154b;color:white}
+main{max-width:1250px;margin:auto;padding:24px 18px 70px}
+h1{font-size:clamp(27px,4vw,40px);margin:0 0 9px}
+h2{margin:0 0 14px}
+h3{margin:0 0 9px}
+p{color:var(--muted);line-height:1.5}
+.page{display:none}
+.page.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.hero{padding:28px;border:1px solid #42286d;border-radius:20px;background:linear-gradient(120deg,#251044,#120a2c 65%);margin-bottom:20px}
+.hero p{max-width:650px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.card{background:linear-gradient(145deg,#1a1238,#100a26);border:1px solid var(--border);border-radius:16px;padding:17px;min-width:0}
+.card p{margin:8px 0}
+.btn{background:var(--purple);color:white;padding:11px 14px;border-radius:10px;font-weight:bold;transition:.15s}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn.secondary{background:#30204f}
+.btn.gold{background:#8d6412;color:#fff1bd}
+.btn.danger{background:#8d2942}
+.btn.small{padding:7px 10px;font-size:13px}
+.btn.full{width:100%;margin-top:10px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.pack-icon{font-size:43px;margin:8px 0}
+.pack-card{position:relative;overflow:hidden}
+.pack-card:before{content:"";position:absolute;right:-40px;top:-45px;width:120px;height:120px;border-radius:50%;background:var(--pack-color,#8b35ff);opacity:.10;filter:blur(3px)}
+.price{font-size:23px;font-weight:900;margin:12px 0}
+.tag{display:inline-block;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;background:#30204f;color:#d9c4ff}
+.tag.gold-tag{background:#674910;color:#ffe6a0}
+.tag.common{color:#d1d1dc}
+.tag.rare{color:#64d8ff;background:#10384a}
+.tag.epic{color:#dc9aff;background:#43215a}
+.tag.legendary{color:#ffd56a;background:#594016}
+.relic-icon{font-size:38px;margin:8px 0}
+.owned{font-size:13px;color:#d7c6ff;background:#24163e;padding:7px 9px;border-radius:8px;display:inline-block;margin-top:5px}
+.gold-relic{border-color:#9c752a;background:linear-gradient(145deg,#382810,#171025)}
+.gold-relic .relic-icon{filter:drop-shadow(0 0 8px #ffca55)}
+.gold-relic .owned{background:#594016;color:#ffe6a0}
+.relic-card{display:flex;flex-direction:column}
+.relic-card .btn{margin-top:auto}
+.bar{height:9px;background:#302448;border-radius:20px;overflow:hidden;margin:12px 0}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,#8b35ff,#d0a0ff);width:0%}
+.notice{padding:13px 15px;background:#1b1236;border:1px solid var(--border);border-radius:12px;margin:14px 0;color:#e6dcff}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.space{justify-content:space-between}
+input,select{background:#0b071c;border:1px solid var(--border);color:white;padding:10px;border-radius:9px;max-width:100%}
+.zombie{border-left:3px solid var(--red)}
+.record{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);padding:12px 0}
+.empty{padding:35px;text-align:center;border:1px dashed var(--border);border-radius:14px;color:var(--muted)}
+footer{text-align:center;padding:20px;color:#73658e;font-size:12px}
+.overlay{position:fixed;inset:0;background:#05020de8;z-index:20;display:none;align-items:center;justify-content:center;padding:18px}
+.overlay.show{display:flex}
+.reveal{width:min(440px,100%);text-align:center;padding:28px;border:1px solid #6b3aa3;border-radius:22px;background:radial-gradient(ellipse at top,#352057,#100a25 65%);box-shadow:0 0 70px #641db344;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.reveal-icon{font-size:85px;margin:12px}
+.reveal.gold-reveal{border-color:#d8a93b;box-shadow:0 0 70px #ffca5533}
+.reveal.gold-reveal .reveal-icon{filter:drop-shadow(0 0 15px #ffca55)}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:30;background:#251744;border:1px solid #7146a0;border-radius:12px;padding:12px 18px;display:none;max-width:90%;text-align:center;box-shadow:0 10px 30px #0008}
+#toast.show{display:block;animation:fade .2s}
+hr{border:0;border-top:1px solid var(--border);margin:17px 0}
+@media(max-width:550px){
+ header{padding:12px}
+ .logo{font-size:21px}
+ .stat{padding:7px 9px;font-size:13px}
+ nav{gap:4px}
+ nav button{padding:9px;font-size:12px}
+ main{padding:18px 12px 50px}
+ .hero{padding:20px}
+ .grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+ .card{padding:13px}
 }
 </style>
 </head>
 <body>
 <header>
-  <h1>🏺 RELIC RUSH</h1>
-  <p>Fight zombies. Collect relics. Make history.</p>
+  <div class="header-inner">
+    <div class="logo">💎 RELIC <span>RUSH</span></div>
+    <div class="stats">
+      <div class="stat">🪙 <span id="coins">500</span></div>
+      <div class="stat">💎 <span id="totalRelics">0</span> relics</div>
+      <div class="stat">🌊 Wave <span id="waveStat">1</span></div>
+    </div>
+  </div>
+  <nav id="nav">
+    <button class="active" data-page="home">🏠 Home</button>
+    <button data-page="zombies">🧟 Zombies</button>
+    <button data-page="packs">🎁 Packs</button>
+    <button data-page="relics">💎 Relics</button>
+    <button data-page="shop">🛒 Shop</button>
+    <button data-page="market">🏪 Market</button>
+    <button data-page="records">📜 Records</button>
+    <button data-page="achievements">🏆 Achievements</button>
+  </nav>
 </header>
 
-<div class="stats">
-  <div class="stat">🪙 Coins: <strong id="coinCount">0</strong></div>
-  <div class="stat">⚔️ Weapon: <strong id="weaponName">Iron Sword</strong></div>
-  <div class="stat">🌊 Best Wave: <strong id="bestWave">0</strong></div>
-  <div class="stat">💎 Relics: <strong id="relicCount">0</strong></div>
-</div>
-
-<nav>
-  <button class="active" onclick="showTab('home',this)">🏠 Home</button>
-  <button onclick="showTab('zombies',this)">🧟 Zombies</button>
-  <button onclick="showTab('packs',this)">🎁 Packs</button>
-  <button onclick="showTab('relics',this)">💎 Relics</button>
-  <button onclick="showTab('shop',this)">⚔️ Shop</button>
-  <button onclick="showTab('market',this)">🏪 Market</button>
-  <button onclick="showTab('records',this)">📊 Records</button>
-  <button onclick="showTab('achievements',this)">🏆 Achievements</button>
-</nav>
-
 <main>
-<section id="home" class="tab active">
-  <div class="card">
-    <h2>Welcome to Relic Rush!</h2>
-    <p>Survive zombie waves, earn coins, collect normal and Gold relics, upgrade weapons, and set new personal records.</p>
-    <button onclick="showTab('zombies')">Enter Zombie Arena</button>
-    <button class="secondary" onclick="showTab('achievements')">View Achievements</button>
-  </div>
-  <div class="card">
-    <h2>🎁 Daily Reward</h2>
-    <p>Claim 50 free coins once per day.</p>
-    <p id="dailyStatus" class="muted"></p>
-    <button id="dailyButton" onclick="claimDaily()">Claim 50 Coins</button>
+<section id="home" class="page active">
+  <div class="hero">
+    <span class="tag">COLLECT • UPGRADE • SURVIVE</span>
+    <h1 style="margin-top:15px">Welcome to Relic Rush</h1>
+    <p>Open powerful relic packs, discover rare treasures, hunt for Gold variants, and survive zombie waves. Every relic you discover is automatically added to your collection!</p>
+    <div class="row">
+      <button class="btn" onclick="go('packs')">🎁 Open Packs</button>
+      <button class="btn secondary" onclick="go('relics')">💎 My Collection</button>
+      <button class="btn secondary" onclick="claimDaily()">🎁 Daily Reward</button>
+    </div>
   </div>
   <div class="grid">
-    <div class="card"><h3>🧟 Survival</h3><p>Fight zombies and face a boss every fifth wave.</p><button onclick="showTab('zombies')">Play</button></div>
-    <div class="card"><h3>💎 Collection</h3><p>Collect Common, Rare, Epic, Legendary, and Gold relic variants.</p><button onclick="showTab('relics')">View Relics</button></div>
-    <div class="card"><h3>🏆 Your Legacy</h3><p>Track your records and run history.</p><button onclick="showTab('records')">View Records</button></div>
+    <div class="card"><div class="muted small">COLLECTION VALUE</div><h2 id="collectionValue">0 🪙</h2><p>Total value of all owned relics.</p></div>
+    <div class="card"><div class="muted small">UNIQUE RELICS</div><h2 id="uniqueCount">0</h2><p>Different relic types discovered.</p></div>
+    <div class="card"><div class="muted small">GOLD RELICS</div><h2 id="goldCount">0</h2><p>Gold treasures in your inventory.</p></div>
+    <div class="card"><div class="muted small">ZOMBIES DEFEATED</div><h2 id="kills">0</h2><p>Keep fighting to earn coins.</p></div>
   </div>
+  <h2 style="margin-top:25px">✨ Featured Packs</h2>
+  <div class="grid" id="featuredPacks"></div>
+  <div class="notice">💡 <b>Tip:</b> Relics are collected automatically when you open a pack. The “Owned” counter tracks each normal and Gold relic separately.</div>
 </section>
 
-<section id="zombies" class="tab">
-  <div class="card">
-    <h2>🧟 Zombie Survival</h2>
-    <p>Move with WASD or arrow keys. Attack with Space or Enter. On mobile, use the directional pad and attack button.</p>
-    <p>Normal zombie: <strong>+2 coins</strong>. Boss: <strong>+20 coins</strong>. Wave bonus: <strong>wave × 3 coins</strong>.</p>
-    <div class="grid">
-      <div class="item">Wave: <strong id="waveText">1</strong></div>
-      <div class="item">Health: <strong id="healthText">100</strong>/100</div>
-      <div class="item">Zombies left: <strong id="zombieText">0</strong></div>
-      <div class="item">Damage: <strong id="damageText">1</strong></div>
+<section id="zombies" class="page">
+  <div class="hero">
+    <span class="tag">SURVIVAL MODE</span>
+    <h1 style="margin-top:12px">🧟 Zombie Arena</h1>
+    <p>Defeat zombies to earn coins and reach higher waves. Upgrade your weapon in the shop to deal more damage.</p>
+    <div class="row">
+      <div class="stat">❤️ Health: <span id="health">100</span></div>
+      <div class="stat">⚔️ Damage: <span id="damage">10</span></div>
+      <div class="stat">🧟 Remaining: <span id="remaining">5</span></div>
     </div>
-    <div class="progress"><div id="healthBar"></div></div>
-    <canvas id="gameCanvas" width="900" height="500"></canvas>
-    <div class="game-buttons">
-      <button onclick="startGame()">▶ Start / Restart Run</button>
-      <button class="secondary" onclick="attack()">⚔️ Attack</button>
-      <button class="secondary" onclick="heal()">❤️ Heal (25 coins)</button>
+    <div class="bar"><span id="waveBar"></span></div>
+    <div class="row">
+      <button class="btn" id="attackBtn" onclick="attackZombie()">⚔️ Attack Zombie</button>
+      <button class="btn secondary" onclick="healPlayer()">❤️ Heal (40 coins)</button>
+      <button class="btn secondary" onclick="startNextWave()">🌊 Next Wave</button>
     </div>
-    <div class="joystick-area">
-      <div class="pad">
-        <span></span><button data-dir="up">▲</button><span></span>
-        <button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button>
-      </div>
-      <button class="attack-button" id="mobileAttack">⚔️ ATTACK</button>
-    </div>
-    <p id="gameMessage" class="muted">Press Start to begin.</p>
   </div>
+  <div class="grid">
+    <div class="card zombie"><h3>🧟 Walker</h3><p>Standard zombie. Good for earning your first coins.</p><div>Health: <b id="zombieHealth">30</b></div></div>
+    <div class="card"><h3>🎁 Battle Rewards</h3><p>Each defeat earns coins. Higher waves bring tougher zombies and better rewards.</p><div class="owned">Defeated: <span id="arenaKills">0</span></div></div>
+  </div>
+  <div class="notice" id="battleLog">The arena is quiet... for now.</div>
 </section>
 
-<section id="packs" class="tab">
-  <div class="card">
-    <h2>🎁 Relic Packs</h2>
-    <p>Pack stock restocks every five minutes. Better packs cost more and have improved rarity chances.</p>
-    <p>Gold variants have a 0.65-to-1 drop-rate ratio compared with their normal versions.</p>
-    <p>Next restock: <strong id="restockTimer">5:00</strong></p>
-    <div class="grid" id="packGrid"></div>
-    <div id="packResult" style="display:none">
-      <h3 id="packTitle">Opening Pack...</h3>
-      <div id="reel">🎁</div>
-      <p id="packDescription"></p>
-      <button id="collectButton" onclick="collectPack()" style="display:none">Collect Relic</button>
+<section id="packs" class="page">
+  <div class="hero">
+    <span class="tag">RELIC COLLECTION</span>
+    <h1 style="margin-top:12px">🎁 Relic Packs</h1>
+    <p>Choose a pack and discover a relic. Your prize is instantly saved to your inventory—no Collect button needed!</p>
+    <div class="row">
+      <div class="stat">🪙 Your coins: <span id="packCoins">500</span></div>
+      <div class="stat">💎 Relics owned: <span id="packTotal">0</span></div>
     </div>
   </div>
+  <div class="grid" id="packsGrid"></div>
 </section>
 
-<section id="relics" class="tab">
-  <div class="card">
-    <h2>💎 Your Relics</h2>
-    <p>Gold variants sell for twice the estimated value of their normal versions.</p>
-    <div class="grid">
-      <div class="item"><strong>💎 Total relics:</strong> <span id="normalRelicCount">0</span></div>
-      <div class="item"><strong>✨ Gold relics:</strong> <span id="goldRelicCount">0</span></div>
-    </div>
-    <div id="inventoryGrid" class="grid" style="margin-top:12px"></div>
+<section id="relics" class="page">
+  <div class="row space">
+    <div><h1>💎 Your Relics</h1><p>Every relic you own, including duplicates and Gold variants.</p></div>
+    <select id="relicFilter" onchange="renderRelics()">
+      <option value="all">All Relics</option>
+      <option value="normal">Normal Only</option>
+      <option value="gold">Gold Only</option>
+      <option value="owned">Unique Types Owned</option>
+    </select>
   </div>
+  <div class="notice">📦 Each card displays exactly how many copies you own. Normal and Gold versions have separate counts.</div>
+  <div class="grid" id="relicsGrid"></div>
 </section>
 
-<section id="shop" class="tab">
-  <div class="card">
-    <h2>⚔️ Weapon Shop</h2>
-    <p>Upgrade your weapon to deal more damage. Your weapon upgrades are saved.</p>
-    <div class="grid">
-      <div class="item"><div class="big-icon">🗡️</div><h3>Iron Sword</h3><p>Damage: 1</p><p>Price: Free</p><button onclick="buyWeapon(1)">Equip Iron Sword</button></div>
-      <div class="item"><div class="big-icon">⚔️</div><h3>Steel Sword</h3><p>Damage: 2</p><p>Price: <strong>250 coins</strong></p><button onclick="buyWeapon(2)">Buy Steel Sword</button></div>
-      <div class="item"><div class="big-icon">⚡</div><h3>Plasma Blade</h3><p>Damage: 4</p><p>Price: <strong>600 coins</strong></p><button onclick="buyWeapon(3)">Buy Plasma Blade</button></div>
-    </div>
-    <p class="muted">Purchase upgrades in order: Steel Sword before Plasma Blade.</p>
+<section id="shop" class="page">
+  <div class="hero">
+    <h1>🛒 Upgrade Shop</h1>
+    <p>Spend coins to become stronger in the zombie arena.</p>
+    <div class="stat">🪙 Coins: <span id="shopCoins">500</span></div>
   </div>
+  <div class="grid" id="shopGrid"></div>
 </section>
 
-<section id="market" class="tab">
-  <div class="card">
-    <h2>🏪 Relic Marketplace</h2>
-    <p>Choose a relic, set your own asking price, and publish your listing. There are no bot buyers.</p>
-    <p><strong>Note:</strong> Listings are stored in this browser and are not shared with other players online.</p>
-    <label for="marketRelic">Relic to list</label>
-    <select id="marketRelic"></select>
-    <label for="askingPrice">Asking price (coins)</label>
-    <input id="askingPrice" type="number" min="1" step="1" placeholder="Enter your price">
-    <p id="suggestedValue" class="muted"></p>
-    <button onclick="listRelic()">Publish Listing</button>
+<section id="market" class="page">
+  <div class="hero">
+    <h1>🏪 Relic Market</h1>
+    <p>Sell spare relic copies for coins. Selling one copy never removes your other copies.</p>
   </div>
-  <div class="card"><h2>📋 Your Listings</h2><div id="listingGrid" class="grid"></div></div>
+  <div class="grid" id="marketGrid"></div>
 </section>
 
-<section id="records" class="tab">
-  <div class="card">
-    <h2>📊 Personal Records</h2>
-    <p>Your records are saved in this browser. They are not a shared online leaderboard.</p>
-    <div class="grid">
-      <div class="item"><div class="big-icon">🌊</div><p>Highest Wave</p><h2 id="recordWave">0</h2></div>
-      <div class="item"><div class="big-icon">🧟</div><p>Total Kills</p><h2 id="recordKills">0</h2></div>
-      <div class="item"><div class="big-icon">👑</div><p>Bosses Defeated</p><h2 id="recordBosses">0</h2></div>
-      <div class="item"><div class="big-icon">⏱️</div><p>Longest Run</p><h2 id="recordTime">0:00</h2></div>
-      <div class="item"><div class="big-icon">💎</div><p>Relics Collected</p><h2 id="recordRelics">0</h2></div>
-      <div class="item"><div class="big-icon">✨</div><p>Gold Relics Found</p><h2 id="recordGoldRelics">0</h2></div>
-      <div class="item"><div class="big-icon">🪙</div><p>Most Coins Held</p><h2 id="recordCoins">0</h2></div>
-    </div>
+<section id="records" class="page">
+  <div class="hero">
+    <h1>📜 Your Records</h1>
+    <p>Track your collection and survival progress.</p>
   </div>
-  <div class="card">
-    <h2>📈 Personal Leaderboard</h2>
-    <p class="muted">Your best recorded runs, ranked by highest wave and then kills.</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Rank</th><th>Wave</th><th>Kills</th><th>Bosses</th><th>Duration</th><th>Result</th></tr></thead>
-        <tbody id="leaderboardBody"></tbody>
-      </table>
-    </div>
+  <div class="grid">
+    <div class="card"><p>Total packs opened</p><h2 id="packsOpened">0</h2></div>
+    <div class="card"><p>Total coins earned</p><h2 id="coinsEarned">0</h2></div>
+    <div class="card"><p>Total zombies defeated</p><h2 id="recordKills">0</h2></div>
+    <div class="card"><p>Highest wave</p><h2 id="highestWave">1</h2></div>
   </div>
-  <div class="card">
-    <h2>📜 Recent Run History</h2>
-    <div id="historyGrid" class="grid"></div>
-  </div>
+  <div class="card" style="margin-top:15px"><h3>Recent Discoveries</h3><div id="recentDiscoveries"></div></div>
+  <div style="margin-top:15px"><button class="btn danger" onclick="resetGame()">Reset All Progress</button></div>
 </section>
 
-<section id="achievements" class="tab">
-  <div class="card">
-    <h2>🏆 Achievements</h2>
-    <p>Complete challenges to earn coin rewards. Each achievement can be unlocked once.</p>
-    <div class="grid" id="achievementGrid"></div>
+<section id="achievements" class="page">
+  <div class="hero">
+    <h1>🏆 Achievements</h1>
+    <p>Unlock milestones as your collection grows.</p>
   </div>
+  <div class="grid" id="achievementsGrid"></div>
 </section>
 </main>
 
-<footer>Relic Rush • Your adventure is saved in this browser.</footer>
+<footer>RELIC RUSH • Your collection is saved on this device.</footer>
+
+<div class="overlay" id="revealOverlay" onclick="if(event.target===this)closeReveal()">
+  <div class="reveal" id="revealCard">
+    <div class="tag" id="revealTag">RELIC DISCOVERED</div>
+    <div class="reveal-icon" id="revealIcon">💎</div>
+    <h2 id="revealName">Crystal Relic</h2>
+    <div id="revealRarity"></div>
+    <p id="revealDescription"></p>
+    <div class="owned" id="revealOwned">Owned: 1</div>
+    <p style="color:var(--green);font-weight:bold">✓ Automatically added to your inventory!</p>
+    <div class="row" style="justify-content:center;margin-top:18px">
+      <button class="btn" onclick="closeReveal()">Awesome!</button>
+      <button class="btn secondary" onclick="closeReveal();go('relics')">View Collection</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
 
 <script>
 "use strict";
 
-const SAVE_KEY="relicRushSave";
+const SAVE_KEY = "relicRushSave_v3";
 
-const relicDefinitions=[
- {name:"Forest Shard",emoji:"🌿",rarity:"Common",base:10,supply:100000,weight:55},
- {name:"Stone Rune",emoji:"🪨",rarity:"Common",base:12,supply:85000,weight:45},
- {name:"Moon Crystal",emoji:"🌙",rarity:"Rare",base:25,supply:25000,weight:20},
- {name:"Frost Relic",emoji:"❄️",rarity:"Rare",base:30,supply:18000,weight:16},
- {name:"Dragon Eye",emoji:"🐉",rarity:"Epic",base:60,supply:5000,weight:6},
- {name:"Phantom Heart",emoji:"💜",rarity:"Epic",base:75,supply:2500,weight:4},
- {name:"Solar Crown",emoji:"👑",rarity:"Legendary",base:150,supply:250,weight:1.1},
- {name:"Void Core",emoji:"🌌",rarity:"Legendary",base:200,supply:50,weight:.4}
+const PACKS = [
+  {id:"starter",name:"Starter Pack",icon:"📦",price:25,color:"#8b35ff",weights:[60,25,11,4],description:"A good place to begin."},
+  {id:"cosmic",name:"Cosmic Pack",icon:"🌌",price:75,color:"#5e8dff",weights:[35,35,22,8],description:"Treasures from beyond the stars."},
+  {id:"inferno",name:"Inferno Pack",icon:"🔥",price:150,color:"#ff5a39",weights:[15,30,35,20],description:"Forged in legendary flames."},
+  {id:"mythic",name:"Mythic Pack",icon:"🐉",price:300,color:"#d14dff",weights:[5,15,35,45],description:"Packed with powerful relics."},
+  {id:"ocean",name:"Ocean Pack",icon:"🌊",price:125,color:"#22c7d8",weights:[20,35,30,15],description:"Treasures from the deep."},
+  {id:"shadow",name:"Shadow Pack",icon:"🌑",price:200,color:"#8b6cff",weights:[10,25,40,25],description:"Mysterious relics of darkness."},
+  {id:"ancient",name:"Ancient Pack",icon:"🏺",price:250,color:"#c58a54",weights:[8,22,38,32],description:"Artifacts from a lost civilization."},
+  {id:"royal",name:"Royal Pack",icon:"👑",price:400,color:"#ffcc58",weights:[5,15,30,50],description:"A royal selection of relics."},
+  {id:"galaxy",name:"Galaxy Pack",icon:"🪐",price:550,color:"#4c82ff",weights:[3,12,30,55],description:"A whole universe of possibilities."},
+  {id:"celestial",name:"Celestial Pack",icon:"✨",price:800,color:"#ff8cce",weights:[1,9,25,65],description:"Extremely rare celestial treasure."}
 ];
 
-const packDefinitions=[
- {name:"Starter Pack",cost:25,stock:10,weights:[60,25,11,4]},
- {name:"Cosmic Pack",cost:75,stock:5,weights:[35,35,22,8]},
- {name:"Inferno Pack",cost:150,stock:3,weights:[15,30,35,20]},
- {name:"Mythic Pack",cost:300,stock:1,weights:[5,15,35,45]}
+const RELICS = [
+  {id:"crystal",name:"Crystal Shard",icon:"💎",rarity:"Common",value:10,description:"A sparkling fragment of crystal."},
+  {id:"leaf",name:"Ancient Leaf",icon:"🍃",rarity:"Common",value:12,description:"A leaf preserved by ancient magic."},
+  {id:"stone",name:"Runestone",icon:"🪨",rarity:"Common",value:15,description:"A stone with mysterious markings."},
+  {id:"shell",name:"Ocean Shell",icon:"🐚",rarity:"Common",value:16,description:"A shell from the ocean floor."},
+  {id:"moon",name:"Moon Fragment",icon:"🌙",rarity:"Rare",value:30,description:"A fragment with lunar energy."},
+  {id:"flame",name:"Eternal Flame",icon:"🔥",rarity:"Rare",value:35,description:"A flame that never goes out."},
+  {id:"frost",name:"Frost Core",icon:"❄️",rarity:"Rare",value:38,description:"A core cold enough to freeze time."},
+  {id:"shadow",name:"Shadow Orb",icon:"🔮",rarity:"Epic",value:70,description:"An orb containing living shadows."},
+  {id:"dragon",name:"Dragon Scale",icon:"🐉",rarity:"Epic",value:85,description:"A scale from a mythical dragon."},
+  {id:"storm",name:"Storm Heart",icon:"⚡",rarity:"Epic",value:95,description:"A heart crackling with storm energy."},
+  {id:"crown",name:"Lost King's Crown",icon:"👑",rarity:"Legendary",value:180,description:"A crown belonging to a forgotten king."},
+  {id:"star",name:"Fallen Star",icon:"🌟",rarity:"Legendary",value:220,description:"A star that fell from the heavens."},
+  {id:"phoenix",name:"Phoenix Relic",icon:"🪽",rarity:"Legendary",value:260,description:"A relic of rebirth and eternal fire."},
+  {id:"void",name:"Heart of the Void",icon:"🌀",rarity:"Legendary",value:300,description:"A legendary treasure from beyond reality."}
 ];
 
-const achievements=[
- {id:"wave1",title:"First Steps",icon:"👣",description:"Complete your first wave.",reward:10,check:s=>s.records.highestWave>=2},
- {id:"wave5",title:"Survivor",icon:"🛡️",description:"Reach wave 5.",reward:30,check:s=>s.records.highestWave>=5},
- {id:"wave10",title:"Zombie Hunter",icon:"🧟",description:"Reach wave 10.",reward:75,check:s=>s.records.highestWave>=10},
- {id:"kills25",title:"Getting Started",icon:"⚔️",description:"Defeat 25 zombies.",reward:20,check:s=>s.records.totalKills>=25},
- {id:"kills100",title:"Slayer",icon:"🔥",description:"Defeat 100 zombies.",reward:60,check:s=>s.records.totalKills>=100},
- {id:"boss1",title:"Boss Breaker",icon:"👑",description:"Defeat your first boss.",reward:30,check:s=>s.records.bossesDefeated>=1},
- {id:"boss5",title:"Boss Legend",icon:"🐉",description:"Defeat 5 bosses.",reward:100,check:s=>s.records.bossesDefeated>=5},
- {id:"relic5",title:"Collector",icon:"💎",description:"Collect 5 relics.",reward:25,check:s=>s.records.relicsCollected>=5},
- {id:"relic15",title:"Treasure Hunter",icon:"🏺",description:"Collect 15 relics.",reward:75,check:s=>s.records.relicsCollected>=15},
- {id:"coins500",title:"Coin Saver",icon:"🪙",description:"Hold 500 coins at once.",reward:25,check:s=>s.records.mostCoins>=500},
- {id:"legendary",title:"Legendary Luck",icon:"✨",description:"Collect a legendary relic.",reward:100,check:s=>s.records.legendaryFound},
- {id:"gold1",title:"Golden Find",icon:"✨",description:"Collect your first Gold relic.",reward:50,check:s=>(s.records.goldRelicsFound||0)>=1},
- {id:"gold5",title:"Golden Collector",icon:"🌟",description:"Collect 5 Gold relics.",reward:150,check:s=>(s.records.goldRelicsFound||0)>=5}
-];
+const RARITIES = ["Common","Rare","Epic","Legendary"];
+const RARITY_CLASS = {Common:"common",Rare:"rare",Epic:"epic",Legendary:"legendary"};
 
-function makeId(){
- return "r"+Date.now().toString(36)+Math.random().toString(36).slice(2,9);
-}
-function newRecords(){
- return {highestWave:0,totalKills:0,bossesDefeated:0,longestRun:0,relicsCollected:0,goldRelicsFound:0,mostCoins:0,legendaryFound:false};
-}
-function newSave(){
- return {
-  coins:0,weapon:1,bestWave:0,inventory:[],listings:[],dailyDate:"",
-  wave:1,kills:0,packStock:[10,5,3,1],nextRestock:Date.now()+300000,
-  records:newRecords(),achievements:[],runHistory:[],nextRunId:1
- };
-}
-function loadSave(){
- let data=null;
- try{data=JSON.parse(localStorage.getItem(SAVE_KEY)||"null")}catch(e){}
- const s=Object.assign(newSave(),data||{});
- if(!Array.isArray(s.inventory))s.inventory=[];
- if(!Array.isArray(s.listings))s.listings=[];
- if(!Array.isArray(s.packStock))s.packStock=[10,5,3,1];
- if(!Array.isArray(s.achievements))s.achievements=[];
- if(!Array.isArray(s.runHistory))s.runHistory=[];
- s.records=Object.assign(newRecords(),s.records||{});
-
- s.inventory=s.inventory.map(r=>{
-  const def=relicDefinitions.find(d=>d.name===r.name)||{};
+function freshGame(){
   return {
-   ...def,...r,
-   id:r.id||makeId(),
-   emoji:r.emoji||def.emoji||"💎",
-   rarity:r.rarity||def.rarity||"Common",
-   base:r.base||def.base||10,
-   supply:r.supply||def.supply||10000,
-   isGold:r.isGold===true
+    coins:500,
+    inventory:{},
+    packsOpened:0,
+    kills:0,
+    coinsEarned:0,
+    wave:1,
+    highestWave:1,
+    health:100,
+    damage:10,
+    weaponLevel:0,
+    lastDaily:"",
+    recent:[],
+    achievements:[],
+    zombieHP:30,
+    zombiesLeft:5,
+    totalSold:0
   };
- });
- s.listings=s.listings.map(l=>({...l,id:l.id||makeId(),isGold:l.isGold===true}));
- s.coins=Math.max(0,Number(s.coins)||0);
- s.weapon=Math.min(3,Math.max(1,Number(s.weapon)||1));
- s.wave=Math.max(1,Number(s.wave)||1);
- s.bestWave=Math.max(0,Number(s.bestWave)||0);
- s.kills=Math.max(0,Number(s.kills)||0);
- if(!Number(s.nextRestock)||s.nextRestock<Date.now())s.nextRestock=Date.now()+300000;
- s.records.highestWave=Math.max(s.records.highestWave||0,s.bestWave||0);
- s.records.totalKills=Math.max(s.records.totalKills||0,s.kills||0);
- s.records.relicsCollected=Math.max(s.records.relicsCollected||0,s.inventory.length);
- s.records.goldRelicsFound=Math.max(
-  Number(s.records.goldRelicsFound)||0,
-  s.inventory.filter(r=>r.isGold).length
- );
- s.nextRunId=Number(s.nextRunId)||1;
- return s;
 }
 
-let save=loadSave();
-let pendingRelic=null,openingPack=false,openingInterval=null;
-let gameRunning=false,player={x:450,y:250,hp:100,maxHp:100,speed:3.3};
-let zombies=[],keys={},direction={x:0,y:0},lastAttack=0,lastFrame=0;
-let animationId=null,nextZombieId=1,waveStarted=false;
-let currentRun=null,lastRunSaved=false;
-
-const canvas=document.getElementById("gameCanvas");
-const ctx=canvas.getContext("2d");
+function loadGame(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw)return freshGame();
+    const parsed=JSON.parse(raw);
+    return {...freshGame(),...parsed,inventory:parsed.inventory||{}};
+  }catch(e){
+    return freshGame();
+  }
+}
+let game=loadGame();
 
 function saveGame(){
- try{localStorage.setItem(SAVE_KEY,JSON.stringify(save))}catch(e){console.warn("Save failed",e)}
- updateStats();
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(game));}
+  catch(e){console.warn("Could not save progress.",e);}
 }
-function updateStats(){
- document.getElementById("coinCount").textContent=save.coins.toLocaleString();
- document.getElementById("bestWave").textContent=save.bestWave;
- document.getElementById("relicCount").textContent=save.inventory.length;
- document.getElementById("weaponName").textContent=["","Iron Sword","Steel Sword","Plasma Blade"][save.weapon];
- document.getElementById("waveText").textContent=save.wave;
- document.getElementById("healthText").textContent=Math.ceil(player.hp);
- document.getElementById("zombieText").textContent=zombies.length;
- document.getElementById("damageText").textContent=weaponDamage();
- document.getElementById("healthBar").style.width=Math.max(0,player.hp/player.maxHp*100)+"%";
+function esc(s){
+  return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function toast(message){
+  const el=document.getElementById("toast");
+  el.textContent=message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer=setTimeout(()=>el.classList.remove("show"),2600);
+}
+function go(page){
+  document.querySelectorAll(".page").forEach(el=>el.classList.toggle("active",el.id===page));
+  document.querySelectorAll("nav button").forEach(el=>el.classList.toggle("active",el.dataset.page===page));
+  if(page==="relics")renderRelics();
+  if(page==="market")renderMarket();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>go(btn.dataset.page)));
 
- document.getElementById("normalRelicCount").textContent=save.inventory.filter(r=>!r.isGold).length;
- document.getElementById("goldRelicCount").textContent=save.inventory.filter(r=>r.isGold).length;
- document.getElementById("recordGoldRelics").textContent=save.records.goldRelicsFound||0;
+function ownedKey(relicId,gold){
+  return relicId+(gold?"_gold":"_normal");
+}
+function getOwned(relicId,gold=false){
+  return Number(game.inventory[ownedKey(relicId,gold)]||0);
+}
+function addRelic(relic,gold){
+  const key=ownedKey(relic.id,gold);
+  game.inventory[key]=(game.inventory[key]||0)+1;
+  game.recent.unshift({id:relic.id,gold,time:Date.now()});
+  game.recent=game.recent.slice(0,12);
+}
+function allOwnedCopies(){
+  return Object.values(game.inventory).reduce((a,b)=>a+(Number(b)||0),0);
+}
+function uniqueOwned(){
+  return Object.keys(game.inventory).filter(k=>game.inventory[k]>0).length;
+}
+function totalGold(){
+  return Object.keys(game.inventory).filter(k=>k.endsWith("_gold")).reduce((n,k)=>n+game.inventory[k],0);
+}
+function relicById(id){return RELICS.find(r=>r.id===id);}
+function ownedValue(){
+  return Object.entries(game.inventory).reduce((sum,[key,count])=>{
+    const gold=key.endsWith("_gold");
+    const id=key.replace(/_gold$|_normal$/,"");
+    const relic=relicById(id);
+    return sum+(relic?relic.value*(gold?2:1)*count:0);
+  },0);
+}
+function rarityTag(rarity){
+  return `<span class="tag ${RARITY_CLASS[rarity]||""}">${rarity}</span>`;
+}
+function relicMarkup(relic,gold,count,extraClass=""){
+  return `<div class="card relic-card ${gold?"gold-relic":""} ${extraClass}">
+    <div class="relic-icon">${gold?"✨":""}${relic.icon}</div>
+    <h3>${gold?"Gold "+esc(relic.name):esc(relic.name)}</h3>
+    ${rarityTag(relic.rarity)} ${gold?'<span class="tag gold-tag">GOLD</span>':""}
+    <p>${esc(relic.description)}</p>
+    <div class="owned">📦 Owned: <b>${count}</b></div>
+    <p>Value: <b>${relic.value*(gold?2:1)} 🪙</b> each</p>
+  </div>`;
+}
 
- const claimed=save.dailyDate===new Date().toDateString();
- document.getElementById("dailyButton").disabled=claimed;
- document.getElementById("dailyStatus").textContent=claimed?"Today's reward has already been claimed.":"Your 50-coin reward is ready!";
+function rollRarity(weights){
+  let n=Math.random()*weights.reduce((a,b)=>a+b,0);
+  for(let i=0;i<weights.length;i++){
+    n-=weights[i];
+    if(n<0)return RARITIES[i];
+  }
+  return "Common";
 }
-function showTab(id,button){
- document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
- document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
- const section=document.getElementById(id);
- if(!section)return;
- section.classList.add("active");
- if(button)button.classList.add("active");
- else{
-  const navButton=[...document.querySelectorAll("nav button")].find(b=>b.getAttribute("onclick")?.includes("'"+id+"'"));
-  if(navButton)navButton.classList.add("active");
- }
- if(id==="relics")renderInventory();
- if(id==="market")renderMarket();
- if(id==="packs")renderPacks();
- if(id==="records"||id==="achievements")renderRecords();
- if(id!=="zombies"){keys={};direction={x:0,y:0}}else drawGame();
+function openPack(id){
+  const pack=PACKS.find(p=>p.id===id);
+  if(!pack)return;
+  if(game.coins<pack.price){
+    toast("Not enough coins for this pack!");
+    return;
+  }
+  game.coins-=pack.price;
+  game.packsOpened++;
+
+  const rarity=rollRarity(pack.weights);
+  const choices=RELICS.filter(r=>r.rarity===rarity);
+  const relic=choices[Math.floor(Math.random()*choices.length)];
+
+  // Gold chance: about 39.4% of all relic pulls are Gold.
+  const gold=Math.random()<(0.65/1.65);
+
+  // The relic is added to the saved inventory immediately.
+  addRelic(relic,gold);
+  saveGame();
+  updateAll();
+  showReveal(relic,gold,pack);
 }
-function claimDaily(){
- const today=new Date().toDateString();
- if(save.dailyDate===today)return;
- save.dailyDate=today;save.coins+=50;updateCoinRecord();saveGame();checkAchievements();updateStats();
+
+function showReveal(relic,gold,pack){
+  const overlay=document.getElementById("revealOverlay");
+  document.getElementById("revealCard").classList.toggle("gold-reveal",gold);
+  document.getElementById("revealTag").textContent=gold?"✨ GOLD RELIC DISCOVERED!":"RELIC DISCOVERED!";
+  document.getElementById("revealIcon").textContent=relic.icon;
+  document.getElementById("revealName").textContent=(gold?"Gold ":"")+relic.name;
+  document.getElementById("revealRarity").innerHTML=rarityTag(relic.rarity)+(gold?' <span class="tag gold-tag">GOLD</span>':"");
+  document.getElementById("revealDescription").textContent=relic.description+" Found in "+pack.name+".";
+  document.getElementById("revealOwned").textContent="📦 Owned: "+getOwned(relic.id,gold);
+  overlay.classList.add("show");
 }
-function weaponDamage(){return [0,1,2,4][save.weapon]||1}
-function buyWeapon(level){
- const prices={1:0,2:250,3:600};
- if(!Object.prototype.hasOwnProperty.call(prices,level))return;
- if(level===1){save.weapon=1;saveGame();renderShop();alert("Iron Sword equipped!");return}
- if(level<=save.weapon){alert("You already own this weapon or a better one!");return}
- if(level===3&&save.weapon<2){alert("Buy the Steel Sword first!");return}
- if(save.coins<prices[level]){alert("You need "+(prices[level]-save.coins)+" more coins!");return}
- save.coins-=prices[level];save.weapon=level;saveGame();renderShop();updateStats();alert("Weapon upgraded!");
+function closeReveal(){
+  document.getElementById("revealOverlay").classList.remove("show");
+}
+
+function renderPacks(){
+  const html=PACKS.map(pack=>`
+    <div class="card pack-card" style="--pack-color:${pack.color}">
+      <div class="pack-icon">${pack.icon}</div>
+      <h3>${esc(pack.name)}</h3>
+      <p>${esc(pack.description)}</p>
+      <div class="price">🪙 ${pack.price}</div>
+      <div class="small muted">Common ${pack.weights[0]}% • Rare ${pack.weights[1]}% • Epic ${pack.weights[2]}% • Legendary ${pack.weights[3]}%</div>
+      <button class="btn full" onclick="openPack('${pack.id}')" ${game.coins<pack.price?"disabled":""}>Open Pack</button>
+    </div>`).join("");
+  document.getElementById("packsGrid").innerHTML=html;
+  document.getElementById("featuredPacks").innerHTML=PACKS.slice(0,3).map(pack=>`
+    <div class="card pack-card" style="--pack-color:${pack.color}">
+      <div class="pack-icon">${pack.icon}</div><h3>${esc(pack.name)}</h3>
+      <div class="price">🪙 ${pack.price}</div>
+      <button class="btn full" onclick="openPack('${pack.id}')" ${game.coins<pack.price?"disabled":""}>Open Pack</button>
+    </div>`).join("");
+}
+
+function renderRelics(){
+  const filter=document.getElementById("relicFilter").value;
+  const cards=[];
+  RELICS.forEach(relic=>{
+    const normal=getOwned(relic.id,false);
+    const gold=getOwned(relic.id,true);
+    if(filter==="all"||filter==="normal"||filter==="owned"){
+      if(filter!=="owned"||normal>0)cards.push({relic,gold:false,count:normal});
+    }
+    if(filter==="all"||filter==="gold"){
+      if(filter==="gold"||gold>0)cards.push({relic,gold:true,count:gold});
+    }
+  });
+  if(filter==="normal"){
+    // Keep every normal relic visible so unowned items show Owned: 0.
+  }else if(filter==="gold"){
+    // Keep every Gold relic visible so unowned items show Owned: 0.
+  }else if(filter==="owned"){
+    // Only normal relic types with at least one copy are shown.
+  }
+  document.getElementById("relicsGrid").innerHTML=cards.length
+    ?cards.map(c=>relicMarkup(c.relic,c.gold,c.count)).join("")
+    :'<div class="empty">No relics found. Open a pack to discover your first treasure!</div>';
+}
+
+const UPGRADES=[
+  {id:"damage",name:"Stronger Weapon",icon:"⚔️",description:"+5 damage per upgrade.",base:100},
+  {id:"health",name:"Health Boost",icon:"❤️",description:"+20 maximum health and restore health.",base:80},
+  {id:"loot",name:"Coin Bonus",icon:"🪙",description:"Earn extra coins from every zombie defeat.",base:150}
+];
+function upgradePrice(item){
+  if(item.id==="damage")return item.base+game.weaponLevel*70;
+  if(item.id==="health")return item.base+Math.floor(game.health/20)*30;
+  return item.base+Math.floor(game.kills/5)*25;
+}
+function buyUpgrade(id){
+  const item=UPGRADES.find(x=>x.id===id);
+  if(!item)return;
+  const price=upgradePrice(item);
+  if(game.coins<price){toast("Not enough coins!");return;}
+  game.coins-=price;
+  if(id==="damage"){game.damage+=5;game.weaponLevel++;}
+  if(id==="health")game.health=Math.min(100+game.weaponLevel*10,game.health+20);
+  if(id==="loot")game.coinsEarned+=0;
+  saveGame();updateAll();renderShop();
+  toast(item.name+" purchased!");
 }
 function renderShop(){
- document.querySelectorAll("#shop .item button").forEach((b,i)=>{
-  const level=i+1;
-  b.textContent=level===1?(save.weapon===1?"✓ Iron Sword Equipped":"Equip Iron Sword"):
-   level===2?(save.weapon>=2?"✓ Steel Sword Owned":"Buy Steel Sword — 250 Coins"):
-   (save.weapon>=3?"✓ Plasma Blade Owned":"Buy Plasma Blade — 600 Coins");
- });
-}
-function rarityClass(r){return String(r||"Common").toLowerCase()}
-function estimatedValue(r){
- const def=relicDefinitions.find(d=>d.name===r.name);
- const base=Number(r.base)||(def?def.base:10);
- const supply=Number(r.supply)||(def?def.supply:10000);
- const scarcity=Math.max(1,Math.min(4,Math.sqrt(10000/Math.max(1,supply))));
- const multiplier=({Common:1,Rare:1.5,Epic:2,Legendary:3}[r.rarity]||1);
- const normalValue=Math.max(1,Math.round(base*scarcity*multiplier));
- return r.isGold?normalValue*2:normalValue;
+  document.getElementById("shopGrid").innerHTML=UPGRADES.map(item=>{
+    const price=upgradePrice(item);
+    return `<div class="card">
+      <div class="pack-icon">${item.icon}</div><h3>${item.name}</h3><p>${item.description}</p>
+      ${item.id==="damage"?`<div class="owned">Current damage: ${game.damage}</div>`:""}
+      <div class="price">🪙 ${price}</div>
+      <button class="btn full" onclick="buyUpgrade('${item.id}')" ${game.coins<price?"disabled":""}>Purchase Upgrade</button>
+    </div>`;
+  }).join("");
 }
 
-/* Gold odds:
-   A Gold version has 0.65 times the chance of its normal counterpart.
-   Gold : normal = 0.65 : 1.
-   Thus the conditional Gold chance is 0.65 / 1.65.
-   Existing pack rarity odds are unchanged.
-*/
-function rollRelic(weights){
- const groups=[
-  relicDefinitions.filter(r=>r.rarity==="Common"),
-  relicDefinitions.filter(r=>r.rarity==="Rare"),
-  relicDefinitions.filter(r=>r.rarity==="Epic"),
-  relicDefinitions.filter(r=>r.rarity==="Legendary")
- ];
- const total=weights.reduce((a,b)=>a+b,0);
- let roll=Math.random()*total,gi=0;
- for(let i=0;i<weights.length;i++){
-  roll-=weights[i];
-  if(roll<=0){gi=i;break}
- }
- const group=groups[gi];
- const gt=group.reduce((a,r)=>a+r.weight,0);
- let pick=Math.random()*gt,selected=group[group.length-1];
- for(const r of group){
-  pick-=r.weight;
-  if(pick<=0){selected=r;break}
- }
- const isGold=Math.random()<(0.65/1.65);
- return {...selected,id:makeId(),obtainedAt:Date.now(),isGold};
-}
-function relicLabel(r){
- return escapeHtml(r.name)+(r.isGold?' <span class="gold-label">GOLD</span>':'');
-}
-function relicIcon(r){return r.isGold?"✨"+r.emoji:r.emoji}
-function renderPacks(){
- const box=document.getElementById("packGrid");box.innerHTML="";
- packDefinitions.forEach((p,i)=>{
-  const stock=Number(save.packStock[i])||0,div=document.createElement("div");
-  div.className="item";
-  div.innerHTML=`<div class="big-icon">🎁</div><h3>${p.name}</h3><p>Cost: <strong>${p.cost} coins</strong></p><p>Stock: <strong>${stock}</strong></p><button ${stock<=0||openingPack?"disabled":""} onclick="openPack(${i})">Open Pack</button>`;
-  box.appendChild(div);
- });
-}
-function openPack(i){
- if(openingPack)return;
- const p=packDefinitions[i];
- if(!p||save.packStock[i]<=0){alert("Out of stock. Wait for restock!");return}
- if(save.coins<p.cost){alert("You need "+(p.cost-save.coins)+" more coins!");return}
- save.coins-=p.cost;save.packStock[i]--;saveGame();
- pendingRelic=rollRelic(p.weights);openingPack=true;
- document.getElementById("packResult").style.display="block";
- document.getElementById("packTitle").textContent="Opening "+p.name+"...";
- document.getElementById("packDescription").textContent="Searching for a relic...";
- document.getElementById("collectButton").style.display="none";
- renderPacks();
- let spins=0;
- if(openingInterval)clearInterval(openingInterval);
- openingInterval=setInterval(()=>{
-  const random=relicDefinitions[Math.floor(Math.random()*relicDefinitions.length)];
-  document.getElementById("reel").textContent=random.emoji;
-  spins++;
-  if(spins>=18){
-   clearInterval(openingInterval);openingInterval=null;
-   document.getElementById("reel").textContent=pendingRelic.isGold?"✨"+pendingRelic.emoji:pendingRelic.emoji;
-   document.getElementById("packTitle").innerHTML=relicLabel(pendingRelic);
-   document.getElementById("packDescription").innerHTML=
-    `<span class="${rarityClass(pendingRelic.rarity)}">${escapeHtml(pendingRelic.rarity)}</span>`+
-    (pendingRelic.isGold?' <span class="gold-label">GOLD VARIANT</span>':'')+
-    ` relic! Estimated value: ${estimatedValue(pendingRelic).toLocaleString()} coins.`+
-    (pendingRelic.isGold?' <span class="gold-text">2× value!</span>':'');
-   document.getElementById("collectButton").style.display="inline-block";
-  }
- },150);
-}
-function collectPack(){
- if(!pendingRelic)return;
- const collected=pendingRelic;
- save.inventory.push(collected);
- save.records.relicsCollected++;
- if(collected.isGold)save.records.goldRelicsFound=(save.records.goldRelicsFound||0)+1;
- if(collected.rarity==="Legendary")save.records.legendaryFound=true;
- pendingRelic=null;openingPack=false;
- document.getElementById("packResult").style.display="none";
- updateCoinRecord();saveGame();checkAchievements();renderPacks();renderInventory();
- alert((collected.isGold?"✨ GOLD RELIC FOUND: ":"Relic collected: ")+collected.name+"!");
-}
-function renderInventory(){
- const box=document.getElementById("inventoryGrid");box.innerHTML="";
- document.getElementById("normalRelicCount").textContent=save.inventory.filter(r=>!r.isGold).length;
- document.getElementById("goldRelicCount").textContent=save.inventory.filter(r=>r.isGold).length;
- if(!save.inventory.length){box.innerHTML='<p class="muted">No relics yet. Open a pack to collect one!</p>';return}
- save.inventory.forEach(r=>{
-  const listed=save.listings.some(l=>l.relicId===r.id),div=document.createElement("div");
-  div.className="item"+(r.isGold?" gold-relic":"");
-  div.innerHTML=`<div class="big-icon">${relicIcon(r)}</div><h3>${relicLabel(r)}</h3><p class="${rarityClass(r.rarity)}">${escapeHtml(r.rarity)}${r.isGold?' · Gold Variant':''}</p><p>Estimated value: <strong>${estimatedValue(r).toLocaleString()} coins</strong> ${r.isGold?'<span class="gold-text">(2× value)</span>':''}</p><p>Illustrative supply: ${Number(r.supply).toLocaleString()}</p><button class="danger" ${listed?"disabled":""} onclick="sellRelic('${r.id}')">${listed?"Listed on Marketplace":"Sell to Shop"}</button>`;
-  box.appendChild(div);
- });
-}
-function escapeHtml(v){
- return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-function sellRelic(id){
- const i=save.inventory.findIndex(r=>r.id===id);if(i<0)return;
- const r=save.inventory[i],value=estimatedValue(r);
- if(!confirm("Sell "+(r.isGold?"Gold ":"")+r.name+" for "+value+" coins?"))return;
- save.inventory.splice(i,1);save.coins+=value;updateCoinRecord();saveGame();checkAchievements();renderInventory();renderMarket();
-}
 function renderMarket(){
- const sel=document.getElementById("marketRelic"),old=sel.value;
- sel.innerHTML="";
- const available=save.inventory.filter(r=>!save.listings.some(l=>l.relicId===r.id));
- if(!available.length){sel.add(new Option("No unlisted relics available",""))}
- else{
-  available.forEach(r=>sel.add(new Option((r.isGold?"✨ GOLD ":"")+r.name+" — estimated "+estimatedValue(r)+" coins",r.id)));
-  if(available.some(r=>r.id===old))sel.value=old;
- }
- sel.onchange=updateSuggestedPrice;updateSuggestedPrice();
- const box=document.getElementById("listingGrid");box.innerHTML="";
- if(!save.listings.length){box.innerHTML='<p class="muted">You have no active listings.</p>';return}
- save.listings.forEach(l=>{
-  const d=document.createElement("div");d.className="item"+(l.isGold?" gold-relic":"");
-  d.innerHTML=`<div class="big-icon">${l.isGold?"✨":""}${l.emoji}</div><h3>${escapeHtml(l.name)}${l.isGold?' <span class="gold-label">GOLD</span>':''}</h3><p class="${rarityClass(l.rarity)}">${escapeHtml(l.rarity)}</p><p>Your asking price: <strong>${Number(l.price).toLocaleString()} coins</strong></p><p class="muted">No automatic buyers are enabled.</p><button class="danger" onclick="cancelListing('${l.id}')">Cancel Listing</button>`;
-  box.appendChild(d);
- });
+  const cards=[];
+  RELICS.forEach(relic=>{
+    [false,true].forEach(gold=>{
+      const count=getOwned(relic.id,gold);
+      if(count>0)cards.push({relic,gold,count});
+    });
+  });
+  document.getElementById("marketGrid").innerHTML=cards.length?cards.map(c=>{
+    const value=c.relic.value*(c.gold?2:1);
+    return `<div class="card ${c.gold?"gold-relic":""}">
+      <div class="relic-icon">${c.gold?"✨":""}${c.relic.icon}</div>
+      <h3>${c.gold?"Gold ":""}${esc(c.relic.name)}</h3>
+      ${rarityTag(c.relic.rarity)}
+      <div class="owned">📦 Owned: ${c.count}</div>
+      <p>Sell value: ${value} 🪙 each</p>
+      <button class="btn full" onclick="sellRelic('${c.relic.id}',${c.gold})">Sell One</button>
+    </div>`;
+  }).join(""):'<div class="empty">Your market is empty. Open a pack to find relics to sell.</div>';
 }
-function updateSuggestedPrice(){
- const r=save.inventory.find(r=>r.id===document.getElementById("marketRelic").value);
- document.getElementById("suggestedValue").textContent=r?
-  "Estimated value: "+estimatedValue(r)+" coins. "+(r.isGold?"Gold variant — 2× normal value. ":"")+"You choose the asking price.":"Collect a relic before creating a listing.";
-}
-function listRelic(){
- const id=document.getElementById("marketRelic").value;
- const r=save.inventory.find(r=>r.id===id);
- const price=Number(document.getElementById("askingPrice").value);
- if(!r){alert("You need an unlisted relic first!");return}
- if(!Number.isSafeInteger(price)||price<1){alert("Enter a whole-number asking price of at least 1 coin.");return}
- if(save.listings.some(l=>l.relicId===id)){alert("That relic is already listed.");return}
- save.listings.push({
-  id:makeId(),relicId:r.id,name:r.name,emoji:r.emoji,
-  rarity:r.rarity,isGold:!!r.isGold,price,listedAt:Date.now()
- });
- saveGame();renderMarket();renderInventory();alert("Listing published in this browser!");
-}
-function cancelListing(id){
- save.listings=save.listings.filter(l=>l.id!==id);saveGame();renderMarket();renderInventory();
+function sellRelic(id,gold){
+  const key=ownedKey(id,gold);
+  if(!game.inventory[key]||game.inventory[key]<1){toast("You don't own that relic.");return;}
+  const relic=relicById(id);
+  game.inventory[key]--;
+  if(game.inventory[key]===0)delete game.inventory[key];
+  const value=relic.value*(gold?2:1);
+  game.coins+=value;
+  game.coinsEarned+=value;
+  game.totalSold++;
+  saveGame();updateAll();renderMarket();
+  toast("Sold for "+value+" coins!");
 }
 
-/* RECORDS, RUN HISTORY AND ACHIEVEMENTS */
-function updateCoinRecord(){
- save.records.mostCoins=Math.max(save.records.mostCoins,save.coins);
+function attackZombie(){
+  if(game.zombiesLeft<=0){toast("Wave cleared! Start the next wave.");return;}
+  if(game.health<=0){game.health=100;toast("You recovered and returned to the arena!");}
+  game.zombieHP-=game.damage;
+  if(game.zombieHP<=0){
+    game.kills++;
+    const reward=15+game.wave*4;
+    game.coins+=reward;
+    game.coinsEarned+=reward;
+    game.zombiesLeft--;
+    game.zombieHP=Math.ceil(30+game.wave*12);
+    document.getElementById("battleLog").textContent="🧟 Zombie defeated! You earned "+reward+" coins.";
+    if(game.zombiesLeft===0){
+      const bonus=25+game.wave*10;
+      game.coins+=bonus;game.coinsEarned+=bonus;
+      document.getElementById("battleLog").textContent="🏆 Wave cleared! Bonus: "+bonus+" coins. Start the next wave!";
+    }
+  }else{
+    game.health=Math.max(0,game.health-(3+Math.floor(game.wave/2)));
+    document.getElementById("battleLog").textContent="⚔️ You hit the zombie for "+game.damage+" damage. It has "+game.zombieHP+" HP left.";
+    if(game.health<=0)document.getElementById("battleLog").textContent="💤 You were overwhelmed! Heal or recover to continue.";
+  }
+  saveGame();updateAll();
 }
-function formatTime(seconds){
- seconds=Math.max(0,Math.floor(seconds||0));
- const h=Math.floor(seconds/3600),m=Math.floor((seconds%3600)/60),s=seconds%60;
- return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;
+function healPlayer(){
+  if(game.coins<40){toast("You need 40 coins to heal.");return;}
+  game.coins-=40;game.health=100;
+  saveGame();updateAll();toast("Health restored!");
 }
-function beginRun(){
- currentRun={id:save.nextRunId++,startedAt:Date.now(),highestWave:1,kills:0,bosses:0,result:"In progress"};
- lastRunSaved=false;
+function startNextWave(){
+  if(game.zombiesLeft>0){toast("Defeat the remaining zombies first!");return;}
+  game.wave++;
+  game.highestWave=Math.max(game.highestWave,game.wave);
+  game.zombiesLeft=5+Math.floor(game.wave/2);
+  game.zombieHP=30+game.wave*12;
+  game.health=100;
+  document.getElementById("battleLog").textContent="🌊 Wave "+game.wave+" begins! Stay alert.";
+  saveGame();updateAll();
 }
-function recordWave(){
- if(!currentRun)return;
- currentRun.highestWave=Math.max(currentRun.highestWave,save.wave);
- save.records.highestWave=Math.max(save.records.highestWave,save.wave);
- save.bestWave=Math.max(save.bestWave,save.wave);
+
+function claimDaily(){
+  const today=new Date().toDateString();
+  if(game.lastDaily===today){toast("You already claimed today's reward!");return;}
+  game.lastDaily=today;
+  game.coins+=150;game.coinsEarned+=150;
+  saveGame();updateAll();
+  toast("🎁 Daily reward claimed: 150 coins!");
 }
-function finishRun(result){
- if(!currentRun||lastRunSaved)return;
- lastRunSaved=true;
- currentRun.result=result;
- currentRun.endedAt=Date.now();
- currentRun.duration=Math.floor((currentRun.endedAt-currentRun.startedAt)/1000);
- save.records.longestRun=Math.max(save.records.longestRun,currentRun.duration);
- save.records.highestWave=Math.max(save.records.highestWave,currentRun.highestWave);
- save.bestWave=Math.max(save.bestWave,currentRun.highestWave);
- save.runHistory.unshift({...currentRun});
- save.runHistory=save.runHistory.slice(0,20);
- currentRun=null;
- saveGame();checkAchievements();renderRecords();
+
+const ACHIEVEMENTS=[
+  {id:"first",name:"First Discovery",icon:"💎",desc:"Own your first relic.",check:()=>allOwnedCopies()>=1},
+  {id:"ten",name:"Growing Collection",icon:"📦",desc:"Collect 10 relics.",check:()=>allOwnedCopies()>=10},
+  {id:"gold",name:"Golden Touch",icon:"✨",desc:"Find a Gold relic.",check:()=>totalGold()>=1},
+  {id:"legend",name:"Legend Hunter",icon:"👑",desc:"Own a Legendary relic.",check:()=>RELICS.some(r=>r.rarity==="Legendary"&&(getOwned(r.id,false)+getOwned(r.id,true)>0))},
+  {id:"packs",name:"Pack Addict",icon:"🎁",desc:"Open 25 packs.",check:()=>game.packsOpened>=25},
+  {id:"killer",name:"Zombie Hunter",icon:"🧟",desc:"Defeat 25 zombies.",check:()=>game.kills>=25},
+  {id:"wave",name:"Survivor",icon:"🌊",desc:"Reach wave 10.",check:()=>game.highestWave>=10},
+  {id:"rich",name:"Treasure Tycoon",icon:"🪙",desc:"Hold 2,000 coins.",check:()=>game.coins>=2000}
+];
+function renderAchievements(){
+  document.getElementById("achievementsGrid").innerHTML=ACHIEVEMENTS.map(a=>{
+    const done=game.achievements.includes(a.id);
+    return `<div class="card">
+      <div class="pack-icon">${a.icon}</div>
+      <h3>${a.name}</h3><p>${a.desc}</p>
+      <span class="tag ${done?"legendary":""}">${done?"✓ UNLOCKED":"LOCKED"}</span>
+    </div>`;
+  }).join("");
 }
 function checkAchievements(){
- let changed=false;
- achievements.forEach(a=>{
-  if(!save.achievements.includes(a.id)&&a.check(save)){
-   save.achievements.push(a.id);
-   save.coins+=a.reward;
-   updateCoinRecord();
-   changed=true;
-   setTimeout(()=>alert("🏆 Achievement unlocked: "+a.title+"!\nReward: "+a.reward+" coins"),50);
-  }
- });
- if(changed)saveGame();
- renderRecords();
-}
-function renderRecords(){
- const r=save.records;
- document.getElementById("recordWave").textContent=r.highestWave;
- document.getElementById("recordKills").textContent=r.totalKills;
- document.getElementById("recordBosses").textContent=r.bossesDefeated;
- document.getElementById("recordTime").textContent=formatTime(r.longestRun);
- document.getElementById("recordRelics").textContent=r.relicsCollected;
- document.getElementById("recordGoldRelics").textContent=r.goldRelicsFound||0;
- document.getElementById("recordCoins").textContent=r.mostCoins;
-
- const body=document.getElementById("leaderboardBody");body.innerHTML="";
- const runs=[...save.runHistory].sort((a,b)=>b.highestWave-a.highestWave||b.kills-a.kills||b.duration-a.duration);
- if(!runs.length){
-  body.innerHTML='<tr><td colspan="6" class="muted">No completed runs yet. Enter the arena to set your first record!</td></tr>';
- }else{
-  runs.slice(0,10).forEach((run,i)=>{
-   const tr=document.createElement("tr");
-   tr.innerHTML=`<td class="rank">${i+1}</td><td>${run.highestWave}</td><td>${run.kills}</td><td>${run.bosses}</td><td>${formatTime(run.duration)}</td><td>${escapeHtml(run.result)}</td>`;
-   body.appendChild(tr);
+  ACHIEVEMENTS.forEach(a=>{
+    if(!game.achievements.includes(a.id)&&a.check()){
+      game.achievements.push(a.id);
+      toast("🏆 Achievement unlocked: "+a.name);
+    }
   });
- }
-
- const history=document.getElementById("historyGrid");history.innerHTML="";
- if(!save.runHistory.length){
-  history.innerHTML='<p class="muted">Your completed runs will appear here.</p>';
- }else{
-  save.runHistory.slice(0,8).forEach(run=>{
-   const div=document.createElement("div");div.className="item";
-   div.innerHTML=`<h3>Run #${run.id}</h3><p>Wave reached: <strong>${run.highestWave}</strong></p><p>Kills: ${run.kills} • Bosses: ${run.bosses}</p><p>Duration: ${formatTime(run.duration)}</p><p class="muted">${new Date(run.endedAt).toLocaleString()}</p><strong>${escapeHtml(run.result)}</strong>`;
-   history.appendChild(div);
-  });
- }
-
- const achievementsBox=document.getElementById("achievementGrid");achievementsBox.innerHTML="";
- achievements.forEach(a=>{
-  const unlocked=save.achievements.includes(a.id),div=document.createElement("div");
-  div.className="item "+(unlocked?"achievement-done":"achievement-locked");
-  div.innerHTML=`<div class="big-icon">${unlocked?a.icon:"🔒"}</div><h3>${escapeHtml(a.title)}</h3><p>${escapeHtml(a.description)}</p><p>Reward: <strong>${a.reward} coins</strong></p><p class="${unlocked?"":"muted"}">${unlocked?"✓ Unlocked":"Not yet unlocked"}</p>`;
-  achievementsBox.appendChild(div);
- });
 }
 
-/* ZOMBIE SURVIVAL */
-function drawGame(){
- ctx.clearRect(0,0,canvas.width,canvas.height);
- ctx.fillStyle="#14221f";ctx.fillRect(0,0,canvas.width,canvas.height);
- ctx.strokeStyle="#243d34";ctx.lineWidth=1;
- for(let x=0;x<canvas.width;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke()}
- for(let y=0;y<canvas.height;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke()}
- ctx.fillStyle="#60a5fa";ctx.beginPath();ctx.arc(player.x,player.y,15,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle="#dbeafe";ctx.lineWidth=3;ctx.stroke();
- ctx.fillStyle="white";ctx.font="13px Arial";ctx.textAlign="center";ctx.fillText("YOU",player.x,player.y-22);
- zombies.forEach(z=>{
-  ctx.fillStyle=z.boss?"#a855f7":"#65a30d";ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle="#fff";ctx.fillRect(z.x-z.r,z.y-z.r-10,z.r*2,4);
-  ctx.fillStyle="#ef4444";ctx.fillRect(z.x-z.r,z.y-z.r-10,z.r*2*Math.max(0,z.hp/z.maxHp),4);
-  if(z.boss){ctx.fillStyle="#fbbf24";ctx.font="bold 12px Arial";ctx.fillText("BOSS",z.x,z.y-z.r-17)}
- });
- if(!gameRunning){
-  ctx.fillStyle="rgba(0,0,0,.42)";ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle="white";ctx.font="bold 26px Arial";ctx.fillText("RELIC RUSH",canvas.width/2,canvas.height/2-10);
-  ctx.font="16px Arial";ctx.fillText("Press Start / Restart Run",canvas.width/2,canvas.height/2+22);
- }
- ctx.textAlign="left";
-}
-function spawnWave(){
- zombies=[];waveStarted=true;
- const boss=save.wave%5===0,count=boss?1:Math.min(3+save.wave*2,35);
- for(let i=0;i<count;i++){
-  const edge=Math.floor(Math.random()*4);let x,y;
-  if(edge===0){x=Math.random()*canvas.width;y=8}
-  else if(edge===1){x=canvas.width-8;y=Math.random()*canvas.height}
-  else if(edge===2){x=Math.random()*canvas.width;y=canvas.height-8}
-  else{x=8;y=Math.random()*canvas.height}
-  const hp=boss?Math.max(12,save.wave*3):Math.max(2,1+Math.floor(save.wave/3));
-  zombies.push({id:nextZombieId++,x,y,r:boss?25:12,hp,maxHp:hp,
-   speed:boss?.55:.65+Math.random()*.35+Math.min(save.wave*.015,.6),boss,lastHit:0});
- }
- document.getElementById("gameMessage").textContent=boss?"⚠️ BOSS WAVE "+save.wave+"!":"Wave "+save.wave+" — survive!";
- recordWave();updateStats();drawGame();
-}
-function startGame(){
- if(gameRunning)finishRun("Restarted");
- if(animationId)cancelAnimationFrame(animationId);
- gameRunning=true;player={x:canvas.width/2,y:canvas.height/2,hp:100,maxHp:100,speed:3.3};
- zombies=[];keys={};direction={x:0,y:0};lastFrame=0;save.wave=1;
- waveStarted=false;beginRun();spawnWave();animationId=requestAnimationFrame(gameLoop);
-}
-function gameLoop(timestamp){
- if(!gameRunning){animationId=null;drawGame();return}
- const dt=lastFrame?Math.min((timestamp-lastFrame)/16.67,2):1;lastFrame=timestamp;
- let dx=0,dy=0;
- if(keys.ArrowLeft||keys.a||keys.A)dx--;
- if(keys.ArrowRight||keys.d||keys.D)dx++;
- if(keys.ArrowUp||keys.w||keys.W)dy--;
- if(keys.ArrowDown||keys.s||keys.S)dy++;
- dx+=direction.x;dy+=direction.y;
- const len=Math.hypot(dx,dy);
- if(len>0){player.x+=dx/len*player.speed*dt;player.y+=dy/len*player.speed*dt}
- player.x=Math.max(16,Math.min(canvas.width-16,player.x));
- player.y=Math.max(16,Math.min(canvas.height-16,player.y));
+function updateAll(){
+  document.getElementById("coins").textContent=game.coins;
+  document.getElementById("totalRelics").textContent=allOwnedCopies();
+  document.getElementById("waveStat").textContent=game.wave;
+  document.getElementById("packCoins").textContent=game.coins;
+  document.getElementById("packTotal").textContent=allOwnedCopies();
+  document.getElementById("collectionValue").textContent=ownedValue().toLocaleString()+" 🪙";
+  document.getElementById("uniqueCount").textContent=uniqueOwned();
+  document.getElementById("goldCount").textContent=totalGold();
+  document.getElementById("kills").textContent=game.kills;
+  document.getElementById("health").textContent=game.health;
+  document.getElementById("damage").textContent=game.damage;
+  document.getElementById("remaining").textContent=game.zombiesLeft;
+  document.getElementById("zombieHealth").textContent=game.zombieHP;
+  document.getElementById("arenaKills").textContent=game.kills;
+  document.getElementById("waveBar").style.width=(game.zombiesLeft===0?100:Math.max(0,100-game.zombiesLeft/(5+Math.floor(game.wave/2))*100))+"%";
+  document.getElementById("shopCoins").textContent=game.coins;
+  document.getElementById("packsOpened").textContent=game.packsOpened;
+  document.getElementById("coinsEarned").textContent=game.coinsEarned;
+  document.getElementById("recordKills").textContent=game.kills;
+  document.getElementById("highestWave").textContent=game.highestWave;
 
- const now=performance.now();
- zombies.forEach(z=>{
-  const vx=player.x-z.x,vy=player.y-z.y,dist=Math.hypot(vx,vy)||1;
-  if(dist>z.r+15){z.x+=vx/dist*z.speed*dt;z.y+=vy/dist*z.speed*dt}
-  else if(now-z.lastHit>800){z.lastHit=now;player.hp-=z.boss?12:5}
- });
+  document.getElementById("recentDiscoveries").innerHTML=game.recent.length
+    ?game.recent.map(r=>{
+      const relic=relicById(r.id);
+      if(!relic)return "";
+      return `<div class="record"><span>${r.gold?"✨ Gold ":""}${relic.icon} ${esc(relic.name)}</span><span>${new Date(r.time).toLocaleDateString()}</span></div>`;
+    }).join("")
+    :'<p>No discoveries yet. Open your first pack!</p>';
 
- if(player.hp<=0){
-  player.hp=0;gameRunning=false;
-  document.getElementById("gameMessage").textContent="💀 Run over! You reached wave "+save.wave+".";
-  finishRun("Game Over");saveGame();drawGame();updateStats();return;
- }
-
- if(zombies.length===0&&waveStarted){
-  const cleared=save.wave,bonus=cleared*3;
-  save.coins+=bonus;save.bestWave=Math.max(save.bestWave,cleared);
-  document.getElementById("gameMessage").textContent="✅ Wave "+cleared+" cleared! +"+bonus+" bonus coins.";
-  save.wave++;recordWave();waveStarted=false;saveGame();checkAchievements();spawnWave();
- }
- drawGame();updateStats();animationId=requestAnimationFrame(gameLoop);
-}
-function attack(){
- if(!gameRunning){document.getElementById("gameMessage").textContent="Press Start to begin your run.";return}
- const now=performance.now();if(now-lastAttack<350)return;lastAttack=now;
- let target=null,targetDist=Infinity;
- zombies.forEach(z=>{const d=Math.hypot(z.x-player.x,z.y-player.y);if(d<z.r+62&&d<targetDist){target=z;targetDist=d}});
- if(!target){document.getElementById("gameMessage").textContent="No zombie close enough. Move closer!";return}
- target.hp-=weaponDamage();
- if(target.hp<=0){
-  zombies=zombies.filter(z=>z.id!==target.id);
-  save.kills++;save.records.totalKills++;
-  if(currentRun)currentRun.kills++;
-  const reward=target.boss?20:2;
-  if(target.boss){save.records.bossesDefeated++;if(currentRun)currentRun.bosses++}
-  save.coins+=reward;updateCoinRecord();saveGame();
-  document.getElementById("gameMessage").textContent=(target.boss?"👑 Boss defeated!":"🧟 Zombie defeated!")+" +"+reward+" coins.";
+  renderPacks();
+  renderShop();
+  renderAchievements();
   checkAchievements();
- }
- drawGame();updateStats();
 }
-function heal(){
- if(player.hp>=player.maxHp){alert("Your health is already full!");return}
- if(save.coins<25){alert("You need 25 coins to heal!");return}
- save.coins-=25;player.hp=Math.min(player.maxHp,player.hp+30);saveGame();updateStats();
+function resetGame(){
+  if(!confirm("Reset all Relic Rush progress? This cannot be undone."))return;
+  game=freshGame();
+  saveGame();updateAll();renderRelics();renderMarket();
+  toast("Your game has been reset.");
 }
-window.addEventListener("keydown",e=>{
- if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
- keys[e.key]=true;
- if(e.key===" "||e.key==="Enter")attack();
-});
-window.addEventListener("keyup",e=>{keys[e.key]=false});
-window.addEventListener("blur",()=>{keys={};direction={x:0,y:0}});
-document.querySelectorAll("[data-dir]").forEach(b=>{
- const dirs={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
- const dir=dirs[b.dataset.dir];
- function press(e){e.preventDefault();direction=dir}
- function release(e){e.preventDefault();if(direction.x===dir.x&&direction.y===dir.y)direction={x:0,y:0}}
- b.addEventListener("pointerdown",press);b.addEventListener("pointerup",release);
- b.addEventListener("pointercancel",release);b.addEventListener("pointerleave",release);
-});
-document.getElementById("mobileAttack").addEventListener("pointerdown",e=>{e.preventDefault();attack()});
-canvas.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")attack()});
 
-function restockPacks(){
- if(Date.now()>=save.nextRestock){
-  save.packStock=packDefinitions.map(p=>p.stock);save.nextRestock=Date.now()+300000;
-  saveGame();renderPacks();
- }
- const rem=Math.max(0,save.nextRestock-Date.now());
- document.getElementById("restockTimer").textContent=Math.floor(rem/60000)+":"+String(Math.floor(rem%60000/1000)).padStart(2,"0");
-}
-function renderAll(){
- updateCoinRecord();updateStats();renderShop();renderPacks();renderInventory();renderMarket();renderRecords();restockPacks();
-}
-renderAll();drawGame();checkAchievements();setInterval(restockPacks,1000);
+document.getElementById("relicFilter").addEventListener("change",renderRelics);
+updateAll();
+renderRelics();
+renderMarket();
 </script>
 </body>
 </html>
