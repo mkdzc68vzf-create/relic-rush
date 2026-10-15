@@ -1,37 +1,53 @@
-# Relic Rush Streamer Admin + Giveaway Codes
+# Relic Rush — Player Accounts + Streamer Admin
 
-This package extends the existing Relic Rush browser game with a server-verified admin login and one-time giveaway-code flow.
+This package keeps the existing Relic Rush game and adds server-backed player accounts.
 
-## Files
-- `index.html`: existing Relic Rush game, existing `localStorage` save key (`relicRushSave`), admin panel, and viewer code redemption.
-- `netlify/functions/admin.js`: existing signed admin session plus secure reward-code creation.
-- `netlify/functions/redeem.js`: server-checked redemption.
-- `netlify.toml`: Netlify Functions configuration.
-- `package.json`: Netlify Blobs dependency.
+## Files and exact locations
 
-## Add to your GitHub repository
-1. Make a backup branch or copy of the current repo first.
-2. Replace the repository's current `index.html` with this `index.html`.
-3. Add/replace `netlify.toml` and `package.json` at the repository root.
-4. Add `netlify/functions/admin.js` and `netlify/functions/redeem.js`.
-5. Commit and push. Netlify should build a new deploy from GitHub.
+- `index.html` — existing game UI and gameplay, player account panel, cloud-save sync, streamer admin panel, reward-code redemption UI.
+- `netlify.toml` — publishes the repository root and points Netlify at `netlify/functions`.
+- `package.json` — installs `@netlify/blobs`.
+- `netlify/functions/admin.js` — server-verified streamer secret-code login, signed short-lived admin session, validated admin commands, giveaway code creation.
+- `netlify/functions/account.js` — player registration/login/logout, password hashing with scrypt, HttpOnly player session cookie, server-stored save.
+- `netlify/functions/redeem.js` — requires a signed-in player and applies a one-time giveaway reward to the player's server save.
 
 ## Netlify environment variables
-In Netlify: **Site configuration → Environment variables**, add:
-- `RELIC_RUSH_ADMIN_CODE`: a private password/code at least 8 characters long.
-- `RELIC_RUSH_SESSION_SECRET`: a different random secret, at least 32 characters long.
 
-Generate a session secret with `openssl rand -hex 32` if you have a terminal. Do not put either secret in GitHub or in `index.html`. Redeploy after setting them.
+Set both under **Production**, with **Functions** scope if available, and mark them secret:
 
-## Use it on stream
-1. Open the deployed site and click **Admin Login**.
-2. Enter your `RELIC_RUSH_ADMIN_CODE`.
-3. In the admin panel, create a coin or relic reward code.
-4. Show the generated code on stream.
-5. Viewers enter it in **Stream Giveaway Code** on the home screen.
+- `RELIC_RUSH_ADMIN_CODE`: your streamer/admin login code, at least 8 characters.
+- `RELIC_RUSH_SESSION_SECRET`: a random secret of at least 32 characters. It signs admin and player sessions; don't use your admin code for this.
+
+Redeploy after changing environment variables or function code.
+
+## Deploy from GitHub
+
+The repository root must contain `index.html`, `netlify.toml`, and `package.json`. The folder layout must be:
+
+```
+netlify/
+  functions/
+    admin.js
+    account.js
+    redeem.js
+```
+
+Netlify should list `admin`, `account`, and `redeem` under Functions after a successful production deploy.
+
+## Player accounts
+
+- Usernames: 3–20 letters, numbers, or underscores; usernames are case-insensitive.
+- Passwords: 8–128 characters; passwords are hashed server-side with Node's scrypt. The raw password is not stored.
+- Player sessions use an HttpOnly, Secure, SameSite=Strict cookie and expire after seven days.
+- Creating an account copies the current browser's `relicRushSave` to the new account, preserving local progress.
+- Logging in loads the server-stored save; future game saves sync to Netlify Blobs.
+- Giveaway redemption requires a logged-in player and updates the server save.
+- There is no email-based password recovery yet. Players should use a unique password and keep it somewhere safe.
 
 ## Important limitations
-- The game still stores each player's save in that player's browser under `localStorage` key `relicRushSave`. A redeemed reward changes only that browser's save. There are no player accounts or cross-device sync.
-- The admin password is checked by the Netlify Function, and the signed admin session expires after 10 minutes.
-- Netlify Blobs stores the reward codes and redemption state. This implementation blocks ordinary repeat redemptions, but simultaneous requests can race because Blobs is not a transactional database. If you plan high-value or high-traffic giveaways, use a database with atomic claims (for example, a PostgreSQL table with an `UPDATE ... WHERE redeemed_at IS NULL RETURNING ...` transaction).
-- Since saves remain client-side, this is not a cheat-proof online economy. Players can modify their own local save. The server only controls issuance and redemption of codes.
+
+Netlify Blobs stores account and save records, but it is not a transactional database. This is suitable for a small project, not a high-traffic competitive economy. Username creation and one-time reward claims can have race conditions under simultaneous requests; use a transactional database for larger launches.
+
+The account login and password storage are server-side, but the game still sends save data from the browser. A determined player can modify local gameplay values before syncing. Preventing currency/relic cheating requires moving purchases, pack rolls, combat rewards, and other economy-changing actions to server-authoritative functions.
+
+The local marketplace remains a local demo, not a marketplace shared among players. Existing local progress stays in the browser when logged out. Registering transfers a copy to the new account; signing into an existing account replaces the current in-memory save with that account's server save.

@@ -16,13 +16,23 @@
     <div><div class="brand">RELIC <span>RUSH</span></div><div class="muted">Fight. Discover. Collect. Trade.</div></div>
     <div class="stats"><div class="pill">🪙 <span id="coinCount">0</span></div><div class="pill">⚔️ Wave <span id="waveCount">1</span></div><div class="pill">💎 <span id="relicCount">0</span> relics</div></div>
   </header>
+  <section id="accountPanel" class="panel account-box">
+    <div class="spread"><div><h2>👤 Player Account</h2><p class="muted">Create an account to keep your relics, coins, weapons, and progress when you switch devices.</p></div><span id="accountState" class="tag">Not signed in</span></div>
+    <div id="accountAuthForms" class="grid">
+      <div class="card"><h3>Log in</h3><label for="accountLoginUsername">Username</label><input id="accountLoginUsername" maxlength="20" autocomplete="username" placeholder="Your username"><label for="accountLoginPassword">Password</label><input id="accountLoginPassword" type="password" maxlength="128" autocomplete="current-password" placeholder="Your password"><button id="accountLoginBtn">Log in</button></div>
+      <div class="card"><h3>Create account</h3><label for="accountRegisterUsername">Username</label><input id="accountRegisterUsername" maxlength="20" autocomplete="username" placeholder="3–20 letters, numbers, _"><label for="accountRegisterPassword">Password</label><input id="accountRegisterPassword" type="password" maxlength="128" autocomplete="new-password" placeholder="At least 8 characters"><button id="accountRegisterBtn">Create account</button><p class="muted">Use a unique password. There is no email/password-reset feature yet, so keep it somewhere safe.</p></div>
+    </div>
+    <div id="accountSignedIn" class="card hidden"><div class="spread"><div><h3 id="accountWelcome">Signed in</h3><p class="muted">Your progress syncs to your account after you play.</p></div><div class="row"><button id="accountSyncBtn" class="secondary">Sync now</button><button id="accountLogoutBtn" class="secondary">Log out</button></div></div></div>
+    <p id="accountStatus" class="notice" role="status">You can play without an account, but browser-only progress will not sync between devices.</p>
+  </section>
+
   <nav class="tabs" aria-label="Game sections">
     <button class="tab active" data-tab="home">Home</button><button class="tab" data-tab="zombies">Zombies</button><button class="tab" data-tab="packs">Packs</button><button class="tab" data-tab="relics">Relics</button><button class="tab" data-tab="shop">Shop</button><button class="tab" data-tab="market">Market</button><button class="tab" data-tab="records">Records</button><button class="tab" data-tab="achievements">Achievements</button>
   </nav>
 
   <main>
     <section id="home" class="tab-page">
-      <div class="panel"><h1>Welcome to Relic Rush</h1><p class="muted">Survive zombie waves to earn coins, open packs for relics, upgrade your weapon, and build your collection. Your progress is saved in this browser.</p>
+      <div class="panel"><h1>Welcome to Relic Rush</h1><p class="muted">Survive zombie waves to earn coins, open packs for relics, upgrade your weapon, and build your collection. Sign in to sync progress between devices, or play locally without an account.</p>
         <div class="grid">
           <div class="card"><div class="relic-icon">🧟</div><h3>Zombie Arena</h3><p class="muted">Move with WASD or arrow keys. Attack with Space or Enter. Survive as long as you can.</p><button data-go="zombies">Enter arena</button></div>
           <div class="card"><div class="relic-icon">🎁</div><h3>Daily Reward</h3><p id="dailyText" class="muted">Claim your daily 50 coins.</p><button id="dailyBtn">Claim 50 coins</button></div>
@@ -30,7 +40,7 @@
         </div>
       </div>
       <div class="panel"><h2>Quick stats</h2><div class="grid"><div class="card"><div class="muted">Total zombies defeated</div><div class="big" id="killsStat">0</div></div><div class="card"><div class="muted">Highest wave</div><div class="big" id="bestWaveStat">1</div></div><div class="card"><div class="muted">Total packs opened</div><div class="big" id="packsStat">0</div></div><div class="card"><div class="muted">Weapons owned</div><div class="big" id="weaponsStat">1</div></div></div></div>
-      <div class="panel"><h2>🎁 Stream Giveaway Code</h2><p class="muted">Got a reward code from the stream? Enter it here to claim coins or a relic.</p>
+      <div class="panel"><h2>🎁 Stream Giveaway Code</h2><p class="muted">Got a reward code from the stream? Sign in first, then enter it here to add the reward to your account.</p>
         <div class="row"><input id="redeemCode" maxlength="32" autocomplete="off" placeholder="Enter giveaway code" aria-label="Giveaway code"><button id="redeemCodeBtn">Redeem reward</button></div>
         <p id="redeemStatus" class="notice hidden" role="status"></p>
       </div>
@@ -74,17 +84,21 @@
         <button id="createRewardCodeBtn">Create giveaway code</button>
         <p id="createdCodeArea" class="notice hidden" role="status"></p>
       </div>
-      <p class="muted">Direct commands affect this browser only. Giveaway codes can be redeemed by viewers on their own browser saves. Since players do not have accounts, rewards do not sync between devices.</p>
+      <p class="muted">Direct commands affect the current browser save (and sync to the signed-in player account, if any). Giveaway rewards are applied to the signed-in player's server save.</p>
       <button id="adminLogoutBtn" class="secondary">Log out</button>
     </div>
     <p id="commandStatus" class="notice hidden" role="status"></p>
   </section>
-  <div class="foot">Relic Rush · Browser save stored on this device</div>
+  <div class="foot">Relic Rush · Player accounts sync progress through Netlify</div>
 </div>
 <script>
 (() => {
 'use strict';
 const SAVE_KEY='relicRushSave';
+let playerAccount=null;
+let accountSyncTimer=null;
+let accountSyncBusy=false;
+let accountSyncAgain=false;
 const RELICS=[
  {id:'forest',name:'Forest Shard',rarity:'Common',value:8,icon:'🌿'},
  {id:'stone',name:'Stone Rune',rarity:'Common',value:10,icon:'🪨'},
@@ -108,9 +122,10 @@ const PACKS=[
 ];
 const $=id=>document.getElementById(id);
 const defaultSave=()=>({coins:100,health:100,wave:1,bestWave:1,kills:0,totalCoins:0,packsOpened:0,inventory:[],weapons:['iron'],equipped:'iron',listings:[],runs:[],achievements:[],lastDaily:'',marketId:1});
-function loadSave(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return defaultSave();const d=JSON.parse(raw);return {...defaultSave(),...d,inventory:Array.isArray(d.inventory)?d.inventory:[],weapons:Array.isArray(d.weapons)?d.weapons:['iron'],listings:Array.isArray(d.listings)?d.listings:[],runs:Array.isArray(d.runs)?d.runs:[],achievements:Array.isArray(d.achievements)?d.achievements:[]};}catch(e){return defaultSave();}}
+function normalizeSave(d){if(!d||typeof d!=='object')return defaultSave();return {...defaultSave(),...d,inventory:Array.isArray(d.inventory)?d.inventory:[],weapons:Array.isArray(d.weapons)?d.weapons:['iron'],listings:Array.isArray(d.listings)?d.listings:[],runs:Array.isArray(d.runs)?d.runs:[],achievements:Array.isArray(d.achievements)?d.achievements:[]};}
+function loadSave(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return defaultSave();return normalizeSave(JSON.parse(raw));}catch(e){return defaultSave();}}
 let save=loadSave();
-function persist(){localStorage.setItem(SAVE_KEY,JSON.stringify(save));renderAll();}
+function persist(){localStorage.setItem(SAVE_KEY,JSON.stringify(save));renderAll();scheduleAccountSave();}
 function money(n){return Math.max(0,Math.floor(Number(n)||0)).toLocaleString();}
 function relicDef(id){return RELICS.find(r=>r.id===id)||RELICS[0];}
 function relicValue(item){return relicDef(item.id).value*(item.gold?2:1);}
@@ -152,16 +167,37 @@ if(zombies.length===0&&!waveRewarded){waveRewarded=true;const bonus=save.wave*3;
 if(frame-lastSpawn>150&&zombies.length<3+save.wave){spawnZombie();lastSpawn=frame;}if(frame%15===0){renderHeader();}drawArena();}
 $('startGame').addEventListener('click',startRun);$('attackBtn').addEventListener('click',attack);$('pauseBtn').addEventListener('click',()=>{if(!running)return;paused=!paused;$('pauseBtn').textContent=paused?'Resume':'Pause';});document.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=true;if([' ','Enter','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)&&!['INPUT'].includes(document.activeElement.tagName))e.preventDefault();if(e.key===' '||e.key==='Enter')attack();});document.addEventListener('keyup',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false;});document.querySelectorAll('[data-move]').forEach(b=>{const dir=b.dataset.move;const down=e=>{e.preventDefault();moveTouch[dir]=true;};const up=e=>{e.preventDefault();moveTouch[dir]=false;};b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up);});tick();
 
+async function readJsonResponse(res){const text=await res.text();try{return JSON.parse(text);}catch{throw new Error('The server returned a webpage instead of JSON. Check that the Netlify function is deployed and its URL is correct.');}}
+
+/* Player accounts: passwords are verified server-side; the session is an HttpOnly cookie. */
+function showAccountStatus(msg,type=''){announce($('accountStatus'),msg,type);}
+function setAccountUi(username){
+  playerAccount=username||null;
+  $('accountState').textContent=playerAccount?'Signed in':'Not signed in';
+  $('accountAuthForms').classList.toggle('hidden',!!playerAccount);
+  $('accountSignedIn').classList.toggle('hidden',!playerAccount);
+  if(playerAccount)$('accountWelcome').textContent='Welcome, '+playerAccount+'!';
+}
+function installServerSave(remote){save=normalizeSave(remote||defaultSave());localStorage.setItem(SAVE_KEY,JSON.stringify(save));renderAll();renderPacks();drawArena();}
+async function accountRequest(payload){const res=await fetch('/.netlify/functions/account',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await readJsonResponse(res);if(!res.ok)throw new Error(data.error||'Account request failed.');return data;}
+function scheduleAccountSave(){if(!playerAccount)return;if(accountSyncTimer)clearTimeout(accountSyncTimer);accountSyncTimer=setTimeout(syncAccountSave,450);}
+async function syncAccountSave(){if(!playerAccount)return;if(accountSyncBusy){accountSyncAgain=true;return;}accountSyncBusy=true;const snapshot=JSON.stringify(save);try{const res=await fetch('/.netlify/functions/account',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',save:JSON.parse(snapshot)})});const data=await readJsonResponse(res);if(!res.ok){if(res.status===401){setAccountUi(null);showAccountStatus('Your account session expired. Log in again to resume cloud saving.','error');}else showAccountStatus(data.error||'Could not sync your save yet. Your local save is still available.','error');}}catch(err){showAccountStatus(err.message||'Could not sync your save yet. Your local save is still available.','error');}finally{accountSyncBusy=false;if(accountSyncAgain){accountSyncAgain=false;scheduleAccountSave();}}}
+async function initializeAccountSession(){try{const data=await accountRequest({action:'me'});installServerSave(data.save||defaultSave());setAccountUi(data.username);showAccountStatus('Signed in. Your progress is syncing to your account.','success');}catch(err){setAccountUi(null);}}
+$('accountRegisterBtn').addEventListener('click',async()=>{const username=$('accountRegisterUsername').value.trim(),password=$('accountRegisterPassword').value;const btn=$('accountRegisterBtn');btn.disabled=true;btn.textContent='Creating…';try{const data=await accountRequest({action:'register',username,password,save});installServerSave(data.save||save);setAccountUi(data.username);$('accountRegisterPassword').value='';$('accountLoginPassword').value='';showAccountStatus('Account created! Your current browser progress was saved to your new account.','success');}catch(err){showAccountStatus(err.message||'Could not create account.','error');}finally{btn.disabled=false;btn.textContent='Create account';}});
+$('accountLoginBtn').addEventListener('click',async()=>{const username=$('accountLoginUsername').value.trim(),password=$('accountLoginPassword').value;const btn=$('accountLoginBtn');btn.disabled=true;btn.textContent='Logging in…';try{const data=await accountRequest({action:'login',username,password});installServerSave(data.save||defaultSave());setAccountUi(data.username);$('accountLoginPassword').value='';showAccountStatus('Welcome back! Your saved progress was loaded from the server.','success');if(!data.save) scheduleAccountSave();}catch(err){showAccountStatus(err.message||'Could not log in.','error');}finally{btn.disabled=false;btn.textContent='Log in';}});
+$('accountLogoutBtn').addEventListener('click',async()=>{try{await accountRequest({action:'logout'});}catch{}setAccountUi(null);showAccountStatus('Logged out. This browser keeps its local copy, but cloud syncing is paused.','success');});
+$('accountSyncBtn').addEventListener('click',async()=>{if(!playerAccount)return;try{await syncAccountSave();showAccountStatus('Sync requested.','success');}catch(err){showAccountStatus(err.message||'Sync failed.','error');}});
+
 /* Server-verified admin login. The secret code never appears in this HTML. */
 const adminPanel=$('adminPanel'),loginArea=$('adminLoginArea'),commandsArea=$('adminCommands');let adminToken=null,adminExpiry=0;
 function showAdminStatus(msg,type=''){announce($('adminStatus'),msg,type);}
 function showCommandStatus(msg,type=''){announce($('commandStatus'),msg,type);}
 $('adminOpenBtn').addEventListener('click',()=>{adminPanel.classList.remove('hidden');adminPanel.scrollIntoView({behavior:'smooth',block:'start'});});
 $('adminCloseBtn').addEventListener('click',()=>adminPanel.classList.add('hidden'));
-$('adminLoginBtn').addEventListener('click',async()=>{const code=$('adminCode').value;if(!code){showAdminStatus('Enter your developer code.','error');return;}const btn=$('adminLoginBtn');btn.disabled=true;btn.textContent='Checking…';try{const res=await fetch('/.netlify/functions/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',code})});const data=await res.json();if(!res.ok||!data.token)throw new Error(data.error||'Login rejected.');adminToken=data.token;adminExpiry=data.expiresAt;loginArea.classList.add('hidden');commandsArea.classList.remove('hidden');$('adminCode').value='';showCommandStatus('Login verified by the server.','success');}catch(err){showAdminStatus(err.message||'Could not verify. Make sure the site is deployed on Netlify and function environment variables are set.','error');}finally{btn.disabled=false;btn.textContent='Verify with server';}});
+$('adminLoginBtn').addEventListener('click',async()=>{const code=$('adminCode').value;if(!code){showAdminStatus('Enter your developer code.','error');return;}const btn=$('adminLoginBtn');btn.disabled=true;btn.textContent='Checking…';try{const res=await fetch('/.netlify/functions/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',code})});const data=await readJsonResponse(res);if(!res.ok||!data.token)throw new Error(data.error||'Login rejected.');adminToken=data.token;adminExpiry=data.expiresAt;loginArea.classList.add('hidden');commandsArea.classList.remove('hidden');$('adminCode').value='';showCommandStatus('Login verified by the server.','success');}catch(err){showAdminStatus(err.message||'Could not verify. Make sure the site is deployed on Netlify and function environment variables are set.','error');}finally{btn.disabled=false;btn.textContent='Verify with server';}});
 $('adminLogoutBtn').addEventListener('click',()=>{adminToken=null;adminExpiry=0;commandsArea.classList.add('hidden');loginArea.classList.remove('hidden');showAdminStatus('Logged out.');});
 const relicSelect=$('giveRelic');RELICS.forEach(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=r.name+' ('+r.rarity+')';relicSelect.appendChild(o);});
-document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',async()=>{if(!adminToken||Date.now()>=adminExpiry){adminToken=null;commandsArea.classList.add('hidden');loginArea.classList.remove('hidden');showCommandStatus('Your admin session expired. Log in again.','error');return;}let payload={action:btn.dataset.command,token:adminToken};if(payload.action==='giveCoins')payload.amount=Number($('giveCoins').value);if(payload.action==='setCoins')payload.amount=Number($('setCoins').value);if(payload.action==='giveRelic'){payload.relicId=$('giveRelic').value;payload.gold=$('goldRelic').value==='true';}btn.disabled=true;try{const res=await fetch('/.netlify/functions/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json();if(!res.ok||!data.command)throw new Error(data.error||'Command rejected.');applyAdminCommand(data.command);persist();showCommandStatus('Server authorized command: '+data.message,'success');}catch(err){showCommandStatus(err.message||'Could not run command.','error');if(err.message&&/session|token|expired/i.test(err.message)){adminToken=null;commandsArea.classList.add('hidden');loginArea.classList.remove('hidden');}}finally{btn.disabled=false;}}));
+document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',async()=>{if(!adminToken||Date.now()>=adminExpiry){adminToken=null;commandsArea.classList.add('hidden');loginArea.classList.remove('hidden');showCommandStatus('Your admin session expired. Log in again.','error');return;}let payload={action:btn.dataset.command,token:adminToken};if(payload.action==='giveCoins')payload.amount=Number($('giveCoins').value);if(payload.action==='setCoins')payload.amount=Number($('setCoins').value);if(payload.action==='giveRelic'){payload.relicId=$('giveRelic').value;payload.gold=$('goldRelic').value==='true';}btn.disabled=true;try{const res=await fetch('/.netlify/functions/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await readJsonResponse(res);if(!res.ok||!data.command)throw new Error(data.error||'Command rejected.');applyAdminCommand(data.command);persist();showCommandStatus('Server authorized command: '+data.message,'success');}catch(err){showCommandStatus(err.message||'Could not run command.','error');if(err.message&&/session|token|expired/i.test(err.message)){adminToken=null;commandsArea.classList.add('hidden');loginArea.classList.remove('hidden');}}finally{btn.disabled=false;}}));
 function applyAdminCommand(c){switch(c.action){case'giveCoins':addCoins(c.amount);break;case'setCoins':save.coins=c.amount;break;case'giveRelic':save.inventory.push({uid:'admin-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),id:c.relicId,gold:c.gold});break;case'heal':save.health=100;break;default:throw new Error('Unknown command.');}}
 
 const rewardRelicSelect=$('rewardRelic');
@@ -174,7 +210,7 @@ $('createRewardCodeBtn').addEventListener('click',async()=>{
   const btn=$('createRewardCodeBtn');btn.disabled=true;btn.textContent='Creating…';
   try{
     const res=await fetch('/.netlify/functions/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createRewardCode',token:adminToken,reward})});
-    const data=await res.json();if(!res.ok||!data.code)throw new Error(data.error||'Could not create code.');
+    const data=await readJsonResponse(res);if(!res.ok||!data.code)throw new Error(data.error||'Could not create code.');
     const out=$('createdCodeArea');out.textContent='Giveaway code: '+data.code+' — copy it and show it on stream. '+data.rewardLabel;out.className='notice success';
   }catch(err){showCommandStatus(err.message||'Could not create giveaway code.','error');}
   finally{btn.disabled=false;btn.textContent='Create giveaway code';}
@@ -182,19 +218,22 @@ $('createRewardCodeBtn').addEventListener('click',async()=>{
 $('redeemCodeBtn').addEventListener('click',async()=>{
   const code=$('redeemCode').value.trim().toUpperCase().replace(/\s+/g,'');
   if(!code){announce($('redeemStatus'),'Enter a giveaway code first.','error');return;}
+  if(!playerAccount){announce($('redeemStatus'),'Create an account or log in before redeeming a giveaway code.','error');return;}
   const btn=$('redeemCodeBtn');btn.disabled=true;btn.textContent='Checking…';
   try{
     const res=await fetch('/.netlify/functions/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
-    const data=await res.json();if(!res.ok||!data.reward)throw new Error(data.error||'Could not redeem this code.');
+    const data=await readJsonResponse(res);if(!res.ok||!data.reward)throw new Error(data.error||'Could not redeem this code.');
     const r=data.reward;
-    if(r.type==='coins'){addCoins(r.amount);announce($('redeemStatus'),'Reward claimed: '+money(r.amount)+' coins!','success');}
-    else if(r.type==='relic'){save.inventory.push({uid:'gift-'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),id:r.relicId,gold:!!r.gold});announce($('redeemStatus'),'Reward claimed: '+(r.gold?'Gold ':'')+relicDef(r.relicId).name+'!','success');}
+    if(data.save)installServerSave(data.save);else throw new Error('The server did not return your updated player save.');
+    if(r.type==='coins')announce($('redeemStatus'),'Reward claimed: '+money(r.amount)+' coins! Saved to your account.','success');
+    else if(r.type==='relic')announce($('redeemStatus'),'Reward claimed: '+(r.gold?'Gold ':'')+relicDef(r.relicId).name+'! Saved to your account.','success');
     else throw new Error('Unsupported reward type.');
-    $('redeemCode').value='';persist();
+    $('redeemCode').value='';
   }catch(err){announce($('redeemStatus'),err.message||'Code could not be redeemed.','error');}
   finally{btn.disabled=false;btn.textContent='Redeem reward';}
 });
 renderPacks();renderAll();drawArena();
+initializeAccountSession();
 })();
 </script>
 </body>
