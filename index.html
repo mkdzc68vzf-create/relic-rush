@@ -1201,6 +1201,58 @@ function rrAdminLogout() {
   document.getElementById("rrAdminStatus").textContent = "Logged out.";
 }
 </script>
+<div id="accountBox" style="background:#10092b;color:white;padding:20px;border-radius:15px;margin:20px auto;max-width:400px;text-align:center;">
+  <h2>Relic Rush Account</h2>
+  <input id="accountEmail" type="email" placeholder="Email" style="padding:12px;width:90%;margin:6px;">
+  <input id="accountPassword" type="password" placeholder="Password (at least 6 characters)" style="padding:12px;width:90%;margin:6px;">
+  <br>
+  <button onclick="signUpPlayer()">Create Account</button>
+  <button onclick="logInPlayer()">Log In</button>
+  <p id="accountMessage"></p>
+</div>
+
+<script>
+async function signUpPlayer() {
+  const email = document.getElementById("accountEmail").value.trim();
+  const password = document.getElementById("accountPassword").value;
+  const message = document.getElementById("accountMessage");
+
+  if (!email || password.length < 6) {
+    message.textContent = "Enter a valid email and a password of at least 6 characters.";
+    return;
+  }
+
+  message.textContent = "Creating account...";
+
+  try {
+    const { error } = await supabaseClient.auth.signUp({ email, password });
+
+    message.textContent = error
+      ? "Signup failed: " + error.message
+      : "Account created successfully! You can now log in.";
+  } catch (error) {
+    message.textContent = "Error: " + error.message;
+  }
+}
+
+async function logInPlayer() {
+  const email = document.getElementById("accountEmail").value.trim();
+  const password = document.getElementById("accountPassword").value;
+  const message = document.getElementById("accountMessage");
+
+  message.textContent = "Logging in...";
+
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    message.textContent = error
+      ? "Login failed: " + error.message
+      : "You're logged in!";
+  } catch (error) {
+    message.textContent = "Error: " + error.message;
+  }
+}
+</script>
 </body>
 
 </body>
