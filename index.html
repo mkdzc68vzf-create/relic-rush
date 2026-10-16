@@ -1200,59 +1200,85 @@ function rrAdminLogout() {
   document.getElementById("rrAdminControls").style.display = "none";
   document.getElementById("rrAdminStatus").textContent = "Logged out.";
 }
+
+
 </script>
-<div id="accountBox" style="background:#10092b;color:white;padding:20px;border-radius:15px;margin:20px auto;max-width:400px;text-align:center;">
-  <h2>Relic Rush Account</h2>
-  <input id="accountEmail" type="email" placeholder="Email" style="padding:12px;width:90%;margin:6px;">
-  <input id="accountPassword" type="password" placeholder="Password (at least 6 characters)" style="padding:12px;width:90%;margin:6px;">
-  <br>
-  <button onclick="signUpPlayer()">Create Account</button>
-  <button onclick="logInPlayer()">Log In</button>
-  <p id="accountMessage"></p>
-</div>
+
+<section id="relicTrading" style="background:#10092b;color:white;padding:20px;border-radius:16px;margin:20px auto;max-width:800px;font-family:Arial,sans-serif">
+  <h2 style="color:#c084fc;text-align:center">🔄 Relic Rush Trading</h2>
+  <p style="text-align:center">Local trading demo — choose relics for your offer.</p>
+
+  <label for="tradeRelic">Relic name</label>
+  <input id="tradeRelic" placeholder="Enter relic name"
+    style="width:100%;padding:12px;margin:8px 0;box-sizing:border-box">
+
+  <label for="tradeVariant">Relic variant</label>
+  <select id="tradeVariant" style="width:100%;padding:12px;margin:8px 0">
+    <option value="Normal">Normal</option>
+    <option value="Gold">Gold</option>
+    <option value="Candy Corn">Candy Corn</option>
+  </select>
+
+  <button onclick="addTradeItem()" style="padding:12px;background:#8500ff;color:white;border:0;border-radius:8px">
+    + Add to Offer
+  </button>
+
+  <h3>Your Offer</h3>
+  <ul id="tradeOffer"></ul>
+
+  <button onclick="clearTradeOffer()" style="padding:12px;background:#333;color:white;border:0;border-radius:8px">
+    Clear Offer
+  </button>
+
+  <p id="tradeStatus" role="status">Your offer is empty.</p>
+</section>
 
 <script>
-async function signUpPlayer() {
-  const email = document.getElementById("accountEmail").value.trim();
-  const password = document.getElementById("accountPassword").value;
-  const message = document.getElementById("accountMessage");
+const localTradeOffer = [];
 
-  if (!email || password.length < 6) {
-    message.textContent = "Enter a valid email and a password of at least 6 characters.";
+function addTradeItem() {
+  const name = document.getElementById("tradeRelic").value.trim();
+  const variant = document.getElementById("tradeVariant").value;
+  const status = document.getElementById("tradeStatus");
+
+  if (!name) {
+    status.textContent = "Enter a relic name first.";
     return;
   }
 
-  message.textContent = "Creating account...";
-
-  try {
-    const { error } = await supabaseClient.auth.signUp({ email, password });
-
-    message.textContent = error
-      ? "Signup failed: " + error.message
-      : "Account created successfully! You can now log in.";
-  } catch (error) {
-    message.textContent = "Error: " + error.message;
-  }
+  localTradeOffer.push({ name, variant });
+  renderTradeOffer();
+  document.getElementById("tradeRelic").value = "";
+  status.textContent = "Added to your demo offer!";
 }
 
-async function logInPlayer() {
-  const email = document.getElementById("accountEmail").value.trim();
-  const password = document.getElementById("accountPassword").value;
-  const message = document.getElementById("accountMessage");
+function renderTradeOffer() {
+  const list = document.getElementById("tradeOffer");
+  list.replaceChildren();
 
-  message.textContent = "Logging in...";
+  localTradeOffer.forEach((item, index) => {
+    const li = document.createElement("li");
+    li.textContent = item.name + " — " + item.variant + " ";
 
-  try {
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    const remove = document.createElement("button");
+    remove.textContent = "Remove";
+    remove.onclick = () => {
+      localTradeOffer.splice(index, 1);
+      renderTradeOffer();
+    };
 
-    message.textContent = error
-      ? "Login failed: " + error.message
-      : "You're logged in!";
-  } catch (error) {
-    message.textContent = "Error: " + error.message;
-  }
+    li.appendChild(remove);
+    list.appendChild(li);
+  });
+}
+
+function clearTradeOffer() {
+  localTradeOffer.length = 0;
+  renderTradeOffer();
+  document.getElementById("tradeStatus").textContent = "Offer cleared.";
 }
 </script>
+
 </body>
 
 </body>
