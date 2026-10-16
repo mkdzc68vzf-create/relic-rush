@@ -922,8 +922,7 @@ async function signUpPlayer() {
 
   message.textContent = error
     ? error.message
-    : "Account created! Check your email if confirmation is required.";
-}
+    : "Account created successfully! You can now log in.";}
 
 async function logInPlayer() {
   const email = document.getElementById("accountEmail").value.trim();
@@ -940,5 +939,269 @@ async function logInPlayer() {
     : "You're logged in!";
 }
 </script>
+
+<style>
+#rrAdmin {
+  display: none;
+  max-width: 850px;
+  margin: 25px auto;
+  padding: 22px;
+  background: #080518;
+  color: white;
+  border: 1px solid #8500ff;
+  border-radius: 18px;
+  font-family: Arial, sans-serif;
+}
+#rrAdmin h2 { color: #c58aff; }
+#rrAdmin .rrGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 14px;
+}
+#rrAdmin .rrCard {
+  background: #160d2e;
+  border: 1px solid #39245b;
+  padding: 16px;
+  border-radius: 12px;
+}
+#rrAdmin input, #rrAdmin select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 11px;
+  margin: 7px 0;
+  border-radius: 8px;
+  border: 1px solid #56327c;
+  background: #080518;
+  color: white;
+}
+#rrAdmin button {
+  background: #8500ff;
+  color: white;
+  border: 0;
+  padding: 11px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 7px;
+}
+#rrAdmin button:hover { background: #a43cff; }
+#rrAdminStatus {
+  overflow-wrap: anywhere;
+  color: #d6b8ff;
+  white-space: pre-wrap;
+}
+#rrAdminToggle {
+  display: block;
+  margin: 20px auto;
+  background: #8500ff;
+  color: white;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 10px;
+}
+</style>
+
+<button id="rrAdminToggle" onclick="rrToggleAdmin()">
+  🛡️ Developer Admin
+</button>
+
+<section id="rrAdmin">
+  <h2>🌌 RELIC RUSH</h2>
+  <p>ADMIN CONTROL CENTER</p>
+
+  <div id="rrAdminLogin" class="rrCard">
+    <h3>🔐 Developer Login</h3>
+    <input id="rrAdminCode" type="password"
+      placeholder="Enter developer code" autocomplete="current-password">
+    <button onclick="rrAdminLogin()">Log In</button>
+  </div>
+
+  <div id="rrAdminControls" style="display:none">
+    <div class="rrGrid">
+      <div class="rrCard">
+        <h3>🪙 Coin Controls</h3>
+        <input id="rrCoins" type="number" min="0"
+          max="10000000" value="100">
+        <button onclick="rrAdminAction('giveCoins')">Give Coins</button>
+        <button onclick="rrAdminAction('setCoins')">Set Balance</button>
+      </div>
+
+      <div class="rrCard">
+        <h3>💎 Relic Controls</h3>
+        <select id="rrRelic">
+          <option value="forest">Forest</option>
+          <option value="stone">Stone</option>
+          <option value="moon">Moon</option>
+          <option value="frost">Frost</option>
+          <option value="dragon">Dragon</option>
+          <option value="phantom">Phantom</option>
+          <option value="solar">Solar</option>
+          <option value="void">Void</option>
+        </select>
+        <select id="rrGold">
+          <option value="false">Normal Relic</option>
+          <option value="true">Gold Relic</option>
+        </select>
+        <button onclick="rrAdminAction('giveRelic')">Grant Relic</button>
+      </div>
+
+      <div class="rrCard">
+        <h3>❤️ Player Controls</h3>
+        <p>Restore player health.</p>
+        <button onclick="rrAdminAction('heal')">Heal Player</button>
+      </div>
+
+      <div class="rrCard">
+        <h3>🎁 Giveaway Codes</h3>
+        <select id="rrRewardType">
+          <option value="coins">Coins</option>
+          <option value="relic">Relic</option>
+        </select>
+        <input id="rrRewardCoins" type="number" min="1"
+          max="1000000" value="500" placeholder="Coin reward">
+        <select id="rrRewardRelic">
+          <option value="forest">Forest</option>
+          <option value="stone">Stone</option>
+          <option value="moon">Moon</option>
+          <option value="frost">Frost</option>
+          <option value="dragon">Dragon</option>
+          <option value="phantom">Phantom</option>
+          <option value="solar">Solar</option>
+          <option value="void">Void</option>
+        </select>
+        <select id="rrRewardGold">
+          <option value="false">Normal Relic</option>
+          <option value="true">Gold Relic</option>
+        </select>
+        <button onclick="rrCreateReward()">Create Giveaway Code</button>
+      </div>
+    </div>
+
+    <button onclick="rrAdminLogout()">Log Out</button>
+  </div>
+
+  <p id="rrAdminStatus" role="status" aria-live="polite">
+    Enter your developer code to begin.
+  </p>
+</section>
+
+<script>
+let rrAdminToken = "";
+let rrAdminExpiry = 0;
+
+function rrToggleAdmin() {
+  const panel = document.getElementById("rrAdmin");
+  panel.style.display =
+    panel.style.display === "block" ? "none" : "block";
+}
+
+async function rrAdminRequest(payload) {
+  if (!rrAdminToken || Date.now() >= rrAdminExpiry) {
+    rrAdminLogout();
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  const response = await fetch("/.netlify/functions/admin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, token: rrAdminToken })
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Request failed.");
+  return data;
+}
+
+async function rrAdminLogin() {
+  const status = document.getElementById("rrAdminStatus");
+  status.textContent = "Signing in...";
+
+  try {
+    const response = await fetch("/.netlify/functions/admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "login",
+        code: document.getElementById("rrAdminCode").value
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Login failed.");
+
+    rrAdminToken = data.token;
+    rrAdminExpiry = data.expiresAt;
+    document.getElementById("rrAdminCode").value = "";
+    document.getElementById("rrAdminLogin").style.display = "none";
+    document.getElementById("rrAdminControls").style.display = "block";
+    status.textContent = "Logged in. Choose an admin action.";
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+async function rrAdminAction(action) {
+  const status = document.getElementById("rrAdminStatus");
+  const amount = Number(document.getElementById("rrCoins").value);
+  const payload = { action };
+
+  if (action === "giveCoins" || action === "setCoins") {
+    payload.amount = amount;
+  }
+
+  if (action === "giveRelic") {
+    payload.relicId = document.getElementById("rrRelic").value;
+    payload.gold = document.getElementById("rrGold").value === "true";
+  }
+
+  try {
+    status.textContent = "Sending request...";
+    const result = await rrAdminRequest(payload);
+    status.textContent =
+      "Server accepted the command:\n" +
+      JSON.stringify(result.command, null, 2) +
+      "\n\nNote: this response does not yet change a player's saved inventory.";
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+async function rrCreateReward() {
+  const status = document.getElementById("rrAdminStatus");
+  const type = document.getElementById("rrRewardType").value;
+  const reward = type === "coins"
+    ? {
+        type: "coins",
+        amount: Number(document.getElementById("rrRewardCoins").value)
+      }
+    : {
+        type: "relic",
+        relicId: document.getElementById("rrRewardRelic").value,
+        gold: document.getElementById("rrRewardGold").value === "true"
+      };
+
+  try {
+    status.textContent = "Creating giveaway...";
+    const result = await rrAdminRequest({
+      action: "createRewardCode",
+      reward
+    });
+    status.textContent =
+      "Giveaway created!\nCode: " + result.code +
+      "\nReward: " + result.rewardLabel;
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+function rrAdminLogout() {
+  rrAdminToken = "";
+  rrAdminExpiry = 0;
+  document.getElementById("rrAdminLogin").style.display = "block";
+  document.getElementById("rrAdminControls").style.display = "none";
+  document.getElementById("rrAdminStatus").textContent = "Logged out.";
+}
+</script>
+</body>
+
 </body>
 </html>
