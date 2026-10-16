@@ -91,6 +91,7 @@ footer{text-align:center;padding:20px;color:#73658e;font-size:12px}
 <button data-page="market">🏪 Market</button>
 <button data-page="records">📜 Records</button>
 <button data-page="achievements">🏆 Achievements</button>
+<button data-page="trickortreat">🎃 Trick-or-Treat</button>
 </nav>
 </header>
 <main>
@@ -209,6 +210,50 @@ footer{text-align:center;padding:20px;color:#73658e;font-size:12px}
 <div class="grid" id="achievementsGrid"></div>
 </section>
 </main>
+<section id="trickortreat" class="page">
+  <div class="hero">
+    <span class="tag">HALLOWEEN EVENT</span>
+    <h1>🎃 Trick-or-Treat Town</h1>
+    <p>Explore the neighborhood, visit houses, collect candy, and discover spooky surprises!</p>
+    <div class="row">
+      <div class="stat">🍬 Candy: <span id="ttCandy">0</span></div>
+      <div class="stat">🏠 Houses visited: <span id="ttVisited">0</span>/5</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏘️ The Neighborhood</h2>
+    <p>Use the arrow buttons to walk around. Move next to a house to knock on its door.</p>
+    <div id="ttMap" class="tt-map"></div>
+
+    <div class="tt-controls">
+      <button class="btn secondary" onclick="ttMove(0,-1)">⬆️</button>
+      <div class="row" style="justify-content:center">
+        <button class="btn secondary" onclick="ttMove(-1,0)">⬅️</button>
+        <button class="btn secondary" onclick="ttMove(0,1)">⬇️</button>
+        <button class="btn secondary" onclick="ttMove(1,0)">➡️</button>
+      </div>
+    </div>
+
+    <div class="notice" id="ttMessage">
+      🎃 Your Halloween adventure awaits!
+    </div>
+
+    <button class="btn gold full" onclick="ttKnock()">🚪 Knock on Nearby House</button>
+  </div>
+
+  <div class="grid" style="margin-top:15px">
+    <div class="card">
+      <h3>🍬 Candy Collection</h3>
+      <p>Every successful visit earns candy and coins.</p>
+      <h2 id="ttReward">0 candy collected</h2>
+    </div>
+    <div class="card">
+      <h3>👻 Halloween Surprise</h3>
+      <p id="ttSurprise">Who knows what is hiding around the next corner?</p>
+    </div>
+  </div>
+</section>
 <footer>RELIC RUSH • Progress is saved on this device.</footer>
 
 <div class="overlay" id="revealOverlay" onclick="if(event.target===this)closeReveal()">
