@@ -132,6 +132,16 @@ footer{text-align:center;padding:20px;color:#73658e;font-size:12px}
   .tt-map { gap: 3px; padding: 5px; }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://rfbyjoicibbegfldybmv.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_Ril6in470qKX0OCZIoGONw_8uVdeyrp";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+</script>
 </head>
 <body>
 <header>
