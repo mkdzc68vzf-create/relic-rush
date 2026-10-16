@@ -68,6 +68,69 @@ footer{text-align:center;padding:20px;color:#73658e;font-size:12px}
 .reward-icon{font-size:36px}.tier h3{margin:0}.tier .btn{margin-top:auto}.reward-label{font-size:12px;color:var(--muted)}
 .quest{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
 @media(max-width:550px){header{padding:12px}.logo{font-size:21px}.stat{padding:7px 9px;font-size:13px}nav{gap:4px}nav button{padding:9px;font-size:12px}main{padding:18px 12px 50px}.hero{padding:20px}.grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}.card{padding:13px}.season-track{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Trick-or-Treat neighborhood */
+.tt-map {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #090f20;
+  border: 1px solid #302052;
+  max-width: 560px;
+  margin: 12px auto;
+}
+
+.tt-tile {
+  aspect-ratio: 1;
+  min-width: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(17px, 5vw, 30px);
+  background: #183d30;
+  border: 1px solid #285642;
+  padding: 0;
+}
+
+.tt-tile.path {
+  background: #353047;
+  border-color: #49405f;
+}
+
+.tt-tile.house {
+  background: #39204e;
+  border-color: #7544a0;
+}
+
+.tt-tile.visited {
+  background: #183c31;
+  border-color: #52e0a0;
+}
+
+.tt-tile.player {
+  background: #5b2ca0;
+  border-color: #bd83ff;
+  box-shadow: 0 0 12px #8b35ff;
+}
+
+.tt-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  margin-top: 15px;
+}
+
+.tt-controls button {
+  min-width: 54px;
+  min-height: 46px;
+}
+
+@media(max-width:400px) {
+  .tt-map { gap: 3px; padding: 5px; }
+}
 </style>
 </head>
 <body>
@@ -653,6 +716,173 @@ game=freshGame();saveGame();updateAll();renderRelics();renderMarket();toast("You
 }
 document.getElementById("relicFilter").addEventListener("change",renderRelics);
 updateAll();renderRelics();renderMarket();
+// 🎃 TRICK-OR-TREAT GAME MODE
+game.trickTreat = game.trickTreat || {
+  x: 3,
+  y: 3,
+  candy: 0,
+  visited: [],
+  surprise: "Who knows what is hiding around the next corner?"
+};
+
+const TT_HOUSES = [
+  {x:0,y:0,icon:"🏚️",name:"The Spooky Cottage"},
+  {x:3,y:0,icon:"🏠",name:"The Candy House"},
+  {x:6,y:1,icon:"🎃",name:"Pumpkin Manor"},
+  {x:1,y:5,icon:"🏡",name:"The Witch's House"},
+  {x:6,y:6,icon:"🏰",name:"The Haunted Mansion"}
+];
+
+function ttSave() {
+  saveGame();
+  ttRender();
+}
+
+function ttRender() {
+  const t = game.trickTreat;
+  const map = document.getElementById("ttMap");
+  if (!map) return;
+
+  document.getElementById("ttCandy").textContent = t.candy;
+  document.getElementById("ttVisited").textContent = t.visited.length;
+  document.getElementById("ttReward").textContent =
+    t.candy + " candy collected";
+  document.getElementById("ttSurprise").textContent = t.surprise;
+
+  map.innerHTML = "";
+
+  for (let y = 0; y < 7; y++) {
+    for (let x = 0; x < 7; x++) {
+      const houseIndex = TT_HOUSES.findIndex(
+        h => h.x === x && h.y === y
+      );
+      const isPlayer = t.x === x && t.y === y;
+      const tile = document.createElement("div");
+
+      tile.className = "tt-tile";
+
+      if (isPlayer) {
+        tile.classList.add("player");
+        tile.textContent = "🧛";
+        tile.title = "You are here";
+      } else if (houseIndex !== -1) {
+        const house = TT_HOUSES[houseIndex];
+        tile.classList.add("house");
+
+        if (t.visited.includes(houseIndex)) {
+          tile.classList.add("visited");
+          tile.textContent = "🍬";
+          tile.title = house.name + " — visited";
+        } else {
+          tile.textContent = house.icon;
+          tile.title = house.name;
+        }
+      } else {
+        tile.classList.add("path");
+        tile.textContent =
+          (x === 3 || y === 3) ? "·" : "🌲";
+      }
+
+      map.appendChild(tile);
+    }
+  }
+}
+
+function ttMove(dx, dy) {
+  const t = game.trickTreat;
+  const nx = Math.max(0, Math.min(6, t.x + dx));
+  const ny = Math.max(0, Math.min(6, t.y + dy));
+
+  const blocked = TT_HOUSES.some(h => h.x === nx && h.y === ny);
+
+  if (blocked) {
+    document.getElementById("ttMessage").textContent =
+      "🏠 You're at a house! Stand beside it and knock on the door.";
+    return;
+  }
+
+  t.x = nx;
+  t.y = ny;
+
+  document.getElementById("ttMessage").textContent =
+    "🚶 You walked down the spooky street. Find a house to visit!";
+
+  ttSave();
+}
+
+function ttKnock() {
+  const t = game.trickTreat;
+
+  const nearby = TT_HOUSES
+    .map((h, i) => ({...h, index:i}))
+    .filter(h =>
+      Math.abs(h.x - t.x) + Math.abs(h.y - t.y) === 1
+    );
+
+  if (!nearby.length) {
+    document.getElementById("ttMessage").textContent =
+      "🚶 Walk next to a house before knocking!";
+    return;
+  }
+
+  const unvisited = nearby.filter(
+    h => !t.visited.includes(h.index)
+  );
+
+  if (!unvisited.length) {
+    document.getElementById("ttMessage").textContent =
+      "🍬 You've already visited the nearby house!";
+    return;
+  }
+
+  const house = unvisited[0];
+  const candy = 5 + Math.floor(Math.random() * 16);
+  const coins = 15 + Math.floor(Math.random() * 26);
+
+  t.visited.push(house.index);
+  t.candy += candy;
+  game.coins += coins;
+  game.coinsEarned += coins;
+  game.seasonXP += 10;
+
+  const surprises = [
+    "👻 A friendly ghost waved hello!",
+    "🕷️ A giant spider dropped a bonus candy!",
+    "🎃 A jack-o'-lantern lit up the street!",
+    "🦇 Bats flew over the rooftops!",
+    "🍭 You found a secret candy stash!"
+  ];
+
+  t.surprise = surprises[
+    Math.floor(Math.random() * surprises.length)
+  ];
+
+  document.getElementById("ttMessage").textContent =
+    house.icon + " " + house.name +
+    " gave you " + candy + " candy and " + coins + " coins!";
+
+  if (t.visited.length === TT_HOUSES.length) {
+    t.surprise = "🏆 Neighborhood Champion! You visited every house!";
+    game.coins += 100;
+    game.coinsEarned += 100;
+
+    document.getElementById("ttMessage").textContent +=
+      " 🎉 All five houses visited! Bonus: 100 coins!";
+  }
+
+  saveGame();
+  updateAll();
+  ttRender();
+}
+
+const originalGo = go;
+
+go = function(page) {
+  originalGo(page);
+  if (page === "trickortreat") ttRender();
+};
+
+ttRender();
 </script>
 </body>
 </html>
