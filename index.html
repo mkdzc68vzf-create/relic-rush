@@ -1,24 +1,19 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Relic Rush — Season Pass</title>
+<title>Relic Rush</title>
 <style>
-:root{
-  --bg:#080518;--panel:#100a28;--card:#171035;--purple:#8b35ff;
-  --bright:#bd83ff;--gold:#ffca55;--text:#f6f1ff;--muted:#a79cbd;
-  --border:#302052;--green:#52e0a0;--red:#ff647d
-}
+:root{--bg:#080518;--panel:#100a28;--card:#171035;--purple:#8b35ff;--bright:#bd83ff;--gold:#ffca55;--text:#f6f1ff;--muted:#a79cbd;--border:#302052;--green:#52e0a0;--red:#ff647d}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(ellipse at top,#201044 0%,var(--bg) 55%);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
-button{font:inherit;cursor:pointer;border:0}
-button:disabled{opacity:.45;cursor:not-allowed}
+button{font:inherit;cursor:pointer;border:0}button:disabled{opacity:.45;cursor:not-allowed}
 header{position:sticky;top:0;z-index:5;background:#0c0723ed;backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px}
 .header-inner{max-width:1250px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .logo{font-size:25px;font-weight:900;letter-spacing:1px}.logo span{color:var(--bright)}
-.stats{display:flex;gap:8px;flex-wrap:wrap}
-.stat{background:var(--card);border:1px solid var(--border);padding:9px 12px;border-radius:12px;font-weight:bold}
+.stats{display:flex;gap:8px;flex-wrap:wrap}.stat{background:var(--card);border:1px solid var(--border);padding:9px 12px;border-radius:12px;font-weight:bold}
 nav{display:flex;gap:7px;flex-wrap:wrap;max-width:1250px;margin:14px auto 0}
 nav button{background:transparent;color:var(--muted);padding:10px 12px;border-radius:9px;font-weight:bold}
 nav button.active,nav button:hover{background:#29154b;color:white}
@@ -28,40 +23,39 @@ p{color:var(--muted);line-height:1.5}
 .page{display:none}.page.active{display:block;animation:fade .2s ease}
 @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .hero{padding:28px;border:1px solid #42286d;border-radius:20px;background:linear-gradient(120deg,#251044,#120a2c 65%);margin-bottom:20px}
-.hero p{max-width:700px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.hero p{max-width:700px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
 .card{background:linear-gradient(145deg,#1a1238,#100a26);border:1px solid var(--border);border-radius:16px;padding:17px;min-width:0}
-.card p{margin:8px 0}
-.btn{background:var(--purple);color:white;padding:11px 14px;border-radius:10px;font-weight:bold;transition:.15s}
-.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
-.btn.secondary{background:#30204f}.btn.gold{background:#8d6412;color:#fff1bd}
-.btn.danger{background:#8d2942}.btn.small{padding:7px 10px;font-size:13px}
-.btn.full{width:100%;margin-top:10px}
+.card p{margin:8px 0}.btn{background:var(--purple);color:white;padding:11px 14px;border-radius:10px;font-weight:bold;transition:.15s}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}.btn.secondary{background:#30204f}.btn.gold{background:#8d6412;color:#fff1bd}
+.btn.danger{background:#8d2942}.btn.small{padding:7px 10px;font-size:13px}.btn.full{width:100%;margin-top:10px}
 .muted{color:var(--muted)}.small{font-size:13px}
 .pack-icon{font-size:43px;margin:8px 0}.pack-card{position:relative;overflow:hidden}
 .pack-card:before{content:"";position:absolute;right:-40px;top:-45px;width:120px;height:120px;border-radius:50%;background:var(--pack-color,#8b35ff);opacity:.1;filter:blur(3px)}
 .price{font-size:23px;font-weight:900;margin:12px 0}
 .tag{display:inline-block;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;background:#30204f;color:#d9c4ff}
 .tag.gold-tag{background:#674910;color:#ffe6a0}.tag.common{color:#d1d1dc}.tag.rare{color:#64d8ff;background:#10384a}.tag.epic{color:#dc9aff;background:#43215a}.tag.legendary{color:#ffd56a;background:#594016}
+.tag.candy-tag{background:#a94d15;color:#fff0a6}
 .relic-icon{font-size:38px;margin:8px 0}.owned{font-size:13px;color:#d7c6ff;background:#24163e;padding:7px 9px;border-radius:8px;display:inline-block;margin-top:5px}
 .gold-relic{border-color:#9c752a;background:linear-gradient(145deg,#382810,#171025)}
 .gold-relic .relic-icon{filter:drop-shadow(0 0 8px #ffca55)}.gold-relic .owned{background:#594016;color:#ffe6a0}
+.candy-relic{border-color:#e88b2b;background:linear-gradient(145deg,#422313,#171025)}
+.candy-relic .relic-icon{filter:drop-shadow(0 0 8px #ff9d36)}
+.candy-relic .owned{background:#673716;color:#ffe0a4}
 .relic-card{display:flex;flex-direction:column}.relic-card .btn{margin-top:auto}
 .bar{height:10px;background:#302448;border-radius:20px;overflow:hidden;margin:12px 0}
 .bar span{display:block;height:100%;background:linear-gradient(90deg,#8b35ff,#d0a0ff);width:0%;transition:width .2s}
 .notice{padding:13px 15px;background:#1b1236;border:1px solid var(--border);border-radius:12px;margin:14px 0;color:#e6dcff}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.space{justify-content:space-between}
 input,select{background:#0b071c;border:1px solid var(--border);color:white;padding:10px;border-radius:9px;max-width:100%}
-.zombie{border-left:3px solid var(--red)}
-.record{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);padding:12px 0}
+.zombie{border-left:3px solid var(--red)}.record{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);padding:12px 0}
 .empty{padding:35px;text-align:center;border:1px dashed var(--border);border-radius:14px;color:var(--muted)}
 footer{text-align:center;padding:20px;color:#73658e;font-size:12px}
 .overlay{position:fixed;inset:0;background:#05020de8;z-index:20;display:none;align-items:center;justify-content:center;padding:18px}
-.overlay.show{display:flex}
-.reveal{width:min(440px,100%);text-align:center;padding:28px;border:1px solid #6b3aa3;border-radius:22px;background:radial-gradient(ellipse at top,#352057,#100a25 65%);box-shadow:0 0 70px #641db344;animation:pop .25s ease}
+.overlay.show{display:flex}.reveal{width:min(440px,100%);text-align:center;padding:28px;border:1px solid #6b3aa3;border-radius:22px;background:radial-gradient(ellipse at top,#352057,#100a25 65%);box-shadow:0 0 70px #641db344;animation:pop .25s ease}
 @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 .reveal-icon{font-size:85px;margin:12px}.reveal.gold-reveal{border-color:#d8a93b;box-shadow:0 0 70px #ffca5533}
 .reveal.gold-reveal .reveal-icon{filter:drop-shadow(0 0 15px #ffca55)}
+.reveal.candy-reveal{border-color:#ff9d36;box-shadow:0 0 70px #ff9d3633}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:30;background:#251744;border:1px solid #7146a0;border-radius:12px;padding:12px 18px;display:none;max-width:90%;text-align:center;box-shadow:0 10px 30px #0008}
 #toast.show{display:block;animation:fade .2s}hr{border:0;border-top:1px solid var(--border);margin:17px 0}
 .season-banner{background:linear-gradient(120deg,#32144d,#11102d 70%);border:1px solid #7640a9;border-radius:18px;padding:22px;margin-bottom:18px}
@@ -71,193 +65,192 @@ footer{text-align:center;padding:20px;color:#73658e;font-size:12px}
 .tier{position:relative;background:linear-gradient(145deg,#20153d,#100a26);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;min-height:210px}
 .tier.unlocked{border-color:#8452c6}.tier.claimed{border-color:#398a68;background:linear-gradient(145deg,#143327,#100a26)}
 .tier.locked{opacity:.68}.tier-number{font-size:12px;color:var(--bright);font-weight:900;letter-spacing:1px}
-.reward-icon{font-size:36px}.tier h3{margin:0}.tier .btn{margin-top:auto}
-.reward-label{font-size:12px;color:var(--muted)}
+.reward-icon{font-size:36px}.tier h3{margin:0}.tier .btn{margin-top:auto}.reward-label{font-size:12px;color:var(--muted)}
 .quest{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-@media(max-width:550px){
- header{padding:12px}.logo{font-size:21px}.stat{padding:7px 9px;font-size:13px}
- nav{gap:4px}nav button{padding:9px;font-size:12px}
- main{padding:18px 12px 50px}.hero{padding:20px}
- .grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}.card{padding:13px}
- .season-track{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
+@media(max-width:550px){header{padding:12px}.logo{font-size:21px}.stat{padding:7px 9px;font-size:13px}nav{gap:4px}nav button{padding:9px;font-size:12px}main{padding:18px 12px 50px}.hero{padding:20px}.grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}.card{padding:13px}.season-track{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
 <header>
-  <div class="header-inner">
-    <div class="logo">💎 RELIC <span>RUSH</span></div>
-    <div class="stats">
-      <div class="stat">🪙 <span id="coins">500</span></div>
-      <div class="stat">💎 <span id="totalRelics">0</span> relics</div>
-      <div class="stat">🌊 Wave <span id="waveStat">1</span></div>
-      <div class="stat">⭐ Lv. <span id="levelStat">1</span></div>
-    </div>
-  </div>
-  <nav id="nav">
-    <button class="active" data-page="home">🏠 Home</button>
-    <button data-page="zombies">🧟 Zombies</button>
-    <button data-page="packs">🎁 Packs</button>
-    <button data-page="relics">💎 Relics</button>
-    <button data-page="season">🎟️ Season Pass</button>
-    <button data-page="shop">🛒 Shop</button>
-    <button data-page="market">🏪 Market</button>
-    <button data-page="records">📜 Records</button>
-    <button data-page="achievements">🏆 Achievements</button>
-  </nav>
+<div class="header-inner">
+<div class="logo">💎 RELIC <span>RUSH</span></div>
+<div class="stats">
+<div class="stat">🪙 <span id="coins">500</span></div>
+<div class="stat">💎 <span id="totalRelics">0</span> relics</div>
+<div class="stat">🌊 Wave <span id="waveStat">1</span></div>
+<div class="stat">⭐ Lv. <span id="levelStat">1</span></div>
+</div>
+</div>
+<nav id="nav">
+<button class="active" data-page="home">🏠 Home</button>
+<button data-page="zombies">🧟 Zombies</button>
+<button data-page="packs">🎁 Packs</button>
+<button data-page="relics">💎 Relics</button>
+<button data-page="season">🎟️ Season Pass</button>
+<button data-page="shop">🛒 Shop</button>
+<button data-page="market">🏪 Market</button>
+<button data-page="records">📜 Records</button>
+<button data-page="achievements">🏆 Achievements</button>
+</nav>
 </header>
-
 <main>
 <section id="home" class="page active">
-  <div class="hero">
-    <span class="tag">COLLECT • UPGRADE • SURVIVE</span>
-    <h1 style="margin-top:15px">Welcome to Relic Rush</h1>
-    <p>Open powerful relic packs, discover rare treasures, hunt for Gold variants, survive zombie waves, and earn Season Pass XP for exclusive rewards.</p>
-    <div class="row">
-      <button class="btn" onclick="go('packs')">🎁 Open Packs</button>
-      <button class="btn secondary" onclick="go('relics')">💎 My Collection</button>
-      <button class="btn secondary" onclick="claimDaily()">🎁 Daily Reward</button>
-      <button class="btn gold" onclick="go('season')">🎟️ Season Pass</button>
-    </div>
-  </div>
-  <div class="grid">
-    <div class="card"><div class="muted small">COLLECTION VALUE</div><h2 id="collectionValue">0 🪙</h2><p>Total value of all owned relics.</p></div>
-    <div class="card"><div class="muted small">UNIQUE RELICS</div><h2 id="uniqueCount">0</h2><p>Different relic types discovered.</p></div>
-    <div class="card"><div class="muted small">GOLD RELICS</div><h2 id="goldCount">0</h2><p>Gold treasures in your inventory.</p></div>
-    <div class="card"><div class="muted small">ZOMBIES DEFEATED</div><h2 id="kills">0</h2><p>Keep fighting to earn coins and XP.</p></div>
-  </div>
-  <h2 style="margin-top:25px">✨ Featured Packs</h2>
-  <div class="grid" id="featuredPacks"></div>
-  <div class="notice">💡 Relics are collected automatically. Earn Season XP by opening packs, defeating zombies, clearing waves, and claiming daily rewards.</div>
+<div class="hero">
+<span class="tag">COLLECT • UPGRADE • SURVIVE</span>
+<h1 style="margin-top:15px">Welcome to Relic Rush</h1>
+<p>Open powerful relic packs, discover rare treasures, find Gold and Candy Corn variants, survive zombie waves, and earn Season Pass XP.</p>
+<div class="row">
+<button class="btn" onclick="go('packs')">🎁 Open Packs</button>
+<button class="btn secondary" onclick="go('relics')">💎 My Collection</button>
+<button class="btn secondary" onclick="claimDaily()">🎁 Daily Reward</button>
+<button class="btn gold" onclick="go('season')">🎟️ Season Pass</button>
+</div>
+</div>
+<div class="grid">
+<div class="card"><div class="muted small">COLLECTION VALUE</div><h2 id="collectionValue">0 🪙</h2><p>Total value of all owned relics.</p></div>
+<div class="card"><div class="muted small">UNIQUE RELICS</div><h2 id="uniqueCount">0</h2><p>Different relic variants discovered.</p></div>
+<div class="card"><div class="muted small">GOLD RELICS</div><h2 id="goldCount">0</h2><p>Gold treasures in your inventory.</p></div>
+<div class="card"><div class="muted small">🍬 CANDY CORN RELICS</div><h2 id="candyCount">0</h2><p>Extra-valuable Candy Corn finds.</p></div>
+<div class="card"><div class="muted small">ZOMBIES DEFEATED</div><h2 id="kills">0</h2><p>Keep fighting to earn coins and XP.</p></div>
+</div>
+<h2 style="margin-top:25px">✨ Featured Packs</h2><div class="grid" id="featuredPacks"></div>
+<div class="notice">💡 Relics are collected automatically. Candy Corn variants have a 1.5% chance and sell for 3.5× their normal value.</div>
 </section>
 
 <section id="zombies" class="page">
-  <div class="hero">
-    <span class="tag">SURVIVAL MODE</span><h1 style="margin-top:12px">🧟 Zombie Arena</h1>
-    <p>Defeat zombies to earn coins and Season XP. Upgrade your weapon in the shop to deal more damage.</p>
-    <div class="row">
-      <div class="stat">❤️ Health: <span id="health">100</span></div>
-      <div class="stat">⚔️ Damage: <span id="damage">10</span></div>
-      <div class="stat">🧟 Remaining: <span id="remaining">5</span></div>
-    </div>
-    <div class="bar"><span id="waveBar"></span></div>
-    <div class="row">
-      <button class="btn" onclick="attackZombie()">⚔️ Attack Zombie</button>
-      <button class="btn secondary" onclick="healPlayer()">❤️ Heal (40 coins)</button>
-      <button class="btn secondary" onclick="startNextWave()">🌊 Next Wave</button>
-    </div>
-  </div>
-  <div class="grid">
-    <div class="card zombie"><h3>🧟 Walker</h3><p>Standard zombie. Defeat it for coins and XP.</p><div>Health: <b id="zombieHealth">30</b></div></div>
-    <div class="card"><h3>🎁 Battle Rewards</h3><p>Each zombie defeated grants coins and Season XP.</p><div class="owned">Defeated: <span id="arenaKills">0</span></div></div>
-  </div>
-  <div class="notice" id="battleLog">The arena is quiet... for now.</div>
+<div class="hero">
+<span class="tag">SURVIVAL MODE</span><h1 style="margin-top:12px">🧟 Zombie Battles</h1>
+<p>Fight zombies using the original button-based battle system. Upgrade your weapon to deal more damage.</p>
+<div class="row">
+<div class="stat">❤️ Health: <span id="health">100</span></div>
+<div class="stat">⚔️ Damage: <span id="damage">10</span></div>
+<div class="stat">🧟 Remaining: <span id="remaining">5</span></div>
+</div>
+<div class="bar"><span id="waveBar"></span></div>
+<div class="row">
+<button class="btn" onclick="attackZombie()">⚔️ Attack Zombie</button>
+<button class="btn secondary" onclick="healPlayer()">❤️ Heal (70 coins)</button>
+<button class="btn secondary" onclick="startNextWave()">🌊 Next Wave</button>
+</div>
+</div>
+<div class="grid">
+<div class="card zombie"><h3>🧟 Walker</h3><p>Standard zombie. Defeat it for coins and XP.</p><div>Health: <b id="zombieHealth">30</b></div></div>
+<div class="card"><h3>🎁 Battle Rewards</h3><p>Each zombie defeated grants coins and Season XP.</p><div class="owned">Defeated: <span id="arenaKills">0</span></div></div>
+</div>
+<div class="notice" id="battleLog">The arena is quiet... for now.</div>
 </section>
 
 <section id="packs" class="page">
-  <div class="hero"><span class="tag">RELIC COLLECTION</span><h1 style="margin-top:12px">🎁 Relic Packs</h1>
-    <p>Choose a pack and discover a relic. Your prize is instantly saved to your inventory.</p>
-    <div class="row"><div class="stat">🪙 Your coins: <span id="packCoins">500</span></div><div class="stat">💎 Relics owned: <span id="packTotal">0</span></div></div>
-  </div>
-  <div class="grid" id="packsGrid"></div>
+<div class="hero"><span class="tag">RELIC COLLECTION</span><h1 style="margin-top:12px">🎁 Relic Packs</h1>
+<p>Choose a pack and discover a relic. Your prize is instantly saved to your inventory.</p>
+<div class="row"><div class="stat">🪙 Your coins: <span id="packCoins">500</span></div><div class="stat">💎 Relics owned: <span id="packTotal">0</span></div></div>
+</div><div class="grid" id="packsGrid"></div>
 </section>
 
 <section id="relics" class="page">
-  <div class="row space"><div><h1>💎 Your Relics</h1><p>Every relic you own, including duplicates and Gold variants.</p></div>
-    <select id="relicFilter"><option value="all">All Relics</option><option value="normal">Normal Only</option><option value="gold">Gold Only</option><option value="owned">Unique Types Owned</option></select>
-  </div>
-  <div class="notice">📦 Each card displays how many copies you own. Normal and Gold versions have separate counts.</div>
-  <div class="grid" id="relicsGrid"></div>
+<div class="row space"><div><h1>💎 Your Relics</h1><p>Every relic you own, including duplicates and special variants.</p></div>
+<select id="relicFilter">
+<option value="all">All Relics</option><option value="normal">Normal Only</option><option value="gold">Gold Only</option><option value="candy">🍬 Candy Corn Only</option><option value="owned">Owned Types</option>
+</select>
+</div>
+<div class="notice">📦 Normal, Gold, and Candy Corn versions have separate counts. Candy Corn relics sell for 3.5× the normal value.</div>
+<div class="grid" id="relicsGrid"></div>
 </section>
 
 <section id="season" class="page">
-  <div class="season-banner">
-    <span class="tag gold-tag">SEASON 1 • FREE TRACK</span>
-    <div class="season-title">🌌 Relics of the Lost Galaxy</div>
-    <p>Earn XP by playing the game, level up your pass, and claim exclusive seasonal rewards. This season is saved on your device.</p>
-    <div class="season-progress"><span>⭐ Season Level <b id="seasonLevel">1</b> / 10</span><span><b id="seasonXP">0</b> / <span id="nextXP">100</span> XP</span></div>
-    <div class="bar"><span id="seasonBar"></span></div>
-    <div class="row"><button class="btn gold" onclick="claimSeasonRewards()">🎁 Claim Available Rewards</button><span class="muted small" id="claimStatus">Play to unlock rewards!</span></div>
-  </div>
-  <div class="grid" style="margin-bottom:20px">
-    <div class="card"><div class="muted small">SEASON XP EARNED</div><h2 id="seasonXPTotal">0</h2><p>All XP earned this season.</p></div>
-    <div class="card"><div class="muted small">REWARDS CLAIMED</div><h2 id="seasonClaimed">0 / 10</h2><p>Collect all ten free rewards.</p></div>
-    <div class="card"><div class="muted small">EXCLUSIVE RELICS</div><h2 id="seasonExclusive">0 / 3</h2><p>Season-only relics claimed.</p></div>
-  </div>
-  <h2>🎟️ Season Reward Track</h2>
-  <p>Each tier requires 100 Season XP. Earn XP from packs, zombie battles, and daily rewards.</p>
-  <div class="season-track" id="seasonTrack"></div>
-  <div class="card" style="margin-top:18px"><h3>📋 How to earn Season XP</h3>
-    <div class="quest"><span>🎁 Open any relic pack</span><b>+25 XP</b></div>
-    <div class="quest"><span>🧟 Defeat a zombie</span><b>+20 XP</b></div>
-    <div class="quest"><span>🌊 Clear a wave</span><b>+40 XP</b></div>
-    <div class="quest"><span>🎁 Claim daily reward</span><b>+50 XP</b></div>
-  </div>
+<div class="season-banner">
+<span class="tag gold-tag">SEASON 1 • FREE TRACK</span>
+<div class="season-title">🌌 Relics of the Lost Galaxy</div>
+<p>Earn XP by playing the game, level up your pass, and claim exclusive seasonal rewards. This season is saved on your device.</p>
+<div class="season-progress"><span>⭐ Season Level <b id="seasonLevel">1</b> / 10</span><span><b id="seasonXP">0</b> / <span id="nextXP">100</span> XP</span></div>
+<div class="bar"><span id="seasonBar"></span></div>
+<div class="row"><button class="btn gold" onclick="claimSeasonRewards()">🎁 Claim Available Rewards</button><span class="muted small" id="claimStatus">Play to unlock rewards!</span></div>
+</div>
+<div class="grid" style="margin-bottom:20px">
+<div class="card"><div class="muted small">SEASON XP EARNED</div><h2 id="seasonXPTotal">0</h2></div>
+<div class="card"><div class="muted small">REWARDS CLAIMED</div><h2 id="seasonClaimed">0 / 10</h2></div>
+<div class="card"><div class="muted small">EXCLUSIVE RELICS</div><h2 id="seasonExclusive">0 / 3</h2></div>
+</div>
+<h2>🎟️ Season Reward Track</h2><p>Each tier requires 100 Season XP.</p>
+<div class="season-track" id="seasonTrack"></div>
+<div class="card" style="margin-top:18px"><h3>📋 How to earn Season XP</h3>
+<div class="quest"><span>🎁 Open any relic pack</span><b>+25 XP</b></div>
+<div class="quest"><span>🧟 Defeat a zombie</span><b>+20 XP</b></div>
+<div class="quest"><span>🌊 Clear a wave</span><b>+40 XP</b></div>
+<div class="quest"><span>🎁 Claim daily reward</span><b>+50 XP</b></div>
+</div>
 </section>
 
 <section id="shop" class="page">
-  <div class="hero"><h1>🛒 Upgrade Shop</h1><p>Spend coins to become stronger in the zombie arena.</p><div class="stat">🪙 Coins: <span id="shopCoins">500</span></div></div>
-  <div class="grid" id="shopGrid"></div>
+<div class="hero"><h1>🛒 Upgrade Shop</h1><p>Spend coins to become stronger in zombie battles.</p><div class="stat">🪙 Coins: <span id="shopCoins">500</span></div></div>
+<div class="grid" id="shopGrid"></div>
 </section>
 
 <section id="market" class="page">
-  <div class="hero"><h1>🏪 Relic Market</h1><p>Sell spare relic copies for coins. Selling one copy never removes your other copies.</p></div>
-  <div class="grid" id="marketGrid"></div>
+<div class="hero"><h1>🏪 Relic Market</h1><p>Sell spare relic copies for coins. Selling one copy never removes your other copies.</p></div>
+<div class="grid" id="marketGrid"></div>
 </section>
 
 <section id="records" class="page">
-  <div class="hero"><h1>📜 Your Records</h1><p>Track your collection and survival progress.</p></div>
-  <div class="grid">
-    <div class="card"><p>Total packs opened</p><h2 id="packsOpened">0</h2></div>
-    <div class="card"><p>Total coins earned</p><h2 id="coinsEarned">0</h2></div>
-    <div class="card"><p>Total zombies defeated</p><h2 id="recordKills">0</h2></div>
-    <div class="card"><p>Highest wave</p><h2 id="highestWave">1</h2></div>
-    <div class="card"><p>Season XP earned</p><h2 id="recordSeasonXP">0</h2></div>
-  </div>
-  <div class="card" style="margin-top:15px"><h3>Recent Discoveries</h3><div id="recentDiscoveries"></div></div>
-  <div style="margin-top:15px"><button class="btn danger" onclick="resetGame()">Reset All Progress</button></div>
+<div class="hero"><h1>📜 Your Records</h1><p>Track your collection and survival progress.</p></div>
+<div class="grid">
+<div class="card"><p>Total packs opened</p><h2 id="packsOpened">0</h2></div>
+<div class="card"><p>Total coins earned</p><h2 id="coinsEarned">0</h2></div>
+<div class="card"><p>Total zombies defeated</p><h2 id="recordKills">0</h2></div>
+<div class="card"><p>Highest wave</p><h2 id="highestWave">1</h2></div>
+<div class="card"><p>Season XP earned</p><h2 id="recordSeasonXP">0</h2></div>
+</div>
+<div class="card" style="margin-top:15px"><h3>Recent Discoveries</h3><div id="recentDiscoveries"></div></div>
+<div style="margin-top:15px"><button class="btn danger" onclick="resetGame()">Reset All Progress</button></div>
 </section>
 
 <section id="achievements" class="page">
-  <div class="hero"><h1>🏆 Achievements</h1><p>Unlock milestones as your collection grows.</p></div>
-  <div class="grid" id="achievementsGrid"></div>
+<div class="hero"><h1>🏆 Achievements</h1><p>Unlock milestones as your collection grows.</p></div>
+<div class="grid" id="achievementsGrid"></div>
 </section>
 </main>
-
 <footer>RELIC RUSH • Progress is saved on this device.</footer>
 
 <div class="overlay" id="revealOverlay" onclick="if(event.target===this)closeReveal()">
-  <div class="reveal" id="revealCard">
-    <div class="tag" id="revealTag">RELIC DISCOVERED</div>
-    <div class="reveal-icon" id="revealIcon">💎</div>
-    <h2 id="revealName">Crystal Relic</h2><div id="revealRarity"></div>
-    <p id="revealDescription"></p><div class="owned" id="revealOwned">Owned: 1</div>
-    <p style="color:var(--green);font-weight:bold">✓ Automatically added to your inventory!</p>
-    <p style="color:var(--bright);font-weight:bold" id="revealXP">⭐ +25 Season XP</p>
-    <div class="row" style="justify-content:center;margin-top:18px">
-      <button class="btn" onclick="closeReveal()">Awesome!</button>
-      <button class="btn secondary" onclick="closeReveal();go('relics')">View Collection</button>
-    </div>
-  </div>
+<div class="reveal" id="revealCard">
+<div class="tag" id="revealTag">RELIC DISCOVERED</div>
+<div class="reveal-icon" id="revealIcon">💎</div>
+<h2 id="revealName">Crystal Relic</h2><div id="revealRarity"></div>
+<p id="revealDescription"></p><div class="owned" id="revealOwned">Owned: 1</div>
+<p style="color:var(--green);font-weight:bold">✓ Automatically added to your inventory!</p>
+<p style="color:var(--bright);font-weight:bold" id="revealXP">⭐ +25 Season XP</p>
+<div class="row" style="justify-content:center;margin-top:18px">
+<button class="btn" onclick="closeReveal()">Awesome!</button>
+<button class="btn secondary" onclick="closeReveal();go('relics')">View Collection</button>
 </div>
+</div></div>
 <div id="toast"></div>
 
 <script>
 "use strict";
-
 const SAVE_KEY="relicRushSave_v3";
 
 const PACKS=[
-{id:"starter",name:"Starter Pack",icon:"📦",price:25,color:"#8b35ff",weights:[60,25,11,4],description:"A good place to begin."},
-{id:"cosmic",name:"Cosmic Pack",icon:"🌌",price:75,color:"#5e8dff",weights:[35,35,22,8],description:"Treasures from beyond the stars."},
-{id:"inferno",name:"Inferno Pack",icon:"🔥",price:150,color:"#ff5a39",weights:[15,30,35,20],description:"Forged in legendary flames."},
-{id:"mythic",name:"Mythic Pack",icon:"🐉",price:300,color:"#d14dff",weights:[5,15,35,45],description:"Packed with powerful relics."},
-{id:"ocean",name:"Ocean Pack",icon:"🌊",price:125,color:"#22c7d8",weights:[20,35,30,15],description:"Treasures from the deep."},
-{id:"shadow",name:"Shadow Pack",icon:"🌑",price:200,color:"#8b6cff",weights:[10,25,40,25],description:"Mysterious relics of darkness."},
-{id:"ancient",name:"Ancient Pack",icon:"🏺",price:250,color:"#c58a54",weights:[8,22,38,32],description:"Artifacts from a lost civilization."},
-{id:"royal",name:"Royal Pack",icon:"👑",price:400,color:"#ffcc58",weights:[5,15,30,50],description:"A royal selection of relics."},
-{id:"galaxy",name:"Galaxy Pack",icon:"🪐",price:550,color:"#4c82ff",weights:[3,12,30,55],description:"A whole universe of possibilities."},
-{id:"celestial",name:"Celestial Pack",icon:"✨",price:800,color:"#ff8cce",weights:[1,9,25,65],description:"Extremely rare celestial treasure."}
+{id:"starter",name:"Starter Pack",icon:"📦",price:44,color:"#8b35ff",weights:[60,25,11,4],description:"A good place to begin."},
+{id:"cosmic",name:"Cosmic Pack",icon:"🌌",price:131,color:"#5e8dff",weights:[35,35,22,8],description:"Treasures from beyond the stars."},
+{id:"inferno",name:"Inferno Pack",icon:"🔥",price:263,color:"#ff5a39",weights:[15,30,35,20],description:"Forged in legendary flames."},
+{id:"mythic",name:"Mythic Pack",icon:"🐉",price:525,color:"#d14dff",weights:[5,15,35,45],description:"Packed with powerful relics."},
+{id:"ocean",name:"Ocean Pack",icon:"🌊",price:219,color:"#22c7d8",weights:[20,35,30,15],description:"Treasures from the deep."},
+{id:"shadow",name:"Shadow Pack",icon:"🌑",price:350,color:"#8b6cff",weights:[10,25,40,25],description:"Mysterious relics of darkness."},
+{id:"ancient",name:"Ancient Pack",icon:"🏺",price:438,color:"#c58a54",weights:[8,22,38,32],description:"Artifacts from a lost civilization."},
+{id:"royal",name:"Royal Pack",icon:"👑",price:700,color:"#ffcc58",weights:[5,15,30,50],description:"A royal selection of relics."},
+{id:"galaxy",name:"Galaxy Pack",icon:"🪐",price:963,color:"#4c82ff",weights:[3,12,30,55],description:"A whole universe of possibilities."},
+{id:"celestial",name:"Celestial Pack",icon:"✨",price:1400,color:"#ff8cce",weights:[1,9,25,65],description:"Extremely rare celestial treasure."},
+{id:"candy",name:"Candy Corn Pack",icon:"🍬",price:175,color:"#ff9b27",weights:[45,30,18,7],description:"A sweet Halloween surprise."},
+{id:"toxic",name:"Toxic Pack",icon:"☢️",price:263,color:"#7cff43",weights:[25,35,28,12],description:"Treasures from the wasteland."},
+{id:"frostbite",name:"Frostbite Pack",icon:"🧊",price:350,color:"#79e6ff",weights:[15,30,35,20],description:"Frozen relics from an ancient winter."},
+{id:"volcanic",name:"Volcanic Pack",icon:"🌋",price:438,color:"#ff452b",weights:[10,25,35,30],description:"Relics forged beneath a volcano."},
+{id:"haunted",name:"Haunted Pack",icon:"👻",price:525,color:"#a66cff",weights:[10,25,40,25],description:"Spooky treasures from the unknown."},
+{id:"treasure",name:"Treasure Pack",icon:"🪙",price:613,color:"#ffd34e",weights:[10,25,35,30],description:"A chest full of valuable discoveries."},
+{id:"dragonfire",name:"Dragonfire Pack",icon:"🐲",price:788,color:"#ff643d",weights:[5,15,35,45],description:"Ancient dragon-powered treasures."},
+{id:"void",name:"Void Pack",icon:"🌀",price:875,color:"#7546ff",weights:[5,15,30,50],description:"Treasures from beyond reality."},
+{id:"prismatic",name:"Prismatic Pack",icon:"🌈",price:1050,color:"#ff73d1",weights:[3,12,30,55],description:"A rainbow of mysterious relics."},
+{id:"ultimate",name:"Ultimate Pack",icon:"💠",price:1750,color:"#ffffff",weights:[1,5,24,70],description:"The ultimate relic hunting challenge."}
 ];
 
 const RELICS=[
@@ -282,7 +275,6 @@ const RELICS=[
 
 const RARITIES=["Common","Rare","Epic","Legendary"];
 const RARITY_CLASS={Common:"common",Rare:"rare",Epic:"epic",Legendary:"legendary"};
-
 const SEASON_REWARDS=[
 {tier:1,icon:"🪙",name:"Coin Pouch",desc:"100 bonus coins",type:"coins",amount:100},
 {tier:2,icon:"📦",name:"Pack Bonus",desc:"75 bonus coins",type:"coins",amount:75},
@@ -296,88 +288,87 @@ const SEASON_REWARDS=[
 {tier:10,icon:"🌘",name:"Eclipse Heart",desc:"Final exclusive seasonal relic",type:"relic",id:"season_eclipse"}
 ];
 
-function freshGame(){
-return {coins:500,inventory:{},packsOpened:0,kills:0,coinsEarned:0,wave:1,highestWave:1,health:100,damage:10,weaponLevel:0,lootLevel:0,lastDaily:"",recent:[],achievements:[],zombieHP:30,zombiesLeft:5,totalSold:0,seasonXP:0,seasonClaimed:[],seasonId:1};
-}
+function freshGame(){return {coins:500,inventory:{},packsOpened:0,kills:0,coinsEarned:0,wave:1,highestWave:1,health:100,maxHealth:100,damage:10,weaponLevel:0,lootLevel:0,lastDaily:"",recent:[],achievements:[],zombieHP:30,zombiesLeft:5,totalSold:0,seasonXP:0,seasonClaimed:[],seasonId:1};}
 function loadGame(){
 try{
 const parsed=JSON.parse(localStorage.getItem(SAVE_KEY));
 if(!parsed)return freshGame();
-return {...freshGame(),...parsed,inventory:parsed.inventory||{},seasonClaimed:Array.isArray(parsed.seasonClaimed)?parsed.seasonClaimed:[],recent:parsed.recent||[],achievements:parsed.achievements||[]};
+return {...freshGame(),...parsed,inventory:parsed.inventory||{},seasonClaimed:Array.isArray(parsed.seasonClaimed)?parsed.seasonClaimed:[],recent:parsed.recent||[],achievements:parsed.achievements||[],maxHealth:parsed.maxHealth||100};
 }catch(e){return freshGame();}
 }
 let game=loadGame();
-
 function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(game));}catch(e){console.warn("Save failed",e);}}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function toast(message){
-const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");
-clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600);
-}
+function toast(message){const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600);}
 function go(page){
 document.querySelectorAll(".page").forEach(el=>el.classList.toggle("active",el.id===page));
 document.querySelectorAll("nav button").forEach(el=>el.classList.toggle("active",el.dataset.page===page));
-if(page==="relics")renderRelics();
-if(page==="market")renderMarket();
-if(page==="season")renderSeason();
+if(page==="relics")renderRelics();if(page==="market")renderMarket();if(page==="season")renderSeason();
 window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>go(btn.dataset.page)));
-
 function seasonLevel(){return Math.min(10,Math.floor(game.seasonXP/100)+1);}
 function seasonXPIntoLevel(){return game.seasonXP>=1000?100:game.seasonXP%100;}
-function addSeasonXP(amount,reason){
-game.seasonXP=Math.max(0,game.seasonXP+amount);
-toast("⭐ +"+amount+" Season XP"+(reason?" — "+reason:""));
-checkAchievements();saveGame();updateAll();
+function ownedKey(id,variant=false){
+if(variant===true||variant==="gold")return id+"_gold";
+if(variant==="candy")return id+"_candy";
+return id+"_normal";
 }
-function ownedKey(id,gold){return id+(gold?"_gold":"_normal");}
-function getOwned(id,gold=false){return Number(game.inventory[ownedKey(id,gold)]||0);}
-function addRelic(relic,gold){
-const key=ownedKey(relic.id,gold);game.inventory[key]=(game.inventory[key]||0)+1;
-game.recent.unshift({id:relic.id,gold,time:Date.now()});game.recent=game.recent.slice(0,12);
+function getOwned(id,variant=false){return Number(game.inventory[ownedKey(id,variant)]||0);}
+function addRelic(relic,variant="normal"){
+const key=ownedKey(relic.id,variant);
+game.inventory[key]=(Number(game.inventory[key])||0)+1;
+game.recent.unshift({id:relic.id,variant:variant,gold:variant==="gold",candy:variant==="candy",time:Date.now()});
+game.recent=game.recent.slice(0,12);
 }
 function allOwnedCopies(){return Object.values(game.inventory).reduce((a,b)=>a+(Number(b)||0),0);}
-function uniqueOwned(){return Object.keys(game.inventory).filter(k=>game.inventory[k]>0).length;}
-function totalGold(){return Object.keys(game.inventory).filter(k=>k.endsWith("_gold")).reduce((n,k)=>n+game.inventory[k],0);}
+function uniqueOwned(){return Object.keys(game.inventory).filter(k=>Number(game.inventory[k])>0).length;}
+function totalGold(){return Object.entries(game.inventory).filter(([k])=>k.endsWith("_gold")).reduce((n,[,v])=>n+(Number(v)||0),0);}
+function totalCandy(){return Object.entries(game.inventory).filter(([k])=>k.endsWith("_candy")).reduce((n,[,v])=>n+(Number(v)||0),0);}
 function relicById(id){return RELICS.find(r=>r.id===id);}
-function ownedValue(){return Object.entries(game.inventory).reduce((sum,[key,count])=>{
-const gold=key.endsWith("_gold"),id=key.replace(/_gold$|_normal$/,""),relic=relicById(id);
-return sum+(relic?relic.value*(gold?2:1)*count:0);
-},0);}
-function rarityTag(r){return `<span class="tag ${RARITY_CLASS[r]||""}">${esc(r)}</span>`;}
-function relicMarkup(relic,gold,count){
-return `<div class="card relic-card ${gold?"gold-relic":""}">
-<div class="relic-icon">${gold?"✨":""}${relic.icon}</div>
-<h3>${gold?"Gold ":""}${esc(relic.name)}</h3>${rarityTag(relic.rarity)} ${gold?'<span class="tag gold-tag">GOLD</span>':""}
-${relic.seasonal?'<span class="tag">SEASON EXCLUSIVE</span>':""}
-<p>${esc(relic.description)}</p><div class="owned">📦 Owned: <b>${count}</b></div>
-<p>Value: <b>${relic.value*(gold?2:1)} 🪙</b> each</p></div>`;
+function variantMultiplier(variant){return variant==="candy"?3.5:variant==="gold"?2:1;}
+function ownedValue(){
+return Object.entries(game.inventory).reduce((sum,[key,count])=>{
+const relicId=key.replace(/_(gold|normal|candy)$/,"");
+const relic=relicById(relicId);
+const variant=key.endsWith("_candy")?"candy":key.endsWith("_gold")?"gold":"normal";
+return sum+(relic?relic.value*variantMultiplier(variant)*(Number(count)||0):0);
+},0);
 }
+function rarityTag(r){return `<span class="tag ${RARITY_CLASS[r]||""}">${esc(r)}</span>`;}
 function rollRarity(weights){
 let n=Math.random()*weights.reduce((a,b)=>a+b,0);
 for(let i=0;i<weights.length;i++){n-=weights[i];if(n<0)return RARITIES[i];}
 return "Common";
 }
+
 function openPack(id){
 const pack=PACKS.find(p=>p.id===id);if(!pack)return;
 if(game.coins<pack.price){toast("Not enough coins for this pack!");return;}
 game.coins-=pack.price;game.packsOpened++;
 const rarity=rollRarity(pack.weights);
 const choices=RELICS.filter(r=>r.rarity===rarity&&!r.seasonal);
+if(!choices.length){game.coins+=pack.price;game.packsOpened--;toast("No relic available for that rarity.");return;}
 const relic=choices[Math.floor(Math.random()*choices.length)];
-const gold=Math.random()<(0.65/1.65);
-addRelic(relic,gold);game.seasonXP+=25;
-saveGame();updateAll();showReveal(relic,gold,pack);
+let variant;
+if(Math.random()<0.015)variant="candy";
+else if(Math.random()<(0.65/1.65))variant="gold";
+else variant="normal";
+addRelic(relic,variant);
+game.seasonXP+=25;
+saveGame();updateAll();showReveal(relic,variant,pack);
 }
-function showReveal(relic,gold,pack){
-document.getElementById("revealCard").classList.toggle("gold-reveal",gold);
-document.getElementById("revealTag").textContent=gold?"✨ GOLD RELIC DISCOVERED!":"RELIC DISCOVERED!";
-document.getElementById("revealIcon").textContent=relic.icon;
-document.getElementById("revealName").textContent=(gold?"Gold ":"")+relic.name;
-document.getElementById("revealRarity").innerHTML=rarityTag(relic.rarity)+(gold?' <span class="tag gold-tag">GOLD</span>':"");
+
+function showReveal(relic,variant,pack){
+const gold=variant==="gold",candy=variant==="candy";
+const card=document.getElementById("revealCard");
+card.classList.toggle("gold-reveal",gold);card.classList.toggle("candy-reveal",candy);
+document.getElementById("revealTag").textContent=candy?"🍬 CANDY CORN RELIC!":gold?"✨ GOLD RELIC DISCOVERED!":"RELIC DISCOVERED!";
+document.getElementById("revealIcon").textContent=(candy?"🍬 ":gold?"✨ ":"")+relic.icon;
+document.getElementById("revealName").textContent=(candy?"Candy Corn ":gold?"Gold ":"")+relic.name;
+document.getElementById("revealRarity").innerHTML=rarityTag(relic.rarity)+(candy?' <span class="tag candy-tag">CANDY CORN</span>':gold?' <span class="tag gold-tag">GOLD</span>':"");
 document.getElementById("revealDescription").textContent=relic.description+" Found in "+pack.name+".";
-document.getElementById("revealOwned").textContent="📦 Owned: "+getOwned(relic.id,gold);
+document.getElementById("revealOwned").textContent="📦 Owned: "+getOwned(relic.id,variant);
 document.getElementById("revealXP").textContent="⭐ +25 Season XP";
 document.getElementById("revealOverlay").classList.add("show");
 checkAchievements();
@@ -387,33 +378,48 @@ function closeReveal(){document.getElementById("revealOverlay").classList.remove
 function renderPacks(){
 const makeCard=pack=>`<div class="card pack-card" style="--pack-color:${pack.color}">
 <div class="pack-icon">${pack.icon}</div><h3>${esc(pack.name)}</h3><p>${esc(pack.description)}</p>
-<div class="price">🪙 ${pack.price}</div>
+<div class="price">🪙 ${pack.price.toLocaleString()}</div>
 <div class="small muted">Common ${pack.weights[0]}% • Rare ${pack.weights[1]}% • Epic ${pack.weights[2]}% • Legendary ${pack.weights[3]}%</div>
 <button class="btn full" onclick="openPack('${pack.id}')" ${game.coins<pack.price?"disabled":""}>Open Pack · +25 XP</button></div>`;
 document.getElementById("packsGrid").innerHTML=PACKS.map(makeCard).join("");
-document.getElementById("featuredPacks").innerHTML=PACKS.slice(0,3).map(makeCard).join("");
+document.getElementById("featuredPacks").innerHTML=PACKS.slice(0,4).map(makeCard).join("");
 }
+
 function renderRelics(){
 const filter=document.getElementById("relicFilter").value,cards=[];
 RELICS.forEach(relic=>{
-const normal=getOwned(relic.id,false),gold=getOwned(relic.id,true);
-if(filter==="all"||filter==="normal"||filter==="owned"){
-if(filter!=="owned"||normal>0)cards.push({relic,gold:false,count:normal});
-}
-if(filter==="all"||filter==="gold"){if(filter==="gold"||gold>0)cards.push({relic,gold:true,count:gold});}
+const normal=getOwned(relic.id,"normal"),gold=getOwned(relic.id,"gold"),candy=getOwned(relic.id,"candy");
+const variants=[{variant:"normal",count:normal},{variant:"gold",count:gold},{variant:"candy",count:candy}];
+variants.forEach(v=>{
+if(filter!=="all"&&filter!==v.variant&&!(filter==="owned"&&v.count>0))return;
+if(filter==="owned"&&v.count===0)return;
+if(filter!=="owned"&&filter!=="all"&&v.variant!==filter)return;
+if(filter==="all"&&v.count===0)return;
+cards.push({relic,variant:v.variant,count:v.count});
 });
-document.getElementById("relicsGrid").innerHTML=cards.length?cards.map(c=>relicMarkup(c.relic,c.gold,c.count)).join(""):'<div class="empty">No relics found. Open a pack to discover your first treasure!</div>';
+});
+document.getElementById("relicsGrid").innerHTML=cards.length?cards.map(c=>{
+const candy=c.variant==="candy",gold=c.variant==="gold";
+return `<div class="card relic-card ${gold?"gold-relic":candy?"candy-relic":""}">
+<div class="relic-icon">${candy?"🍬 ":gold?"✨ ":""}${c.relic.icon}</div>
+<h3>${candy?"Candy Corn ":gold?"Gold ":""}${esc(c.relic.name)}</h3>
+${rarityTag(c.relic.rarity)}
+${candy?'<span class="tag candy-tag">CANDY CORN</span>':gold?'<span class="tag gold-tag">GOLD</span>':""}
+${c.relic.seasonal?'<span class="tag">SEASON EXCLUSIVE</span>':""}
+<p>${esc(c.relic.description)}</p><div class="owned">📦 Owned: <b>${c.count}</b></div>
+<p>Value: <b>${c.relic.value*variantMultiplier(c.variant)} 🪙</b> each</p></div>`;
+}).join(""):'<div class="empty">No relics found. Open a pack to discover your first treasure!</div>';
 }
 
 const UPGRADES=[
-{id:"damage",name:"Stronger Weapon",icon:"⚔️",description:"+5 damage per upgrade.",base:100},
-{id:"health",name:"Health Boost",icon:"❤️",description:"Restore health and increase your maximum health.",base:80},
-{id:"loot",name:"Coin Bonus",icon:"🪙",description:"Earn extra coins from every zombie defeat.",base:150}
+{id:"damage",name:"Stronger Weapon",icon:"⚔️",description:"+5 damage per upgrade.",base:175},
+{id:"health",name:"Health Boost",icon:"❤️",description:"Restore health and increase your maximum health.",base:140},
+{id:"loot",name:"Coin Bonus",icon:"🪙",description:"Earn extra coins from every zombie defeat.",base:263}
 ];
 function upgradePrice(item){
-if(item.id==="damage")return item.base+game.weaponLevel*70;
-if(item.id==="health")return item.base+Math.floor(game.weaponLevel/2)*40;
-return item.base+game.lootLevel*100;
+if(item.id==="damage")return item.base+game.weaponLevel*123;
+if(item.id==="health")return item.base+Math.floor(game.weaponLevel/2)*70;
+return item.base+game.lootLevel*175;
 }
 function buyUpgrade(id){
 const item=UPGRADES.find(x=>x.id===id);if(!item)return;
@@ -429,27 +435,38 @@ document.getElementById("shopGrid").innerHTML=UPGRADES.map(item=>{
 const price=upgradePrice(item);
 return `<div class="card"><div class="pack-icon">${item.icon}</div><h3>${item.name}</h3><p>${item.description}</p>
 ${item.id==="damage"?`<div class="owned">Current damage: ${game.damage}</div>`:""}
+${item.id==="health"?`<div class="owned">Max health: ${game.maxHealth||100}</div>`:""}
 ${item.id==="loot"?`<div class="owned">Loot level: ${game.lootLevel}</div>`:""}
-<div class="price">🪙 ${price}</div><button class="btn full" onclick="buyUpgrade('${item.id}')" ${game.coins<price?"disabled":""}>Purchase Upgrade</button></div>`;
+<div class="price">🪙 ${price.toLocaleString()}</div><button class="btn full" onclick="buyUpgrade('${item.id}')" ${game.coins<price?"disabled":""}>Purchase Upgrade</button></div>`;
 }).join("");
 }
+
 function renderMarket(){
 const cards=[];
-RELICS.forEach(relic=>[false,true].forEach(gold=>{const count=getOwned(relic.id,gold);if(count>0)cards.push({relic,gold,count});}));
+RELICS.forEach(relic=>{
+["normal","gold","candy"].forEach(variant=>{
+const count=getOwned(relic.id,variant);
+if(count>0)cards.push({relic,variant,count});
+});
+});
 document.getElementById("marketGrid").innerHTML=cards.length?cards.map(c=>{
-const value=c.relic.value*(c.gold?2:1);
-return `<div class="card ${c.gold?"gold-relic":""}"><div class="relic-icon">${c.gold?"✨":""}${c.relic.icon}</div>
-<h3>${c.gold?"Gold ":""}${esc(c.relic.name)}</h3>${rarityTag(c.relic.rarity)}
+const gold=c.variant==="gold",candy=c.variant==="candy",value=c.relic.value*variantMultiplier(c.variant);
+return `<div class="card ${gold?"gold-relic":candy?"candy-relic":""}">
+<div class="relic-icon">${candy?"🍬 ":gold?"✨ ":""}${c.relic.icon}</div>
+<h3>${candy?"Candy Corn ":gold?"Gold ":""}${esc(c.relic.name)}</h3>${rarityTag(c.relic.rarity)}
+${candy?'<span class="tag candy-tag">CANDY CORN · 3.5×</span>':gold?'<span class="tag gold-tag">GOLD · 2×</span>':""}
 <div class="owned">📦 Owned: ${c.count}</div><p>Sell value: ${value} 🪙 each</p>
-<button class="btn full" onclick="sellRelic('${c.relic.id}',${c.gold})">Sell One</button></div>`;
+<button class="btn full" onclick="sellRelic('${c.relic.id}','${c.variant}')">Sell One</button></div>`;
 }).join(""):'<div class="empty">Your market is empty. Open a pack to find relics to sell.</div>';
 }
-function sellRelic(id,gold){
-const key=ownedKey(id,gold);
+function sellRelic(id,variant){
+const key=ownedKey(id,variant);
 if(!game.inventory[key]||game.inventory[key]<1){toast("You don't own that relic.");return;}
-const relic=relicById(id);game.inventory[key]--;
+const relic=relicById(id);if(!relic)return;
+game.inventory[key]--;
 if(game.inventory[key]===0)delete game.inventory[key];
-const value=relic.value*(gold?2:1);game.coins+=value;game.coinsEarned+=value;game.totalSold++;
+const value=Math.round(relic.value*variantMultiplier(variant));
+game.coins+=value;game.coinsEarned+=value;game.totalSold++;
 saveGame();updateAll();renderMarket();toast("Sold for "+value+" coins!");
 }
 
@@ -476,8 +493,8 @@ if(game.health<=0)document.getElementById("battleLog").textContent="💤 You wer
 saveGame();updateAll();
 }
 function healPlayer(){
-if(game.coins<40){toast("You need 40 coins to heal.");return;}
-game.coins-=40;game.health=game.maxHealth||100;saveGame();updateAll();toast("Health restored!");
+if(game.coins<70){toast("You need 70 coins to heal.");return;}
+game.coins-=70;game.health=game.maxHealth||100;saveGame();updateAll();toast("Health restored!");
 }
 function startNextWave(){
 if(game.zombiesLeft>0){toast("Defeat the remaining zombies first!");return;}
@@ -493,22 +510,17 @@ if(game.lastDaily===today){toast("You already claimed today's reward!");return;}
 game.lastDaily=today;game.coins+=150;game.coinsEarned+=150;game.seasonXP+=50;
 saveGame();updateAll();toast("🎁 Daily reward: 150 coins and 50 Season XP!");
 }
-
 function claimSeasonRewards(){
 let claimed=0;
 SEASON_REWARDS.forEach(r=>{
 if(game.seasonXP>=r.tier*100&&!game.seasonClaimed.includes(r.tier)){
 game.seasonClaimed.push(r.tier);claimed++;
 if(r.type==="coins"){game.coins+=r.amount;game.coinsEarned+=r.amount;}
-if(r.type==="relic"){
-const relic=relicById(r.id);
-if(relic)addRelic(relic,false);
-}
+if(r.type==="relic"){const relic=relicById(r.id);if(relic)addRelic(relic,"normal");}
 }
 });
 if(!claimed){toast("No new rewards are ready to claim yet!");return;}
-saveGame();updateAll();renderSeason();
-toast("🎉 Claimed "+claimed+" Season Pass reward"+(claimed===1?"!":"s!"));
+saveGame();updateAll();renderSeason();toast("🎉 Claimed "+claimed+" Season Pass reward"+(claimed===1?"!":"s!"));
 }
 function renderSeason(){
 const level=seasonLevel(),xp=seasonXPIntoLevel();
@@ -518,7 +530,7 @@ document.getElementById("nextXP").textContent=game.seasonXP>=1000?"MAX":level*10
 document.getElementById("seasonXPTotal").textContent=game.seasonXP;
 document.getElementById("seasonBar").style.width=(game.seasonXP>=1000?100:xp)+"%";
 document.getElementById("seasonClaimed").textContent=game.seasonClaimed.length+" / 10";
-const exclusives=["season_comet","season_nebula","season_eclipse"].filter(id=>getOwned(id,false)+getOwned(id,true)>0).length;
+const exclusives=["season_comet","season_nebula","season_eclipse"].filter(id=>getOwned(id,"normal")+getOwned(id,"gold")+getOwned(id,"candy")>0).length;
 document.getElementById("seasonExclusive").textContent=exclusives+" / 3";
 const available=SEASON_REWARDS.filter(r=>game.seasonXP>=r.tier*100&&!game.seasonClaimed.includes(r.tier)).length;
 document.getElementById("claimStatus").textContent=available?available+" reward(s) ready to claim!":"Play to unlock your next reward.";
@@ -537,7 +549,8 @@ const ACHIEVEMENTS=[
 {id:"first",name:"First Discovery",icon:"💎",desc:"Own your first relic.",check:()=>allOwnedCopies()>=1},
 {id:"ten",name:"Growing Collection",icon:"📦",desc:"Collect 10 relics.",check:()=>allOwnedCopies()>=10},
 {id:"gold",name:"Golden Touch",icon:"✨",desc:"Find a Gold relic.",check:()=>totalGold()>=1},
-{id:"legend",name:"Legend Hunter",icon:"👑",desc:"Own a Legendary relic.",check:()=>RELICS.some(r=>r.rarity==="Legendary"&&(getOwned(r.id,false)+getOwned(r.id,true)>0))},
+{id:"candy",name:"Sweet Surprise",icon:"🍬",desc:"Find a Candy Corn relic.",check:()=>totalCandy()>=1},
+{id:"legend",name:"Legend Hunter",icon:"👑",desc:"Own a Legendary relic.",check:()=>RELICS.some(r=>r.rarity==="Legendary"&&(getOwned(r.id,"normal")+getOwned(r.id,"gold")+getOwned(r.id,"candy")>0))},
 {id:"packs",name:"Pack Addict",icon:"🎁",desc:"Open 25 packs.",check:()=>game.packsOpened>=25},
 {id:"killer",name:"Zombie Hunter",icon:"🧟",desc:"Defeat 25 zombies.",check:()=>game.kills>=25},
 {id:"wave",name:"Survivor",icon:"🌊",desc:"Reach wave 10.",check:()=>game.highestWave>=10},
@@ -558,17 +571,17 @@ game.achievements.push(a.id);toast("🏆 Achievement unlocked: "+a.name);
 }
 });
 }
-
 function updateAll(){
-document.getElementById("coins").textContent=game.coins;
+document.getElementById("coins").textContent=game.coins.toLocaleString();
 document.getElementById("totalRelics").textContent=allOwnedCopies();
 document.getElementById("waveStat").textContent=game.wave;
 document.getElementById("levelStat").textContent=seasonLevel();
-document.getElementById("packCoins").textContent=game.coins;
+document.getElementById("packCoins").textContent=game.coins.toLocaleString();
 document.getElementById("packTotal").textContent=allOwnedCopies();
 document.getElementById("collectionValue").textContent=ownedValue().toLocaleString()+" 🪙";
 document.getElementById("uniqueCount").textContent=uniqueOwned();
 document.getElementById("goldCount").textContent=totalGold();
+document.getElementById("candyCount").textContent=totalCandy();
 document.getElementById("kills").textContent=game.kills;
 document.getElementById("health").textContent=game.health;
 document.getElementById("damage").textContent=game.damage;
@@ -576,7 +589,7 @@ document.getElementById("remaining").textContent=game.zombiesLeft;
 document.getElementById("zombieHealth").textContent=game.zombieHP;
 document.getElementById("arenaKills").textContent=game.kills;
 document.getElementById("waveBar").style.width=(game.zombiesLeft===0?100:Math.max(0,100-game.zombiesLeft/(5+Math.floor(game.wave/2))*100))+"%";
-document.getElementById("shopCoins").textContent=game.coins;
+document.getElementById("shopCoins").textContent=game.coins.toLocaleString();
 document.getElementById("packsOpened").textContent=game.packsOpened;
 document.getElementById("coinsEarned").textContent=game.coinsEarned;
 document.getElementById("recordKills").textContent=game.kills;
@@ -584,7 +597,8 @@ document.getElementById("highestWave").textContent=game.highestWave;
 document.getElementById("recordSeasonXP").textContent=game.seasonXP;
 document.getElementById("recentDiscoveries").innerHTML=game.recent.length?game.recent.map(r=>{
 const relic=relicById(r.id);if(!relic)return "";
-return `<div class="record"><span>${r.gold?"✨ Gold ":""}${relic.icon} ${esc(relic.name)}</span><span>${new Date(r.time).toLocaleDateString()}</span></div>`;
+const variant=r.variant||(r.candy?"candy":r.gold?"gold":"normal");
+return `<div class="record"><span>${variant==="candy"?"🍬 Candy Corn ":variant==="gold"?"✨ Gold ":""}${relic.icon} ${esc(relic.name)}</span><span>${new Date(r.time).toLocaleDateString()}</span></div>`;
 }).join(""):'<p>No discoveries yet. Open your first pack!</p>';
 renderPacks();renderShop();renderAchievements();renderSeason();checkAchievements();
 }
