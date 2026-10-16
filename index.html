@@ -894,5 +894,51 @@ go = function(page) {
 
 ttRender();
 </script>
+<div id="accountBox" style="background:#10092b;color:white;padding:20px;border-radius:15px;margin:20px auto;max-width:400px;text-align:center;">
+  <h2>Relic Rush Account</h2>
+  <input id="accountEmail" type="email" placeholder="Email" style="padding:12px;width:90%;margin:6px;">
+  <input id="accountPassword" type="password" placeholder="Password (at least 6 characters)" style="padding:12px;width:90%;margin:6px;">
+  <br>
+  <button onclick="signUpPlayer()" style="padding:12px;margin:6px;">Create Account</button>
+  <button onclick="logInPlayer()" style="padding:12px;margin:6px;">Log In</button>
+  <p id="accountMessage"></p>
+</div>
+
+<script>
+async function signUpPlayer() {
+  const email = document.getElementById("accountEmail").value.trim();
+  const password = document.getElementById("accountPassword").value;
+  const message = document.getElementById("accountMessage");
+
+  if (!email || password.length < 6) {
+    message.textContent = "Enter a valid email and a password of at least 6 characters.";
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password
+  });
+
+  message.textContent = error
+    ? error.message
+    : "Account created! Check your email if confirmation is required.";
+}
+
+async function logInPlayer() {
+  const email = document.getElementById("accountEmail").value.trim();
+  const password = document.getElementById("accountPassword").value;
+  const message = document.getElementById("accountMessage");
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  message.textContent = error
+    ? error.message
+    : "You're logged in!";
+}
+</script>
 </body>
 </html>
