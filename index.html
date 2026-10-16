@@ -3,238 +3,597 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101321">
-<title>Relic Rush</title>
+<title>Relic Rush — Season Pass</title>
 <style>
-:root{--bg:#101321;--panel:#1c2237;--panel2:#272f49;--accent:#8b5cf6;--text:#f5f6ff;--muted:#a8b0ca;--good:#48d597;--bad:#ff647c;--gold:#ffd166}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b2140 0,#101321 55%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}button,input,select{font:inherit}button{border:0;border-radius:10px;background:var(--accent);color:white;padding:10px 14px;font-weight:750;cursor:pointer}button:hover{filter:brightness(1.12)}button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#39415f}.danger{background:#a93651}.good{background:#167b60}.gold{background:#946d17}.wrap{max-width:1200px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}.brand{font-size:clamp(26px,5vw,38px);font-weight:950;letter-spacing:-1px}.brand span{color:var(--accent)}.stats{display:flex;gap:8px;flex-wrap:wrap}.pill{background:var(--panel);border:1px solid #353c58;border-radius:999px;padding:8px 12px;font-weight:750}.tabs{display:flex;gap:7px;overflow:auto;padding:3px 0 12px}.tab{white-space:nowrap;background:var(--panel2)}.tab.active{background:var(--accent)}.panel{background:linear-gradient(145deg,#1c2237,#171c2e);border:1px solid #333a58;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 12px 30px #0002}.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.card{background:#242b44;border:1px solid #39415f;border-radius:14px;padding:14px}.card h3{margin:0 0 6px}.muted{color:var(--muted)}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.spread{display:flex;justify-content:space-between;gap:10px;align-items:center}.big{font-size:24px;font-weight:900}.tag{font-size:12px;padding:3px 8px;border-radius:999px;background:#343c59;color:#e5e7ff}.Common{color:#d6d9e8}.Rare{color:#63c8ff}.Epic{color:#c69aff}.Legendary{color:var(--gold)}.relic-icon{font-size:28px}.notice{border-radius:10px;padding:10px 12px;background:#2b3150;margin:8px 0}.notice.error{background:#492333;color:#ffd5dc}.notice.success{background:#183e35;color:#c8ffeb}input,select{background:#111629;color:var(--text);border:1px solid #485170;border-radius:9px;padding:10px;max-width:100%}label{display:block;margin:8px 0 5px;color:var(--muted)}canvas{display:block;width:100%;max-width:900px;height:auto;aspect-ratio:16/9;background:#0b1020;border:1px solid #465071;border-radius:12px;margin:12px auto;touch-action:none}.game-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(220px,1fr);gap:12px}.controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.joystick{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,42px);gap:5px;justify-content:center;margin:12px auto}.joystick button{padding:4px;background:#303956;touch-action:none}.list{display:grid;gap:8px}.item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px;background:#202741;border-radius:10px;flex-wrap:wrap}.item .desc{min-width:0}.bottom-admin{margin-top:34px;padding:16px;border-top:1px dashed #4c5370;text-align:center;color:#818aa8}.bottom-admin button{background:#303650;border:1px solid #4a5270;font-size:12px;padding:7px 11px}.admin-box{border:1px solid #b35b79}.foot{text-align:center;color:#737d9e;padding:16px;font-size:12px}@media(max-width:720px){.game-layout{grid-template-columns:1fr}.wrap{padding:10px}.panel{padding:13px}.stats{width:100%}.pill{font-size:13px}}
+:root{
+  --bg:#080518;--panel:#100a28;--card:#171035;--purple:#8b35ff;
+  --bright:#bd83ff;--gold:#ffca55;--text:#f6f1ff;--muted:#a79cbd;
+  --border:#302052;--green:#52e0a0;--red:#ff647d
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#201044 0%,var(--bg) 55%);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer;border:0}
+button:disabled{opacity:.45;cursor:not-allowed}
+header{position:sticky;top:0;z-index:5;background:#0c0723ed;backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px}
+.header-inner{max-width:1250px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-size:25px;font-weight:900;letter-spacing:1px}.logo span{color:var(--bright)}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--border);padding:9px 12px;border-radius:12px;font-weight:bold}
+nav{display:flex;gap:7px;flex-wrap:wrap;max-width:1250px;margin:14px auto 0}
+nav button{background:transparent;color:var(--muted);padding:10px 12px;border-radius:9px;font-weight:bold}
+nav button.active,nav button:hover{background:#29154b;color:white}
+main{max-width:1250px;margin:auto;padding:24px 18px 70px}
+h1{font-size:clamp(27px,4vw,40px);margin:0 0 9px}h2{margin:0 0 14px}h3{margin:0 0 9px}
+p{color:var(--muted);line-height:1.5}
+.page{display:none}.page.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.hero{padding:28px;border:1px solid #42286d;border-radius:20px;background:linear-gradient(120deg,#251044,#120a2c 65%);margin-bottom:20px}
+.hero p{max-width:700px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.card{background:linear-gradient(145deg,#1a1238,#100a26);border:1px solid var(--border);border-radius:16px;padding:17px;min-width:0}
+.card p{margin:8px 0}
+.btn{background:var(--purple);color:white;padding:11px 14px;border-radius:10px;font-weight:bold;transition:.15s}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn.secondary{background:#30204f}.btn.gold{background:#8d6412;color:#fff1bd}
+.btn.danger{background:#8d2942}.btn.small{padding:7px 10px;font-size:13px}
+.btn.full{width:100%;margin-top:10px}
+.muted{color:var(--muted)}.small{font-size:13px}
+.pack-icon{font-size:43px;margin:8px 0}.pack-card{position:relative;overflow:hidden}
+.pack-card:before{content:"";position:absolute;right:-40px;top:-45px;width:120px;height:120px;border-radius:50%;background:var(--pack-color,#8b35ff);opacity:.1;filter:blur(3px)}
+.price{font-size:23px;font-weight:900;margin:12px 0}
+.tag{display:inline-block;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;background:#30204f;color:#d9c4ff}
+.tag.gold-tag{background:#674910;color:#ffe6a0}.tag.common{color:#d1d1dc}.tag.rare{color:#64d8ff;background:#10384a}.tag.epic{color:#dc9aff;background:#43215a}.tag.legendary{color:#ffd56a;background:#594016}
+.relic-icon{font-size:38px;margin:8px 0}.owned{font-size:13px;color:#d7c6ff;background:#24163e;padding:7px 9px;border-radius:8px;display:inline-block;margin-top:5px}
+.gold-relic{border-color:#9c752a;background:linear-gradient(145deg,#382810,#171025)}
+.gold-relic .relic-icon{filter:drop-shadow(0 0 8px #ffca55)}.gold-relic .owned{background:#594016;color:#ffe6a0}
+.relic-card{display:flex;flex-direction:column}.relic-card .btn{margin-top:auto}
+.bar{height:10px;background:#302448;border-radius:20px;overflow:hidden;margin:12px 0}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,#8b35ff,#d0a0ff);width:0%;transition:width .2s}
+.notice{padding:13px 15px;background:#1b1236;border:1px solid var(--border);border-radius:12px;margin:14px 0;color:#e6dcff}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.space{justify-content:space-between}
+input,select{background:#0b071c;border:1px solid var(--border);color:white;padding:10px;border-radius:9px;max-width:100%}
+.zombie{border-left:3px solid var(--red)}
+.record{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);padding:12px 0}
+.empty{padding:35px;text-align:center;border:1px dashed var(--border);border-radius:14px;color:var(--muted)}
+footer{text-align:center;padding:20px;color:#73658e;font-size:12px}
+.overlay{position:fixed;inset:0;background:#05020de8;z-index:20;display:none;align-items:center;justify-content:center;padding:18px}
+.overlay.show{display:flex}
+.reveal{width:min(440px,100%);text-align:center;padding:28px;border:1px solid #6b3aa3;border-radius:22px;background:radial-gradient(ellipse at top,#352057,#100a25 65%);box-shadow:0 0 70px #641db344;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.reveal-icon{font-size:85px;margin:12px}.reveal.gold-reveal{border-color:#d8a93b;box-shadow:0 0 70px #ffca5533}
+.reveal.gold-reveal .reveal-icon{filter:drop-shadow(0 0 15px #ffca55)}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:30;background:#251744;border:1px solid #7146a0;border-radius:12px;padding:12px 18px;display:none;max-width:90%;text-align:center;box-shadow:0 10px 30px #0008}
+#toast.show{display:block;animation:fade .2s}hr{border:0;border-top:1px solid var(--border);margin:17px 0}
+.season-banner{background:linear-gradient(120deg,#32144d,#11102d 70%);border:1px solid #7640a9;border-radius:18px;padding:22px;margin-bottom:18px}
+.season-title{font-size:clamp(26px,4vw,36px);font-weight:900;margin:8px 0}
+.season-progress{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-weight:bold}
+.season-track{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+.tier{position:relative;background:linear-gradient(145deg,#20153d,#100a26);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;min-height:210px}
+.tier.unlocked{border-color:#8452c6}.tier.claimed{border-color:#398a68;background:linear-gradient(145deg,#143327,#100a26)}
+.tier.locked{opacity:.68}.tier-number{font-size:12px;color:var(--bright);font-weight:900;letter-spacing:1px}
+.reward-icon{font-size:36px}.tier h3{margin:0}.tier .btn{margin-top:auto}
+.reward-label{font-size:12px;color:var(--muted)}
+.quest{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+@media(max-width:550px){
+ header{padding:12px}.logo{font-size:21px}.stat{padding:7px 9px;font-size:13px}
+ nav{gap:4px}nav button{padding:9px;font-size:12px}
+ main{padding:18px 12px 50px}.hero{padding:20px}
+ .grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}.card{padding:13px}
+ .season-track{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div><div class="brand">RELIC <span>RUSH</span></div><div class="muted">Fight. Discover. Collect. Trade.</div></div>
-    <div class="stats"><div class="pill">🪙 <span id="coinCount">0</span></div><div class="pill">⚔️ Wave <span id="waveCount">1</span></div><div class="pill">💎 <span id="relicCount">0</span> relics</div></div>
-  </header>
-  <section id="accountPanel" class="panel account-box">
-    <div class="spread"><div><h2>👤 Player Account</h2><p class="muted">Create an account to keep your relics, coins, weapons, and progress when you switch devices.</p></div><span id="accountState" class="tag">Not signed in</span></div>
-    <div id="accountAuthForms" class="grid">
-      <div class="card"><h3>Log in</h3><label for="accountLoginUsername">Username</label><input id="accountLoginUsername" maxlength="20" autocomplete="username" placeholder="Your username"><label for="accountLoginPassword">Password</label><input id="accountLoginPassword" type="password" maxlength="128" autocomplete="current-password" placeholder="Your password"><button id="accountLoginBtn">Log in</button></div>
-      <div class="card"><h3>Create account</h3><label for="accountRegisterUsername">Username</label><input id="accountRegisterUsername" maxlength="20" autocomplete="username" placeholder="3–20 letters, numbers, _"><label for="accountRegisterPassword">Password</label><input id="accountRegisterPassword" type="password" maxlength="128" autocomplete="new-password" placeholder="At least 8 characters"><button id="accountRegisterBtn">Create account</button><p class="muted">Use a unique password. There is no email/password-reset feature yet, so keep it somewhere safe.</p></div>
+<header>
+  <div class="header-inner">
+    <div class="logo">💎 RELIC <span>RUSH</span></div>
+    <div class="stats">
+      <div class="stat">🪙 <span id="coins">500</span></div>
+      <div class="stat">💎 <span id="totalRelics">0</span> relics</div>
+      <div class="stat">🌊 Wave <span id="waveStat">1</span></div>
+      <div class="stat">⭐ Lv. <span id="levelStat">1</span></div>
     </div>
-    <div id="accountSignedIn" class="card hidden"><div class="spread"><div><h3 id="accountWelcome">Signed in</h3><p class="muted">Your progress syncs to your account after you play.</p></div><div class="row"><button id="accountSyncBtn" class="secondary">Sync now</button><button id="accountLogoutBtn" class="secondary">Log out</button></div></div></div>
-    <p id="accountStatus" class="notice" role="status">You can play without an account, but browser-only progress will not sync between devices.</p>
-  </section>
-
-  <nav class="tabs" aria-label="Game sections">
-    <button class="tab active" data-tab="home">Home</button><button class="tab" data-tab="zombies">Zombies</button><button class="tab" data-tab="packs">Packs</button><button class="tab" data-tab="relics">Relics</button><button class="tab" data-tab="shop">Shop</button><button class="tab" data-tab="market">Market</button><button class="tab" data-tab="records">Records</button><button class="tab" data-tab="achievements">Achievements</button>
+  </div>
+  <nav id="nav">
+    <button class="active" data-page="home">🏠 Home</button>
+    <button data-page="zombies">🧟 Zombies</button>
+    <button data-page="packs">🎁 Packs</button>
+    <button data-page="relics">💎 Relics</button>
+    <button data-page="season">🎟️ Season Pass</button>
+    <button data-page="shop">🛒 Shop</button>
+    <button data-page="market">🏪 Market</button>
+    <button data-page="records">📜 Records</button>
+    <button data-page="achievements">🏆 Achievements</button>
   </nav>
+</header>
 
-  <main>
-    <section id="home" class="tab-page">
-      <div class="panel"><h1>Welcome to Relic Rush</h1><p class="muted">Survive zombie waves to earn coins, open packs for relics, upgrade your weapon, and build your collection. Sign in to sync progress between devices, or play locally without an account.</p>
-        <div class="grid">
-          <div class="card"><div class="relic-icon">🧟</div><h3>Zombie Arena</h3><p class="muted">Move with WASD or arrow keys. Attack with Space or Enter. Survive as long as you can.</p><button data-go="zombies">Enter arena</button></div>
-          <div class="card"><div class="relic-icon">🎁</div><h3>Daily Reward</h3><p id="dailyText" class="muted">Claim your daily 50 coins.</p><button id="dailyBtn">Claim 50 coins</button></div>
-          <div class="card"><div class="relic-icon">💠</div><h3>Relic collection</h3><p class="muted">Common to Legendary relics, including rare Gold variants.</p><button data-go="relics">View relics</button></div>
-        </div>
-      </div>
-      <div class="panel"><h2>Quick stats</h2><div class="grid"><div class="card"><div class="muted">Total zombies defeated</div><div class="big" id="killsStat">0</div></div><div class="card"><div class="muted">Highest wave</div><div class="big" id="bestWaveStat">1</div></div><div class="card"><div class="muted">Total packs opened</div><div class="big" id="packsStat">0</div></div><div class="card"><div class="muted">Weapons owned</div><div class="big" id="weaponsStat">1</div></div></div></div>
-      <div class="panel"><h2>🎁 Stream Giveaway Code</h2><p class="muted">Got a reward code from the stream? Sign in first, then enter it here to add the reward to your account.</p>
-        <div class="row"><input id="redeemCode" maxlength="32" autocomplete="off" placeholder="Enter giveaway code" aria-label="Giveaway code"><button id="redeemCodeBtn">Redeem reward</button></div>
-        <p id="redeemStatus" class="notice hidden" role="status"></p>
-      </div>
-    </section>
-
-    <section id="zombies" class="tab-page hidden">
-      <div class="panel"><div class="spread"><div><h2>🧟 Zombie Survival</h2><p class="muted">WASD / arrow keys to move · Space / Enter to attack · touch controls below</p></div><div class="row"><button id="startGame">Start / Restart</button><button class="secondary" id="healBtn">Heal · 25 🪙</button></div></div>
-        <div class="game-layout"><div><canvas id="arena" width="900" height="506" aria-label="Zombie survival game arena"></canvas><div class="joystick"><span></span><button data-move="up">▲</button><span></span><button data-move="left">◀</button><button data-move="down">▼</button><button data-move="right">▶</button></div><div class="controls"><button id="attackBtn">⚔️ Attack</button><button class="secondary" id="pauseBtn">Pause</button></div></div>
-        <div class="card"><h3>Run status</h3><p>Health: <b id="healthText">100 / 100</b></p><div style="height:10px;background:#101629;border-radius:99px;overflow:hidden"><div id="healthBar" style="height:100%;width:100%;background:#48d597"></div></div><p>Wave: <b id="arenaWave">1</b></p><p>Defeated: <b id="arenaKills">0</b></p><p>Weapon: <b id="weaponText">Iron Sword</b></p><p id="gameMessage" class="notice">Press Start / Restart to begin.</p><p class="muted">Normal zombie: +2 coins · Boss: +20 coins · Wave clear: wave × 3 bonus coins.</p></div></div>
-      </div>
-    </section>
-
-    <section id="packs" class="tab-page hidden"><div class="panel"><h2>🎁 Relic Packs</h2><p class="muted">Pack stock refreshes when you reload or when the current pack sells out.</p><div id="packsGrid" class="grid"></div><div id="packResult" class="notice hidden"></div></div></section>
-    <section id="relics" class="tab-page hidden"><div class="panel"><div class="spread"><div><h2>💎 Relic Inventory</h2><p class="muted">Gold relics are worth twice as much as their normal version.</p></div><button class="secondary" id="sortRelics">Sort by value</button></div><div id="inventoryList" class="list"></div></div><div class="panel"><h2>Relic index</h2><div id="relicIndex" class="grid"></div></div></section>
-    <section id="shop" class="tab-page hidden"><div class="panel"><h2>🛒 Weapon Shop</h2><p class="muted">Weapons improve your attack damage.</p><div id="shopGrid" class="grid"></div></div></section>
-    <section id="market" class="tab-page hidden"><div class="panel"><h2>🏪 Player Market</h2><p class="muted">This is a local browser marketplace, not an online market shared with other players.</p><div class="row"><select id="marketRelic"></select><input id="marketPrice" type="number" min="1" placeholder="Listing price"><button id="listItemBtn">List relic</button></div><div id="marketMessage" class="notice hidden"></div><h3>Your listings</h3><div id="marketList" class="list"></div></div></section>
-    <section id="records" class="tab-page hidden"><div class="panel"><h2>📜 Run Records</h2><div class="grid"><div class="card"><div class="muted">Best wave</div><div class="big" id="recordWave">1</div></div><div class="card"><div class="muted">Lifetime kills</div><div class="big" id="recordKills">0</div></div><div class="card"><div class="muted">Lifetime coins earned</div><div class="big" id="recordCoins">0</div></div></div><h3>Recent runs</h3><div id="runList" class="list"></div></div></section>
-    <section id="achievements" class="tab-page hidden"><div class="panel"><h2>🏆 Achievements</h2><div id="achievementList" class="grid"></div></div></section>
-  </main>
-
-  <div class="bottom-admin"><p>Developer access</p><button id="adminOpenBtn">Admin Login</button></div>
-  <section id="adminPanel" class="panel admin-box hidden">
-    <div class="spread"><div><h2>🔐 Developer Console</h2><p class="muted">Each command is checked by the Netlify Function before the browser applies it.</p></div><button id="adminCloseBtn" class="secondary">Close</button></div>
-    <div id="adminLoginArea">
-      <label for="adminCode">Secret developer code</label><div class="row"><input id="adminCode" type="password" autocomplete="current-password" placeholder="Enter secret code"><button id="adminLoginBtn">Verify with server</button></div>
-      <p id="adminStatus" class="notice hidden" role="status"></p>
+<main>
+<section id="home" class="page active">
+  <div class="hero">
+    <span class="tag">COLLECT • UPGRADE • SURVIVE</span>
+    <h1 style="margin-top:15px">Welcome to Relic Rush</h1>
+    <p>Open powerful relic packs, discover rare treasures, hunt for Gold variants, survive zombie waves, and earn Season Pass XP for exclusive rewards.</p>
+    <div class="row">
+      <button class="btn" onclick="go('packs')">🎁 Open Packs</button>
+      <button class="btn secondary" onclick="go('relics')">💎 My Collection</button>
+      <button class="btn secondary" onclick="claimDaily()">🎁 Daily Reward</button>
+      <button class="btn gold" onclick="go('season')">🎟️ Season Pass</button>
     </div>
-    <div id="adminCommands" class="hidden">
-      <p class="notice success">Server-verified session active. It expires after 10 minutes.</p>
-      <div class="grid">
-        <div class="card"><h3>Give coins</h3><label for="giveCoins">Amount</label><input id="giveCoins" type="number" min="1" max="1000000" value="100"><button data-command="giveCoins">Run command</button></div>
-        <div class="card"><h3>Set coin balance</h3><label for="setCoins">New balance</label><input id="setCoins" type="number" min="0" max="10000000" value="1000"><button data-command="setCoins">Run command</button></div>
-        <div class="card"><h3>Give relic</h3><label for="giveRelic">Relic</label><select id="giveRelic"></select><label for="goldRelic">Variant</label><select id="goldRelic"><option value="false">Normal</option><option value="true">Gold</option></select><button data-command="giveRelic">Run command</button></div>
-        <div class="card"><h3>Restore health</h3><p class="muted">Set current health to 100.</p><button data-command="heal">Run command</button></div>
-      </div>
-      <div class="card" style="margin-top:14px"><h3>🎁 Create viewer giveaway code</h3>
-        <p class="muted">Create a code to show on stream. Each code can be redeemed once.</p>
-        <label for="rewardType">Reward type</label><select id="rewardType"><option value="coins">Coins</option><option value="relic">Relic</option></select>
-        <div id="rewardCoinsArea"><label for="rewardCoins">Coin amount</label><input id="rewardCoins" type="number" min="1" max="1000000" value="250"></div>
-        <div id="rewardRelicArea" class="hidden"><label for="rewardRelic">Relic</label><select id="rewardRelic"></select><label for="rewardGold">Variant</label><select id="rewardGold"><option value="false">Normal</option><option value="true">Gold</option></select></div>
-        <button id="createRewardCodeBtn">Create giveaway code</button>
-        <p id="createdCodeArea" class="notice hidden" role="status"></p>
-      </div>
-      <p class="muted">Direct commands affect the current browser save (and sync to the signed-in player account, if any). Giveaway rewards are applied to the signed-in player's server save.</p>
-      <button id="adminLogoutBtn" class="secondary">Log out</button>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="muted small">COLLECTION VALUE</div><h2 id="collectionValue">0 🪙</h2><p>Total value of all owned relics.</p></div>
+    <div class="card"><div class="muted small">UNIQUE RELICS</div><h2 id="uniqueCount">0</h2><p>Different relic types discovered.</p></div>
+    <div class="card"><div class="muted small">GOLD RELICS</div><h2 id="goldCount">0</h2><p>Gold treasures in your inventory.</p></div>
+    <div class="card"><div class="muted small">ZOMBIES DEFEATED</div><h2 id="kills">0</h2><p>Keep fighting to earn coins and XP.</p></div>
+  </div>
+  <h2 style="margin-top:25px">✨ Featured Packs</h2>
+  <div class="grid" id="featuredPacks"></div>
+  <div class="notice">💡 Relics are collected automatically. Earn Season XP by opening packs, defeating zombies, clearing waves, and claiming daily rewards.</div>
+</section>
+
+<section id="zombies" class="page">
+  <div class="hero">
+    <span class="tag">SURVIVAL MODE</span><h1 style="margin-top:12px">🧟 Zombie Arena</h1>
+    <p>Defeat zombies to earn coins and Season XP. Upgrade your weapon in the shop to deal more damage.</p>
+    <div class="row">
+      <div class="stat">❤️ Health: <span id="health">100</span></div>
+      <div class="stat">⚔️ Damage: <span id="damage">10</span></div>
+      <div class="stat">🧟 Remaining: <span id="remaining">5</span></div>
     </div>
-    <p id="commandStatus" class="notice hidden" role="status"></p>
-  </section>
-  <div class="foot">Relic Rush · Player accounts sync progress through Netlify</div>
+    <div class="bar"><span id="waveBar"></span></div>
+    <div class="row">
+      <button class="btn" onclick="attackZombie()">⚔️ Attack Zombie</button>
+      <button class="btn secondary" onclick="healPlayer()">❤️ Heal (40 coins)</button>
+      <button class="btn secondary" onclick="startNextWave()">🌊 Next Wave</button>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="card zombie"><h3>🧟 Walker</h3><p>Standard zombie. Defeat it for coins and XP.</p><div>Health: <b id="zombieHealth">30</b></div></div>
+    <div class="card"><h3>🎁 Battle Rewards</h3><p>Each zombie defeated grants coins and Season XP.</p><div class="owned">Defeated: <span id="arenaKills">0</span></div></div>
+  </div>
+  <div class="notice" id="battleLog">The arena is quiet... for now.</div>
+</section>
+
+<section id="packs" class="page">
+  <div class="hero"><span class="tag">RELIC COLLECTION</span><h1 style="margin-top:12px">🎁 Relic Packs</h1>
+    <p>Choose a pack and discover a relic. Your prize is instantly saved to your inventory.</p>
+    <div class="row"><div class="stat">🪙 Your coins: <span id="packCoins">500</span></div><div class="stat">💎 Relics owned: <span id="packTotal">0</span></div></div>
+  </div>
+  <div class="grid" id="packsGrid"></div>
+</section>
+
+<section id="relics" class="page">
+  <div class="row space"><div><h1>💎 Your Relics</h1><p>Every relic you own, including duplicates and Gold variants.</p></div>
+    <select id="relicFilter"><option value="all">All Relics</option><option value="normal">Normal Only</option><option value="gold">Gold Only</option><option value="owned">Unique Types Owned</option></select>
+  </div>
+  <div class="notice">📦 Each card displays how many copies you own. Normal and Gold versions have separate counts.</div>
+  <div class="grid" id="relicsGrid"></div>
+</section>
+
+<section id="season" class="page">
+  <div class="season-banner">
+    <span class="tag gold-tag">SEASON 1 • FREE TRACK</span>
+    <div class="season-title">🌌 Relics of the Lost Galaxy</div>
+    <p>Earn XP by playing the game, level up your pass, and claim exclusive seasonal rewards. This season is saved on your device.</p>
+    <div class="season-progress"><span>⭐ Season Level <b id="seasonLevel">1</b> / 10</span><span><b id="seasonXP">0</b> / <span id="nextXP">100</span> XP</span></div>
+    <div class="bar"><span id="seasonBar"></span></div>
+    <div class="row"><button class="btn gold" onclick="claimSeasonRewards()">🎁 Claim Available Rewards</button><span class="muted small" id="claimStatus">Play to unlock rewards!</span></div>
+  </div>
+  <div class="grid" style="margin-bottom:20px">
+    <div class="card"><div class="muted small">SEASON XP EARNED</div><h2 id="seasonXPTotal">0</h2><p>All XP earned this season.</p></div>
+    <div class="card"><div class="muted small">REWARDS CLAIMED</div><h2 id="seasonClaimed">0 / 10</h2><p>Collect all ten free rewards.</p></div>
+    <div class="card"><div class="muted small">EXCLUSIVE RELICS</div><h2 id="seasonExclusive">0 / 3</h2><p>Season-only relics claimed.</p></div>
+  </div>
+  <h2>🎟️ Season Reward Track</h2>
+  <p>Each tier requires 100 Season XP. Earn XP from packs, zombie battles, and daily rewards.</p>
+  <div class="season-track" id="seasonTrack"></div>
+  <div class="card" style="margin-top:18px"><h3>📋 How to earn Season XP</h3>
+    <div class="quest"><span>🎁 Open any relic pack</span><b>+25 XP</b></div>
+    <div class="quest"><span>🧟 Defeat a zombie</span><b>+20 XP</b></div>
+    <div class="quest"><span>🌊 Clear a wave</span><b>+40 XP</b></div>
+    <div class="quest"><span>🎁 Claim daily reward</span><b>+50 XP</b></div>
+  </div>
+</section>
+
+<section id="shop" class="page">
+  <div class="hero"><h1>🛒 Upgrade Shop</h1><p>Spend coins to become stronger in the zombie arena.</p><div class="stat">🪙 Coins: <span id="shopCoins">500</span></div></div>
+  <div class="grid" id="shopGrid"></div>
+</section>
+
+<section id="market" class="page">
+  <div class="hero"><h1>🏪 Relic Market</h1><p>Sell spare relic copies for coins. Selling one copy never removes your other copies.</p></div>
+  <div class="grid" id="marketGrid"></div>
+</section>
+
+<section id="records" class="page">
+  <div class="hero"><h1>📜 Your Records</h1><p>Track your collection and survival progress.</p></div>
+  <div class="grid">
+    <div class="card"><p>Total packs opened</p><h2 id="packsOpened">0</h2></div>
+    <div class="card"><p>Total coins earned</p><h2 id="coinsEarned">0</h2></div>
+    <div class="card"><p>Total zombies defeated</p><h2 id="recordKills">0</h2></div>
+    <div class="card"><p>Highest wave</p><h2 id="highestWave">1</h2></div>
+    <div class="card"><p>Season XP earned</p><h2 id="recordSeasonXP">0</h2></div>
+  </div>
+  <div class="card" style="margin-top:15px"><h3>Recent Discoveries</h3><div id="recentDiscoveries"></div></div>
+  <div style="margin-top:15px"><button class="btn danger" onclick="resetGame()">Reset All Progress</button></div>
+</section>
+
+<section id="achievements" class="page">
+  <div class="hero"><h1>🏆 Achievements</h1><p>Unlock milestones as your collection grows.</p></div>
+  <div class="grid" id="achievementsGrid"></div>
+</section>
+</main>
+
+<footer>RELIC RUSH • Progress is saved on this device.</footer>
+
+<div class="overlay" id="revealOverlay" onclick="if(event.target===this)closeReveal()">
+  <div class="reveal" id="revealCard">
+    <div class="tag" id="revealTag">RELIC DISCOVERED</div>
+    <div class="reveal-icon" id="revealIcon">💎</div>
+    <h2 id="revealName">Crystal Relic</h2><div id="revealRarity"></div>
+    <p id="revealDescription"></p><div class="owned" id="revealOwned">Owned: 1</div>
+    <p style="color:var(--green);font-weight:bold">✓ Automatically added to your inventory!</p>
+    <p style="color:var(--bright);font-weight:bold" id="revealXP">⭐ +25 Season XP</p>
+    <div class="row" style="justify-content:center;margin-top:18px">
+      <button class="btn" onclick="closeReveal()">Awesome!</button>
+      <button class="btn secondary" onclick="closeReveal();go('relics')">View Collection</button>
+    </div>
+  </div>
 </div>
+<div id="toast"></div>
+
 <script>
-(() => {
-'use strict';
-const SAVE_KEY='relicRushSave';
-let playerAccount=null;
-let accountSyncTimer=null;
-let accountSyncBusy=false;
-let accountSyncAgain=false;
-const RELICS=[
- {id:'forest',name:'Forest Shard',rarity:'Common',value:8,icon:'🌿'},
- {id:'stone',name:'Stone Rune',rarity:'Common',value:10,icon:'🪨'},
- {id:'moon',name:'Moon Crystal',rarity:'Rare',value:28,icon:'🌙'},
- {id:'frost',name:'Frost Relic',rarity:'Rare',value:35,icon:'❄️'},
- {id:'dragon',name:'Dragon Eye',rarity:'Epic',value:85,icon:'🐉'},
- {id:'phantom',name:'Phantom Heart',rarity:'Epic',value:100,icon:'👻'},
- {id:'solar',name:'Solar Crown',rarity:'Legendary',value:260,icon:'👑'},
- {id:'void',name:'Void Core',rarity:'Legendary',value:320,icon:'🟣'}
-];
-const WEAPONS=[
- {id:'iron',name:'Iron Sword',damage:1,cost:0,desc:'Your dependable starter weapon.'},
- {id:'steel',name:'Steel Sword',damage:2,cost:150,desc:'Deal double damage.'},
- {id:'plasma',name:'Plasma Blade',damage:4,cost:500,desc:'A powerful energy blade.'}
-];
+"use strict";
+
+const SAVE_KEY="relicRushSave_v3";
+
 const PACKS=[
- {id:'starter',name:'Starter Pack',cost:30,stock:10,desc:'A small collection of beginner relics.',weights:[55,28,13,4]},
- {id:'cosmic',name:'Cosmic Pack',cost:100,stock:6,desc:'Better chances at rare and epic relics.',weights:[20,40,30,10]},
- {id:'inferno',name:'Inferno Pack',cost:250,stock:4,desc:'A hot mix with strong relic odds.',weights:[8,25,42,25]},
- {id:'mythic',name:'Mythic Pack',cost:600,stock:2,desc:'The most expensive pack, with the best odds.',weights:[2,13,35,50]}
+{id:"starter",name:"Starter Pack",icon:"📦",price:25,color:"#8b35ff",weights:[60,25,11,4],description:"A good place to begin."},
+{id:"cosmic",name:"Cosmic Pack",icon:"🌌",price:75,color:"#5e8dff",weights:[35,35,22,8],description:"Treasures from beyond the stars."},
+{id:"inferno",name:"Inferno Pack",icon:"🔥",price:150,color:"#ff5a39",weights:[15,30,35,20],description:"Forged in legendary flames."},
+{id:"mythic",name:"Mythic Pack",icon:"🐉",price:300,color:"#d14dff",weights:[5,15,35,45],description:"Packed with powerful relics."},
+{id:"ocean",name:"Ocean Pack",icon:"🌊",price:125,color:"#22c7d8",weights:[20,35,30,15],description:"Treasures from the deep."},
+{id:"shadow",name:"Shadow Pack",icon:"🌑",price:200,color:"#8b6cff",weights:[10,25,40,25],description:"Mysterious relics of darkness."},
+{id:"ancient",name:"Ancient Pack",icon:"🏺",price:250,color:"#c58a54",weights:[8,22,38,32],description:"Artifacts from a lost civilization."},
+{id:"royal",name:"Royal Pack",icon:"👑",price:400,color:"#ffcc58",weights:[5,15,30,50],description:"A royal selection of relics."},
+{id:"galaxy",name:"Galaxy Pack",icon:"🪐",price:550,color:"#4c82ff",weights:[3,12,30,55],description:"A whole universe of possibilities."},
+{id:"celestial",name:"Celestial Pack",icon:"✨",price:800,color:"#ff8cce",weights:[1,9,25,65],description:"Extremely rare celestial treasure."}
 ];
-const $=id=>document.getElementById(id);
-const defaultSave=()=>({coins:100,health:100,wave:1,bestWave:1,kills:0,totalCoins:0,packsOpened:0,inventory:[],weapons:['iron'],equipped:'iron',listings:[],runs:[],achievements:[],lastDaily:'',marketId:1});
-function normalizeSave(d){if(!d||typeof d!=='object')return defaultSave();return {...defaultSave(),...d,inventory:Array.isArray(d.inventory)?d.inventory:[],weapons:Array.isArray(d.weapons)?d.weapons:['iron'],listings:Array.isArray(d.listings)?d.listings:[],runs:Array.isArray(d.runs)?d.runs:[],achievements:Array.isArray(d.achievements)?d.achievements:[]};}
-function loadSave(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return defaultSave();return normalizeSave(JSON.parse(raw));}catch(e){return defaultSave();}}
-let save=loadSave();
-function persist(){localStorage.setItem(SAVE_KEY,JSON.stringify(save));renderAll();scheduleAccountSave();}
-function money(n){return Math.max(0,Math.floor(Number(n)||0)).toLocaleString();}
-function relicDef(id){return RELICS.find(r=>r.id===id)||RELICS[0];}
-function relicValue(item){return relicDef(item.id).value*(item.gold?2:1);}
-function addCoins(n){n=Math.max(0,Math.floor(n));save.coins+=n;save.totalCoins+=n;}
-function announce(el,msg,type=''){el.textContent=msg;el.className='notice'+(type?' '+type:'');el.classList.remove('hidden');}
-function switchTab(name){document.querySelectorAll('.tab-page').forEach(s=>s.classList.toggle('hidden',s.id!==name));document.querySelectorAll('.tab[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));}
-document.querySelectorAll('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
-document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.go)));
-function renderHeader(){$('coinCount').textContent=money(save.coins);$('waveCount').textContent=save.wave;$('relicCount').textContent=save.inventory.length;$('killsStat').textContent=money(save.kills);$('bestWaveStat').textContent=save.bestWave;$('packsStat').textContent=save.packsOpened;$('weaponsStat').textContent=save.weapons.length;$('recordWave').textContent=save.bestWave;$('recordKills').textContent=money(save.kills);$('recordCoins').textContent=money(save.totalCoins);$('arenaWave').textContent=save.wave;$('arenaKills').textContent=runKills;$('weaponText').textContent=(WEAPONS.find(w=>w.id===save.equipped)||WEAPONS[0]).name;$('healthText').textContent=Math.max(0,save.health)+' / 100';$('healthBar').style.width=Math.max(0,save.health)+'%';$('healthBar').style.background=save.health<30?'#ff647c':'#48d597';const claimed=save.lastDaily===new Date().toISOString().slice(0,10);$('dailyBtn').disabled=claimed;$('dailyText').textContent=claimed?'You already claimed today’s reward.':'Claim your daily 50 coins.';}
-function renderPacks(){const grid=$('packsGrid');grid.innerHTML='';PACKS.forEach(p=>{const el=document.createElement('div');el.className='card';el.innerHTML=`<div class="relic-icon">🎁</div><h3>${p.name}</h3><p class="muted">${p.desc}</p><p><b>${p.cost} 🪙</b> · Stock: <span id="stock-${p.id}">${p.stock}</span></p><button data-pack="${p.id}">Open pack</button>`;grid.appendChild(el);});grid.querySelectorAll('[data-pack]').forEach(b=>b.addEventListener('click',()=>openPack(b.dataset.pack)));}
-function weightedPick(weights){let n=Math.random()*weights.reduce((a,b)=>a+b,0);for(let i=0;i<weights.length;i++){n-=weights[i];if(n<=0)return i;}return weights.length-1;}
-function openPack(id){const p=PACKS.find(x=>x.id===id);if(!p)return;if(p.stock<=0){p.stock=Math.max(1,Math.ceil(Math.random()*5));}if(save.coins<p.cost){announce($('packResult'),'Not enough coins for this pack.','error');return;}save.coins-=p.cost;p.stock--;save.packsOpened++;const rarityIndex=weightedPick(p.weights);const candidates=RELICS.filter(r=>({Common:0,Rare:1,Epic:2,Legendary:3}[r.rarity])===rarityIndex);const chosen=candidates[Math.floor(Math.random()*candidates.length)]||RELICS[0];const gold=Math.random()<0.0065;const item={uid:Date.now().toString(36)+Math.random().toString(36).slice(2,7),id:chosen.id,gold};save.inventory.push(item);announce($('packResult'),`You found ${gold?'✨ Gold ':''}${chosen.name} (${chosen.rarity})! Value: ${relicValue(item)} coins.`, 'success');persist();renderPacks();}
-function renderInventory(){const list=$('inventoryList');list.innerHTML='';if(!save.inventory.length)list.innerHTML='<p class="muted">No relics yet. Open a pack to find your first one.</p>';save.inventory.forEach(item=>{const d=relicDef(item.id),el=document.createElement('div');el.className='item';el.innerHTML=`<div class="desc"><span class="relic-icon">${d.icon}</span> <b class="${d.rarity}">${item.gold?'Gold ':''}${d.name}</b><div class="muted">${d.rarity} · Value ${relicValue(item)} coins</div></div><button class="gold" data-sell="${item.uid}">Sell</button>`;list.appendChild(el);});list.querySelectorAll('[data-sell]').forEach(b=>b.addEventListener('click',()=>{const i=save.inventory.findIndex(x=>x.uid===b.dataset.sell);if(i<0)return;const item=save.inventory.splice(i,1)[0];const val=relicValue(item);addCoins(val);persist();}));const idx=$('relicIndex');idx.innerHTML='';RELICS.forEach(r=>{const count=save.inventory.filter(i=>i.id===r.id).length;const el=document.createElement('div');el.className='card';el.innerHTML=`<div class="relic-icon">${r.icon}</div><h3 class="${r.rarity}">${r.name}</h3><span class="tag">${r.rarity}</span><p class="muted">Base value: ${r.value} coins · Owned: ${count}</p>`;idx.appendChild(el);});const select=$('marketRelic');select.innerHTML='';save.inventory.forEach(i=>{const d=relicDef(i.id),o=document.createElement('option');o.value=i.uid;o.textContent=(i.gold?'Gold ':'')+d.name+' · '+relicValue(i)+' coins';select.appendChild(o);});}
-$('sortRelics').addEventListener('click',()=>{save.inventory.sort((a,b)=>relicValue(b)-relicValue(a));persist();});
-function renderShop(){const grid=$('shopGrid');grid.innerHTML='';WEAPONS.forEach(w=>{const owned=save.weapons.includes(w.id),equipped=save.equipped===w.id,el=document.createElement('div');el.className='card';el.innerHTML=`<h3>⚔️ ${w.name}</h3><p class="muted">${w.desc}</p><p>Damage: ${w.damage} · ${w.cost?money(w.cost)+' coins':'Free'}</p><button data-weapon="${w.id}" ${equipped?'disabled':''}>${equipped?'Equipped':owned?'Equip':`Buy · ${w.cost} 🪙`}</button>`;grid.appendChild(el);});grid.querySelectorAll('[data-weapon]').forEach(b=>b.addEventListener('click',()=>{const w=WEAPONS.find(x=>x.id===b.dataset.weapon);if(save.weapons.includes(w.id)){save.equipped=w.id;}else if(save.coins>=w.cost){save.coins-=w.cost;save.weapons.push(w.id);save.equipped=w.id;}else{alert('Not enough coins.');return;}persist();}));}
-function renderMarket(){const list=$('marketList');list.innerHTML='';if(!save.listings.length)list.innerHTML='<p class="muted">No active listings. List one of your relics above.</p>';save.listings.forEach(l=>{const d=relicDef(l.item.id),el=document.createElement('div');el.className='item';el.innerHTML=`<div><b>${l.item.gold?'Gold ':''}${d.name}</b><div class="muted">Asking ${l.price} coins</div></div><div class="row"><button class="good" data-buy="${l.id}">Buy (local demo)</button><button class="secondary" data-cancel="${l.id}">Cancel</button></div>`;list.appendChild(el);});list.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>{const l=save.listings.find(x=>x.id===Number(b.dataset.buy));if(!l)return;if(save.coins<l.price){announce($('marketMessage'),'Not enough coins.','error');return;}save.coins-=l.price;save.inventory.push({...l.item,uid:Date.now().toString(36)+Math.random().toString(36).slice(2,6)});save.listings=save.listings.filter(x=>x.id!==l.id);persist();}));list.querySelectorAll('[data-cancel]').forEach(b=>b.addEventListener('click',()=>{save.listings=save.listings.filter(x=>x.id!==Number(b.dataset.cancel));persist();}));}
-$('listItemBtn').addEventListener('click',()=>{const uid=$('marketRelic').value,price=Math.floor(Number($('marketPrice').value));const i=save.inventory.findIndex(x=>x.uid===uid);if(i<0||!Number.isFinite(price)||price<1){announce($('marketMessage'),'Choose a relic and enter a price above zero.','error');return;}const item=save.inventory.splice(i,1)[0];save.listings.push({id:save.marketId++,item,price});announce($('marketMessage'),'Relic listed in your local marketplace.','success');persist();});
-function renderRecords(){const list=$('runList');list.innerHTML='';if(!save.runs.length)list.innerHTML='<p class="muted">No completed runs yet.</p>';save.runs.slice(0,10).forEach(r=>{const el=document.createElement('div');el.className='item';el.innerHTML=`<div><b>Wave ${r.wave}</b><div class="muted">${r.kills} defeated · ${r.date}</div></div><span>${r.coins} coins earned</span>`;list.appendChild(el);});}
-const ACHIEVEMENTS=[{id:'firstkill',name:'First Blood',desc:'Defeat your first zombie.',test:()=>save.kills>=1},{id:'tenkills',name:'Zombie Hunter',desc:'Defeat 10 zombies.',test:()=>save.kills>=10},{id:'wave5',name:'Still Standing',desc:'Reach wave 5.',test:()=>save.bestWave>=5},{id:'firstpack',name:'Curious Collector',desc:'Open your first pack.',test:()=>save.packsOpened>=1},{id:'tenrelics',name:'Relic Hoarder',desc:'Own 10 relics at once.',test:()=>save.inventory.length>=10},{id:'gold',name:'Golden Find',desc:'Find a Gold relic.',test:()=>save.inventory.some(i=>i.gold)}];
-function renderAchievements(){const grid=$('achievementList');grid.innerHTML='';ACHIEVEMENTS.forEach(a=>{const done=save.achievements.includes(a.id)||a.test();if(done&&!save.achievements.includes(a.id))save.achievements.push(a.id);const el=document.createElement('div');el.className='card';el.innerHTML=`<h3>${done?'🏆':'🔒'} ${a.name}</h3><p class="muted">${a.desc}</p><span class="tag">${done?'Unlocked':'Locked'}</span>`;grid.appendChild(el);});}
-function renderAll(){renderHeader();renderInventory();renderShop();renderMarket();renderRecords();renderAchievements();}
-$('dailyBtn').addEventListener('click',()=>{const today=new Date().toISOString().slice(0,10);if(save.lastDaily===today)return;save.lastDaily=today;addCoins(50);persist();});
-$('healBtn').addEventListener('click',()=>{if(save.health>=100){$('gameMessage').textContent='Health is already full.';return;}if(save.coins<25){$('gameMessage').textContent='You need 25 coins to heal.';return;}save.coins-=25;save.health=100;persist();$('gameMessage').textContent='You are back to full health.';});
 
-/* Zombie arena */
-const canvas=$('arena'),ctx=canvas.getContext('2d');let running=false,paused=false,player={x:450,y:253,r:14,speed:3.2},zombies=[],runKills=0,frame=0,attackUntil=0,keys={},moveTouch={},waveRewarded=false,lastSpawn=0;
-function weapon(){return WEAPONS.find(w=>w.id===save.equipped)||WEAPONS[0];}
-function spawnZombie(boss=false){const edge=Math.floor(Math.random()*4);let x=edge===0?10:edge===1?890:Math.random()*900,y=edge===2?10:edge===3?496:Math.random()*506;zombies.push({x,y,r:boss?22:13,hp:boss?5+save.wave:1+Math.floor(save.wave/4),speed:boss?0.65+save.wave*.025:0.85+Math.min(save.wave*.035,1.1),boss});}
-function startRun(){running=true;paused=false;player={x:450,y:253,r:14,speed:3.2};zombies=[];runKills=0;frame=0;waveRewarded=false;lastSpawn=0;save.health=100;for(let i=0;i<3+save.wave;i++)spawnZombie();$('gameMessage').textContent='Survive the wave!';$('pauseBtn').textContent='Pause';drawArena();}
-function finishRun(){running=false;paused=false;save.bestWave=Math.max(save.bestWave,save.wave);save.runs.unshift({wave:save.wave,kills:runKills,coins:Math.max(0,runKills*2),date:new Date().toLocaleDateString()});save.runs=save.runs.slice(0,20);$('gameMessage').textContent=`Run ended. You defeated ${runKills} zombies.`;persist();}
-function attack(){if(!running||paused)return;attackUntil=frame+12;const dmg=weapon().damage;let hit=false;zombies.slice().forEach(z=>{const dist=Math.hypot(z.x-player.x,z.y-player.y);if(dist<68){z.hp-=dmg;hit=true;if(z.hp<=0){zombies=zombies.filter(q=>q!==z);runKills++;save.kills++;const reward=z.boss?20:2;addCoins(reward);if(z.boss){$('gameMessage').textContent='Boss defeated! +20 coins!';}}}});if(hit)persist();}
-function drawArena(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#0b1020';ctx.fillRect(0,0,900,506);ctx.strokeStyle='#1d2842';ctx.lineWidth=1;for(let x=0;x<900;x+=36){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,506);ctx.stroke();}for(let y=0;y<506;y+=36){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(900,y);ctx.stroke();}
-zombies.forEach(z=>{ctx.fillStyle=z.boss?'#bd4dff':'#56d18d';ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111';ctx.beginPath();ctx.arc(z.x-4,z.y-2,2,0,7);ctx.arc(z.x+4,z.y-2,2,0,7);ctx.fill();if(z.boss){ctx.fillStyle='#ffd166';ctx.font='bold 13px system-ui';ctx.fillText('BOSS',z.x-18,z.y-z.r-7);}});
-ctx.fillStyle='#8b5cf6';ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#eee9ff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player.x,player.y);ctx.lineTo(player.x+22,player.y);ctx.stroke();if(frame<attackUntil){ctx.strokeStyle='#ffd166';ctx.lineWidth=5;ctx.beginPath();ctx.arc(player.x,player.y,58,-.8,.8);ctx.stroke();}
-ctx.fillStyle='#f5f6ff';ctx.font='bold 16px system-ui';ctx.fillText(`Wave ${save.wave}  |  HP ${save.health}  |  Kills ${runKills}`,16,25);if(!running){ctx.fillStyle='#f5f6ff';ctx.font='bold 24px system-ui';ctx.fillText('Press Start / Restart to play',270,250);}else if(paused){ctx.fillStyle='#f5f6ff';ctx.font='bold 30px system-ui';ctx.fillText('PAUSED',400,250);}}
-function tick(){requestAnimationFrame(tick);if(!running||paused){drawArena();return;}frame++;let dx=0,dy=0;if(keys.ArrowLeft||keys.a||moveTouch.left)dx--;if(keys.ArrowRight||keys.d||moveTouch.right)dx++;if(keys.ArrowUp||keys.w||moveTouch.up)dy--;if(keys.ArrowDown||keys.s||moveTouch.down)dy++;if(dx&&dy){dx*=.707;dy*=.707;}player.x=Math.max(player.r,Math.min(900-player.r,player.x+dx*player.speed));player.y=Math.max(player.r,Math.min(506-player.r,player.y+dy*player.speed));
-zombies.forEach(z=>{const d=Math.hypot(player.x-z.x,player.y-z.y)||1;z.x+=(player.x-z.x)/d*z.speed;z.y+=(player.y-z.y)/d*z.speed;if(d<player.r+z.r){if(frame%35===0){save.health=Math.max(0,save.health-(z.boss?14:7));if(save.health===0){finishRun();return;}}}});
-if(zombies.length===0&&!waveRewarded){waveRewarded=true;const bonus=save.wave*3;addCoins(bonus);$('gameMessage').textContent=`Wave cleared! +${bonus} bonus coins.`;save.bestWave=Math.max(save.bestWave,save.wave);persist();setTimeout(()=>{if(!running)return;save.wave++;waveRewarded=false;for(let i=0;i<Math.min(3+save.wave,14);i++)spawnZombie();if(save.wave%5===0)spawnZombie(true);persist();},900);}
-if(frame-lastSpawn>150&&zombies.length<3+save.wave){spawnZombie();lastSpawn=frame;}if(frame%15===0){renderHeader();}drawArena();}
-$('startGame').addEventListener('click',startRun);$('attackBtn').addEventListener('click',attack);$('pauseBtn').addEventListener('click',()=>{if(!running)return;paused=!paused;$('pauseBtn').textContent=paused?'Resume':'Pause';});document.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=true;if([' ','Enter','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)&&!['INPUT'].includes(document.activeElement.tagName))e.preventDefault();if(e.key===' '||e.key==='Enter')attack();});document.addEventListener('keyup',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false;});document.querySelectorAll('[data-move]').forEach(b=>{const dir=b.dataset.move;const down=e=>{e.preventDefault();moveTouch[dir]=true;};const up=e=>{e.preventDefault();moveTouch[dir]=false;};b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up);});tick();
+const RELICS=[
+{id:"crystal",name:"Crystal Shard",icon:"💎",rarity:"Common",value:10,description:"A sparkling fragment of crystal."},
+{id:"leaf",name:"Ancient Leaf",icon:"🍃",rarity:"Common",value:12,description:"A leaf preserved by ancient magic."},
+{id:"stone",name:"Runestone",icon:"🪨",rarity:"Common",value:15,description:"A stone with mysterious markings."},
+{id:"shell",name:"Ocean Shell",icon:"🐚",rarity:"Common",value:16,description:"A shell from the ocean floor."},
+{id:"moon",name:"Moon Fragment",icon:"🌙",rarity:"Rare",value:30,description:"A fragment with lunar energy."},
+{id:"flame",name:"Eternal Flame",icon:"🔥",rarity:"Rare",value:35,description:"A flame that never goes out."},
+{id:"frost",name:"Frost Core",icon:"❄️",rarity:"Rare",value:38,description:"A core cold enough to freeze time."},
+{id:"shadow",name:"Shadow Orb",icon:"🔮",rarity:"Epic",value:70,description:"An orb containing living shadows."},
+{id:"dragon",name:"Dragon Scale",icon:"🐉",rarity:"Epic",value:85,description:"A scale from a mythical dragon."},
+{id:"storm",name:"Storm Heart",icon:"⚡",rarity:"Epic",value:95,description:"A heart crackling with storm energy."},
+{id:"crown",name:"Lost King's Crown",icon:"👑",rarity:"Legendary",value:180,description:"A crown belonging to a forgotten king."},
+{id:"star",name:"Fallen Star",icon:"🌟",rarity:"Legendary",value:220,description:"A star that fell from the heavens."},
+{id:"phoenix",name:"Phoenix Relic",icon:"🪽",rarity:"Legendary",value:260,description:"A relic of rebirth and eternal fire."},
+{id:"void",name:"Heart of the Void",icon:"🌀",rarity:"Legendary",value:300,description:"A legendary treasure from beyond reality."},
+{id:"season_comet",name:"Galaxy Comet",icon:"☄️",rarity:"Epic",value:180,description:"Season 1 exclusive: a comet sealed in crystal.",seasonal:true},
+{id:"season_nebula",name:"Nebula Crown",icon:"🌌",rarity:"Legendary",value:350,description:"Season 1 exclusive: a crown forged in a nebula.",seasonal:true},
+{id:"season_eclipse",name:"Eclipse Heart",icon:"🌘",rarity:"Legendary",value:500,description:"Season 1 exclusive: the heart of a dying star.",seasonal:true}
+];
 
-async function readJsonResponse(res){const text=await res.text();try{return JSON.parse(text);}catch{throw new Error('The server returned a webpage instead of JSON. Check that the Netlify function is deployed and its URL is correct.');}}
+const RARITIES=["Common","Rare","Epic","Legendary"];
+const RARITY_CLASS={Common:"common",Rare:"rare",Epic:"epic",Legendary:"legendary"};
 
-/* Player accounts: passwords are verified server-side; the session is an HttpOnly cookie. */
-function showAccountStatus(msg,type=''){announce($('accountStatus'),msg,type);}
-function setAccountUi(username){
-  playerAccount=username||null;
-  $('accountState').textContent=playerAccount?'Signed in':'Not signed in';
-  $('accountAuthForms').classList.toggle('hidden',!!playerAccount);
-  $('accountSignedIn').classList.toggle('hidden',!playerAccount);
-  if(playerAccount)$('accountWelcome').textContent='Welcome, '+playerAccount+'!';
+const SEASON_REWARDS=[
+{tier:1,icon:"🪙",name:"Coin Pouch",desc:"100 bonus coins",type:"coins",amount:100},
+{tier:2,icon:"📦",name:"Pack Bonus",desc:"75 bonus coins",type:"coins",amount:75},
+{tier:3,icon:"☄️",name:"Galaxy Comet",desc:"Exclusive seasonal relic",type:"relic",id:"season_comet"},
+{tier:4,icon:"🪙",name:"Treasure Stash",desc:"200 bonus coins",type:"coins",amount:200},
+{tier:5,icon:"🌌",name:"Star Cache",desc:"300 bonus coins",type:"coins",amount:300},
+{tier:6,icon:"🌌",name:"Nebula Crown",desc:"Exclusive seasonal relic",type:"relic",id:"season_nebula"},
+{tier:7,icon:"🪙",name:"Royal Purse",desc:"400 bonus coins",type:"coins",amount:400},
+{tier:8,icon:"✨",name:"Celestial Cache",desc:"500 bonus coins",type:"coins",amount:500},
+{tier:9,icon:"👑",name:"Legend Stash",desc:"650 bonus coins",type:"coins",amount:650},
+{tier:10,icon:"🌘",name:"Eclipse Heart",desc:"Final exclusive seasonal relic",type:"relic",id:"season_eclipse"}
+];
+
+function freshGame(){
+return {coins:500,inventory:{},packsOpened:0,kills:0,coinsEarned:0,wave:1,highestWave:1,health:100,damage:10,weaponLevel:0,lootLevel:0,lastDaily:"",recent:[],achievements:[],zombieHP:30,zombiesLeft:5,totalSold:0,seasonXP:0,seasonClaimed:[],seasonId:1};
 }
-function installServerSave(remote){save=normalizeSave(remote||defaultSave());localStorage.setItem(SAVE_KEY,JSON.stringify(save));renderAll();renderPacks();drawArena();}
-async function accountRequest(payload){const res=await fetch('/.netlify/functions/account',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await readJsonResponse(res);if(!res.ok)throw new Error(data.error||'Account request failed.');return data;}
-function scheduleAccountSave(){if(!playerAccount)return;if(accountSyncTimer)clearTimeout(accountSyncTimer);accountSyncTimer=setTimeout(syncAccountSave,450);}
-async function syncAccountSave(){if(!playerAccount)return;if(accountSyncBusy){accountSyncAgain=true;return;}accountSyncBusy=true;const snapshot=JSON.stringify(save);try{const res=await fetch('/.netlify/functions/account',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',save:JSON.parse(snapshot)})});const data=await readJsonResponse(res);if(!res.ok){if(res.status===401){setAccountUi(null);showAccountStatus('Your account session expired. Log in again to resume cloud saving.','error');}else showAccountStatus(data.error||'Could not sync your save yet. Your local save is still available.','error');}}catch(err){showAccountStatus(err.message||'Could not sync your save yet. Your local save is still available.','error');}finally{accountSyncBusy=false;if(accountSyncAgain){accountSyncAgain=false;scheduleAccountSave();}}}
-async function initializeAccountSession(){try{const data=await accountRequest({action:'me'});installServerSave(data.save||defaultSave());setAccountUi(data.username);showAccountStatus('Signed in. Your progress is syncing to your account.','success');}catch(err){setAccountUi(null);}}
-$('accountRegisterBtn').addEventListener('click',async()=>{const username=$('accountRegisterUsername').value.trim(),password=$('accountRegisterPassword').value;const btn=$('accountRegisterBtn');btn.disabled=true;btn.textContent='Creating…';try{const data=await accountRequest({action:'register',username,password,save});installServerSave(data.save||save);setAccountUi(data.username);$('accountRegisterPassword').value='';$('accountLoginPassword').value='';showAccountStatus('Account created! Your current browser progress was saved to your new account.','success');}catch(err){showAccountStatus(err.message||'Could not create account.','error');}finally{btn.disabled=false;btn.textContent='Create account';}});
-$('accountLoginBtn').addEventListener('click',async()=>{const username=$('accountLoginUsername').value.trim(),password=$('accountLoginPassword').value;const btn=$('accountLoginBtn');btn.disabled=true;btn.textContent='Logging in…';try{const data=await accountRequest({action:'login',username,password});installServerSave(data.save||defaultSave());setAccountUi(data.username);$('accountLoginPassword').value='';showAccountStatus('Welcome back! Your saved progress was loaded from the server.','success');if(!data.save) scheduleAccountSave();}catch(err){showAccountStatus(err.message||'Could not log in.','error');}finally{btn.disabled=false;btn.textContent='Log in';}});
-$('accountLogoutBtn').addEventListener('click',async()=>{try{await accountRequest({action:'logout'});}catch{}setAccountUi(null);showAccountStatus('Logged out. This browser keeps its local copy, but cloud syncing is paused.','success');});
-$('accountSyncBtn').addEventListener('click',async()=>{if(!playerAccount)return;try{await syncAccountSave();showAccountStatus('Sync requested.','success');}catch(err){showAccountStatus(err.message||'Sync failed.','error');}});
+function loadGame(){
+try{
+const parsed=JSON.parse(localStorage.getItem(SAVE_KEY));
+if(!parsed)return freshGame();
+return {...freshGame(),...parsed,inventory:parsed.inventory||{},seasonClaimed:Array.isArray(parsed.seasonClaimed)?parsed.seasonClaimed:[],recent:parsed.recent||[],achievements:parsed.achievements||[]};
+}catch(e){return freshGame();}
+}
+let game=loadGame();
 
-/* Server-verified admin login. The secret code never appears in this HTML. */
-const adminPanel=$('adminPanel'),loginArea=$('adminLoginArea'),commandsArea=$('adminCommands');let adminToken=null,adminExpiry=0;
-function showAdminStatus(msg,type=''){announce($('adminStatus'),msg,type);}
-function showCommandStatus(msg,type=''){announce($('commandStatus'),msg,type);}
-$('adminOpenBtn').addEventListener('click',()=>{adminPanel.classList.remove('hidden');adminPanel.scrollIntoView({behavior:'smooth',block:'start'});});
-$('adminCloseBtn').addEventListener('click',()=>adminPanel.classList.add('hidden'));
-$('adminLoginBtn').addEventListener('click',async()=>{const code=$('adminCode').value;if(!code){showAdminStatus('Enter your developer code.','error');return;}const btn=$('adminLoginBtn');btn.disabled=true;btn.textContent='Checking…';try{const res=await fetch('/.netlify/functions/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',code})});const data=await readJsonResponse(res);if(!res.ok||!data.token)throw new Error(data.error||'Login rejected.');adminToken=data.token;adminExpiry=data.expiresAt;loginArea.classList.add('hidden');commandsArea.classList.remove('hidden');$('adminCode').value='';showCommandStatus('Login verified by the server.','success');}catch(err){showAdminStatus(err.message||'Could not verify. Make sure the site is deployed on Netlify and function environment variables are set.','error');}finally{btn.disabled=false;btn.textContent='Verify with server';}});
-$('adminLogoutBtn').addEventListener('click',()=>{adminToken=null;adminExpiry=0;commandsArea.classList.add('hidden');loginArea.classList.remove('hidden');showAdminStatus('Logged out.');});
-const relicSelect=$('giveRelic');RELICS.forEach(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=r.name+' ('+r.rarity+')';relicSelect.appendChild(o);});
-document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',async()=>{if(!adminToken||Date.now()>=adminExpiry){adminToken=null;commandsArea.classList.add('hidden');loginArea.classList.remove('hidden');showCommandStatus('Your admin session expired. Log in again.','error');return;}let payload={action:btn.dataset.command,token:adminToken};if(payload.action==='giveCoins')payload.amount=Number($('giveCoins').value);if(payload.action==='setCoins')payload.amount=Number($('setCoins').value);if(payload.action==='giveRelic'){payload.relicId=$('giveRelic').value;payload.gold=$('goldRelic').value==='true';}btn.disabled=true;try{const res=await fetch('/.netlify/functions/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await readJsonResponse(res);if(!res.ok||!data.command)throw new Error(data.error||'Command rejected.');applyAdminCommand(data.command);persist();showCommandStatus('Server authorized command: '+data.message,'success');}catch(err){showCommandStatus(err.message||'Could not run command.','error');if(err.message&&/session|token|expired/i.test(err.message)){adminToken=null;commandsArea.classList.add('hidden');loginArea.classList.remove('hidden');}}finally{btn.disabled=false;}}));
-function applyAdminCommand(c){switch(c.action){case'giveCoins':addCoins(c.amount);break;case'setCoins':save.coins=c.amount;break;case'giveRelic':save.inventory.push({uid:'admin-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),id:c.relicId,gold:c.gold});break;case'heal':save.health=100;break;default:throw new Error('Unknown command.');}}
+function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(game));}catch(e){console.warn("Save failed",e);}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function toast(message){
+const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");
+clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600);
+}
+function go(page){
+document.querySelectorAll(".page").forEach(el=>el.classList.toggle("active",el.id===page));
+document.querySelectorAll("nav button").forEach(el=>el.classList.toggle("active",el.dataset.page===page));
+if(page==="relics")renderRelics();
+if(page==="market")renderMarket();
+if(page==="season")renderSeason();
+window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>go(btn.dataset.page)));
 
-const rewardRelicSelect=$('rewardRelic');
-RELICS.forEach(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=r.name+' ('+r.rarity+')';rewardRelicSelect.appendChild(o);});
-$('rewardType').addEventListener('change',()=>{const isCoins=$('rewardType').value==='coins';$('rewardCoinsArea').classList.toggle('hidden',!isCoins);$('rewardRelicArea').classList.toggle('hidden',isCoins);});
-$('createRewardCodeBtn').addEventListener('click',async()=>{
-  if(!adminToken||Date.now()>=adminExpiry){showCommandStatus('Your admin session expired. Log in again.','error');return;}
-  const type=$('rewardType').value;
-  const reward=type==='coins'?{type:'coins',amount:Number($('rewardCoins').value)}:{type:'relic',relicId:$('rewardRelic').value,gold:$('rewardGold').value==='true'};
-  const btn=$('createRewardCodeBtn');btn.disabled=true;btn.textContent='Creating…';
-  try{
-    const res=await fetch('/.netlify/functions/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'createRewardCode',token:adminToken,reward})});
-    const data=await readJsonResponse(res);if(!res.ok||!data.code)throw new Error(data.error||'Could not create code.');
-    const out=$('createdCodeArea');out.textContent='Giveaway code: '+data.code+' — copy it and show it on stream. '+data.rewardLabel;out.className='notice success';
-  }catch(err){showCommandStatus(err.message||'Could not create giveaway code.','error');}
-  finally{btn.disabled=false;btn.textContent='Create giveaway code';}
+function seasonLevel(){return Math.min(10,Math.floor(game.seasonXP/100)+1);}
+function seasonXPIntoLevel(){return game.seasonXP>=1000?100:game.seasonXP%100;}
+function addSeasonXP(amount,reason){
+game.seasonXP=Math.max(0,game.seasonXP+amount);
+toast("⭐ +"+amount+" Season XP"+(reason?" — "+reason:""));
+checkAchievements();saveGame();updateAll();
+}
+function ownedKey(id,gold){return id+(gold?"_gold":"_normal");}
+function getOwned(id,gold=false){return Number(game.inventory[ownedKey(id,gold)]||0);}
+function addRelic(relic,gold){
+const key=ownedKey(relic.id,gold);game.inventory[key]=(game.inventory[key]||0)+1;
+game.recent.unshift({id:relic.id,gold,time:Date.now()});game.recent=game.recent.slice(0,12);
+}
+function allOwnedCopies(){return Object.values(game.inventory).reduce((a,b)=>a+(Number(b)||0),0);}
+function uniqueOwned(){return Object.keys(game.inventory).filter(k=>game.inventory[k]>0).length;}
+function totalGold(){return Object.keys(game.inventory).filter(k=>k.endsWith("_gold")).reduce((n,k)=>n+game.inventory[k],0);}
+function relicById(id){return RELICS.find(r=>r.id===id);}
+function ownedValue(){return Object.entries(game.inventory).reduce((sum,[key,count])=>{
+const gold=key.endsWith("_gold"),id=key.replace(/_gold$|_normal$/,""),relic=relicById(id);
+return sum+(relic?relic.value*(gold?2:1)*count:0);
+},0);}
+function rarityTag(r){return `<span class="tag ${RARITY_CLASS[r]||""}">${esc(r)}</span>`;}
+function relicMarkup(relic,gold,count){
+return `<div class="card relic-card ${gold?"gold-relic":""}">
+<div class="relic-icon">${gold?"✨":""}${relic.icon}</div>
+<h3>${gold?"Gold ":""}${esc(relic.name)}</h3>${rarityTag(relic.rarity)} ${gold?'<span class="tag gold-tag">GOLD</span>':""}
+${relic.seasonal?'<span class="tag">SEASON EXCLUSIVE</span>':""}
+<p>${esc(relic.description)}</p><div class="owned">📦 Owned: <b>${count}</b></div>
+<p>Value: <b>${relic.value*(gold?2:1)} 🪙</b> each</p></div>`;
+}
+function rollRarity(weights){
+let n=Math.random()*weights.reduce((a,b)=>a+b,0);
+for(let i=0;i<weights.length;i++){n-=weights[i];if(n<0)return RARITIES[i];}
+return "Common";
+}
+function openPack(id){
+const pack=PACKS.find(p=>p.id===id);if(!pack)return;
+if(game.coins<pack.price){toast("Not enough coins for this pack!");return;}
+game.coins-=pack.price;game.packsOpened++;
+const rarity=rollRarity(pack.weights);
+const choices=RELICS.filter(r=>r.rarity===rarity&&!r.seasonal);
+const relic=choices[Math.floor(Math.random()*choices.length)];
+const gold=Math.random()<(0.65/1.65);
+addRelic(relic,gold);game.seasonXP+=25;
+saveGame();updateAll();showReveal(relic,gold,pack);
+}
+function showReveal(relic,gold,pack){
+document.getElementById("revealCard").classList.toggle("gold-reveal",gold);
+document.getElementById("revealTag").textContent=gold?"✨ GOLD RELIC DISCOVERED!":"RELIC DISCOVERED!";
+document.getElementById("revealIcon").textContent=relic.icon;
+document.getElementById("revealName").textContent=(gold?"Gold ":"")+relic.name;
+document.getElementById("revealRarity").innerHTML=rarityTag(relic.rarity)+(gold?' <span class="tag gold-tag">GOLD</span>':"");
+document.getElementById("revealDescription").textContent=relic.description+" Found in "+pack.name+".";
+document.getElementById("revealOwned").textContent="📦 Owned: "+getOwned(relic.id,gold);
+document.getElementById("revealXP").textContent="⭐ +25 Season XP";
+document.getElementById("revealOverlay").classList.add("show");
+checkAchievements();
+}
+function closeReveal(){document.getElementById("revealOverlay").classList.remove("show");}
+
+function renderPacks(){
+const makeCard=pack=>`<div class="card pack-card" style="--pack-color:${pack.color}">
+<div class="pack-icon">${pack.icon}</div><h3>${esc(pack.name)}</h3><p>${esc(pack.description)}</p>
+<div class="price">🪙 ${pack.price}</div>
+<div class="small muted">Common ${pack.weights[0]}% • Rare ${pack.weights[1]}% • Epic ${pack.weights[2]}% • Legendary ${pack.weights[3]}%</div>
+<button class="btn full" onclick="openPack('${pack.id}')" ${game.coins<pack.price?"disabled":""}>Open Pack · +25 XP</button></div>`;
+document.getElementById("packsGrid").innerHTML=PACKS.map(makeCard).join("");
+document.getElementById("featuredPacks").innerHTML=PACKS.slice(0,3).map(makeCard).join("");
+}
+function renderRelics(){
+const filter=document.getElementById("relicFilter").value,cards=[];
+RELICS.forEach(relic=>{
+const normal=getOwned(relic.id,false),gold=getOwned(relic.id,true);
+if(filter==="all"||filter==="normal"||filter==="owned"){
+if(filter!=="owned"||normal>0)cards.push({relic,gold:false,count:normal});
+}
+if(filter==="all"||filter==="gold"){if(filter==="gold"||gold>0)cards.push({relic,gold:true,count:gold});}
 });
-$('redeemCodeBtn').addEventListener('click',async()=>{
-  const code=$('redeemCode').value.trim().toUpperCase().replace(/\s+/g,'');
-  if(!code){announce($('redeemStatus'),'Enter a giveaway code first.','error');return;}
-  if(!playerAccount){announce($('redeemStatus'),'Create an account or log in before redeeming a giveaway code.','error');return;}
-  const btn=$('redeemCodeBtn');btn.disabled=true;btn.textContent='Checking…';
-  try{
-    const res=await fetch('/.netlify/functions/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
-    const data=await readJsonResponse(res);if(!res.ok||!data.reward)throw new Error(data.error||'Could not redeem this code.');
-    const r=data.reward;
-    if(data.save)installServerSave(data.save);else throw new Error('The server did not return your updated player save.');
-    if(r.type==='coins')announce($('redeemStatus'),'Reward claimed: '+money(r.amount)+' coins! Saved to your account.','success');
-    else if(r.type==='relic')announce($('redeemStatus'),'Reward claimed: '+(r.gold?'Gold ':'')+relicDef(r.relicId).name+'! Saved to your account.','success');
-    else throw new Error('Unsupported reward type.');
-    $('redeemCode').value='';
-  }catch(err){announce($('redeemStatus'),err.message||'Code could not be redeemed.','error');}
-  finally{btn.disabled=false;btn.textContent='Redeem reward';}
+document.getElementById("relicsGrid").innerHTML=cards.length?cards.map(c=>relicMarkup(c.relic,c.gold,c.count)).join(""):'<div class="empty">No relics found. Open a pack to discover your first treasure!</div>';
+}
+
+const UPGRADES=[
+{id:"damage",name:"Stronger Weapon",icon:"⚔️",description:"+5 damage per upgrade.",base:100},
+{id:"health",name:"Health Boost",icon:"❤️",description:"Restore health and increase your maximum health.",base:80},
+{id:"loot",name:"Coin Bonus",icon:"🪙",description:"Earn extra coins from every zombie defeat.",base:150}
+];
+function upgradePrice(item){
+if(item.id==="damage")return item.base+game.weaponLevel*70;
+if(item.id==="health")return item.base+Math.floor(game.weaponLevel/2)*40;
+return item.base+game.lootLevel*100;
+}
+function buyUpgrade(id){
+const item=UPGRADES.find(x=>x.id===id);if(!item)return;
+const price=upgradePrice(item);if(game.coins<price){toast("Not enough coins!");return;}
+game.coins-=price;
+if(id==="damage"){game.damage+=5;game.weaponLevel++;}
+if(id==="health"){game.maxHealth=(game.maxHealth||100)+20;game.health=game.maxHealth;}
+if(id==="loot")game.lootLevel++;
+saveGame();updateAll();toast(item.name+" purchased!");
+}
+function renderShop(){
+document.getElementById("shopGrid").innerHTML=UPGRADES.map(item=>{
+const price=upgradePrice(item);
+return `<div class="card"><div class="pack-icon">${item.icon}</div><h3>${item.name}</h3><p>${item.description}</p>
+${item.id==="damage"?`<div class="owned">Current damage: ${game.damage}</div>`:""}
+${item.id==="loot"?`<div class="owned">Loot level: ${game.lootLevel}</div>`:""}
+<div class="price">🪙 ${price}</div><button class="btn full" onclick="buyUpgrade('${item.id}')" ${game.coins<price?"disabled":""}>Purchase Upgrade</button></div>`;
+}).join("");
+}
+function renderMarket(){
+const cards=[];
+RELICS.forEach(relic=>[false,true].forEach(gold=>{const count=getOwned(relic.id,gold);if(count>0)cards.push({relic,gold,count});}));
+document.getElementById("marketGrid").innerHTML=cards.length?cards.map(c=>{
+const value=c.relic.value*(c.gold?2:1);
+return `<div class="card ${c.gold?"gold-relic":""}"><div class="relic-icon">${c.gold?"✨":""}${c.relic.icon}</div>
+<h3>${c.gold?"Gold ":""}${esc(c.relic.name)}</h3>${rarityTag(c.relic.rarity)}
+<div class="owned">📦 Owned: ${c.count}</div><p>Sell value: ${value} 🪙 each</p>
+<button class="btn full" onclick="sellRelic('${c.relic.id}',${c.gold})">Sell One</button></div>`;
+}).join(""):'<div class="empty">Your market is empty. Open a pack to find relics to sell.</div>';
+}
+function sellRelic(id,gold){
+const key=ownedKey(id,gold);
+if(!game.inventory[key]||game.inventory[key]<1){toast("You don't own that relic.");return;}
+const relic=relicById(id);game.inventory[key]--;
+if(game.inventory[key]===0)delete game.inventory[key];
+const value=relic.value*(gold?2:1);game.coins+=value;game.coinsEarned+=value;game.totalSold++;
+saveGame();updateAll();renderMarket();toast("Sold for "+value+" coins!");
+}
+
+function attackZombie(){
+if(game.zombiesLeft<=0){toast("Wave cleared! Start the next wave.");return;}
+if(game.health<=0){game.health=game.maxHealth||100;toast("You recovered and returned to the arena!");}
+game.zombieHP-=game.damage;
+if(game.zombieHP<=0){
+game.kills++;
+const reward=15+game.wave*4+game.lootLevel*5;
+game.coins+=reward;game.coinsEarned+=reward;game.zombiesLeft--;
+game.zombieHP=Math.ceil(30+game.wave*12);
+game.seasonXP+=20;
+document.getElementById("battleLog").textContent="🧟 Zombie defeated! You earned "+reward+" coins and 20 Season XP.";
+if(game.zombiesLeft===0){
+const bonus=25+game.wave*10;game.coins+=bonus;game.coinsEarned+=bonus;game.seasonXP+=40;
+document.getElementById("battleLog").textContent="🏆 Wave cleared! Bonus: "+bonus+" coins and 40 Season XP. Start the next wave!";
+}
+}else{
+game.health=Math.max(0,game.health-(3+Math.floor(game.wave/2)));
+document.getElementById("battleLog").textContent="⚔️ You hit the zombie for "+game.damage+" damage. It has "+game.zombieHP+" HP left.";
+if(game.health<=0)document.getElementById("battleLog").textContent="💤 You were overwhelmed! Heal or recover to continue.";
+}
+saveGame();updateAll();
+}
+function healPlayer(){
+if(game.coins<40){toast("You need 40 coins to heal.");return;}
+game.coins-=40;game.health=game.maxHealth||100;saveGame();updateAll();toast("Health restored!");
+}
+function startNextWave(){
+if(game.zombiesLeft>0){toast("Defeat the remaining zombies first!");return;}
+game.wave++;game.highestWave=Math.max(game.highestWave,game.wave);
+game.zombiesLeft=5+Math.floor(game.wave/2);game.zombieHP=30+game.wave*12;
+game.health=game.maxHealth||100;
+document.getElementById("battleLog").textContent="🌊 Wave "+game.wave+" begins! Stay alert.";
+saveGame();updateAll();
+}
+function claimDaily(){
+const today=new Date().toDateString();
+if(game.lastDaily===today){toast("You already claimed today's reward!");return;}
+game.lastDaily=today;game.coins+=150;game.coinsEarned+=150;game.seasonXP+=50;
+saveGame();updateAll();toast("🎁 Daily reward: 150 coins and 50 Season XP!");
+}
+
+function claimSeasonRewards(){
+let claimed=0;
+SEASON_REWARDS.forEach(r=>{
+if(game.seasonXP>=r.tier*100&&!game.seasonClaimed.includes(r.tier)){
+game.seasonClaimed.push(r.tier);claimed++;
+if(r.type==="coins"){game.coins+=r.amount;game.coinsEarned+=r.amount;}
+if(r.type==="relic"){
+const relic=relicById(r.id);
+if(relic)addRelic(relic,false);
+}
+}
 });
-renderPacks();renderAll();drawArena();
-initializeAccountSession();
-})();
+if(!claimed){toast("No new rewards are ready to claim yet!");return;}
+saveGame();updateAll();renderSeason();
+toast("🎉 Claimed "+claimed+" Season Pass reward"+(claimed===1?"!":"s!"));
+}
+function renderSeason(){
+const level=seasonLevel(),xp=seasonXPIntoLevel();
+document.getElementById("seasonLevel").textContent=level;
+document.getElementById("seasonXP").textContent=game.seasonXP;
+document.getElementById("nextXP").textContent=game.seasonXP>=1000?"MAX":level*100;
+document.getElementById("seasonXPTotal").textContent=game.seasonXP;
+document.getElementById("seasonBar").style.width=(game.seasonXP>=1000?100:xp)+"%";
+document.getElementById("seasonClaimed").textContent=game.seasonClaimed.length+" / 10";
+const exclusives=["season_comet","season_nebula","season_eclipse"].filter(id=>getOwned(id,false)+getOwned(id,true)>0).length;
+document.getElementById("seasonExclusive").textContent=exclusives+" / 3";
+const available=SEASON_REWARDS.filter(r=>game.seasonXP>=r.tier*100&&!game.seasonClaimed.includes(r.tier)).length;
+document.getElementById("claimStatus").textContent=available?available+" reward(s) ready to claim!":"Play to unlock your next reward.";
+document.getElementById("seasonTrack").innerHTML=SEASON_REWARDS.map(r=>{
+const claimed=game.seasonClaimed.includes(r.tier),unlocked=game.seasonXP>=r.tier*100;
+return `<div class="tier ${claimed?"claimed":unlocked?"unlocked":"locked"}">
+<div class="tier-number">TIER ${r.tier} ${claimed?"✓":unlocked?"🔓":"🔒"}</div>
+<div class="reward-icon">${r.icon}</div><h3>${esc(r.name)}</h3><div class="reward-label">${esc(r.desc)}</div>
+<div class="small muted">${r.tier*100} XP required</div>
+<button class="btn ${claimed?"secondary":unlocked?"gold":"secondary"} full" ${claimed||!unlocked?"disabled":""} onclick="claimSeasonRewards()">${claimed?"✓ Claimed":unlocked?"Claim Reward":"Locked"}</button>
+</div>`;
+}).join("");
+}
+
+const ACHIEVEMENTS=[
+{id:"first",name:"First Discovery",icon:"💎",desc:"Own your first relic.",check:()=>allOwnedCopies()>=1},
+{id:"ten",name:"Growing Collection",icon:"📦",desc:"Collect 10 relics.",check:()=>allOwnedCopies()>=10},
+{id:"gold",name:"Golden Touch",icon:"✨",desc:"Find a Gold relic.",check:()=>totalGold()>=1},
+{id:"legend",name:"Legend Hunter",icon:"👑",desc:"Own a Legendary relic.",check:()=>RELICS.some(r=>r.rarity==="Legendary"&&(getOwned(r.id,false)+getOwned(r.id,true)>0))},
+{id:"packs",name:"Pack Addict",icon:"🎁",desc:"Open 25 packs.",check:()=>game.packsOpened>=25},
+{id:"killer",name:"Zombie Hunter",icon:"🧟",desc:"Defeat 25 zombies.",check:()=>game.kills>=25},
+{id:"wave",name:"Survivor",icon:"🌊",desc:"Reach wave 10.",check:()=>game.highestWave>=10},
+{id:"rich",name:"Treasure Tycoon",icon:"🪙",desc:"Hold 2,000 coins.",check:()=>game.coins>=2000},
+{id:"season",name:"Season Starter",icon:"🎟️",desc:"Earn 100 Season XP.",check:()=>game.seasonXP>=100},
+{id:"seasonmax",name:"Season Champion",icon:"🌌",desc:"Earn 1,000 Season XP.",check:()=>game.seasonXP>=1000}
+];
+function renderAchievements(){
+document.getElementById("achievementsGrid").innerHTML=ACHIEVEMENTS.map(a=>{
+const done=game.achievements.includes(a.id);
+return `<div class="card"><div class="pack-icon">${a.icon}</div><h3>${esc(a.name)}</h3><p>${esc(a.desc)}</p><span class="tag ${done?"legendary":""}">${done?"✓ UNLOCKED":"LOCKED"}</span></div>`;
+}).join("");
+}
+function checkAchievements(){
+ACHIEVEMENTS.forEach(a=>{
+if(!game.achievements.includes(a.id)&&a.check()){
+game.achievements.push(a.id);toast("🏆 Achievement unlocked: "+a.name);
+}
+});
+}
+
+function updateAll(){
+document.getElementById("coins").textContent=game.coins;
+document.getElementById("totalRelics").textContent=allOwnedCopies();
+document.getElementById("waveStat").textContent=game.wave;
+document.getElementById("levelStat").textContent=seasonLevel();
+document.getElementById("packCoins").textContent=game.coins;
+document.getElementById("packTotal").textContent=allOwnedCopies();
+document.getElementById("collectionValue").textContent=ownedValue().toLocaleString()+" 🪙";
+document.getElementById("uniqueCount").textContent=uniqueOwned();
+document.getElementById("goldCount").textContent=totalGold();
+document.getElementById("kills").textContent=game.kills;
+document.getElementById("health").textContent=game.health;
+document.getElementById("damage").textContent=game.damage;
+document.getElementById("remaining").textContent=game.zombiesLeft;
+document.getElementById("zombieHealth").textContent=game.zombieHP;
+document.getElementById("arenaKills").textContent=game.kills;
+document.getElementById("waveBar").style.width=(game.zombiesLeft===0?100:Math.max(0,100-game.zombiesLeft/(5+Math.floor(game.wave/2))*100))+"%";
+document.getElementById("shopCoins").textContent=game.coins;
+document.getElementById("packsOpened").textContent=game.packsOpened;
+document.getElementById("coinsEarned").textContent=game.coinsEarned;
+document.getElementById("recordKills").textContent=game.kills;
+document.getElementById("highestWave").textContent=game.highestWave;
+document.getElementById("recordSeasonXP").textContent=game.seasonXP;
+document.getElementById("recentDiscoveries").innerHTML=game.recent.length?game.recent.map(r=>{
+const relic=relicById(r.id);if(!relic)return "";
+return `<div class="record"><span>${r.gold?"✨ Gold ":""}${relic.icon} ${esc(relic.name)}</span><span>${new Date(r.time).toLocaleDateString()}</span></div>`;
+}).join(""):'<p>No discoveries yet. Open your first pack!</p>';
+renderPacks();renderShop();renderAchievements();renderSeason();checkAchievements();
+}
+function resetGame(){
+if(!confirm("Reset all Relic Rush progress? This cannot be undone."))return;
+game=freshGame();saveGame();updateAll();renderRelics();renderMarket();toast("Your game has been reset.");
+}
+document.getElementById("relicFilter").addEventListener("change",renderRelics);
+updateAll();renderRelics();renderMarket();
 </script>
 </body>
 </html>
