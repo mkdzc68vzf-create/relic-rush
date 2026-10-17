@@ -865,10 +865,9 @@ function adminGiveRelic(){
  addRelic(relic,variant);save();renderAll();toast(`Added ${relic.name} to this browser!`);
 }
 
-async function adminGenerateCode() {
+
+ async function adminGenerateCode() {
   const token = adminToken();
-  const resultBox = $("adminCodeResult");
-  const button = $("adminMakeCodeBtn");
 
   if (!token) {
     toast("Log in again before creating codes.");
@@ -877,96 +876,87 @@ async function adminGenerateCode() {
 
   const rewardCoins = Number($("adminReward").value);
   const maxRedemptions = Number($("adminUses").value);
+  const resultBox = $("adminCodeResult");
+  const button = $("adminMakeCodeBtn");
 
-  if (![100, 500, 1000].includes(rewardCoins)) {
-    toast("Select a valid reward.");
+  if (
+    !Number.isSafeInteger(rewardCoins) ||
+    rewardCoins < 1 ||
+    rewardCoins > 1000000
+  ) {
+    toast("Coins must be between 1 and 1,000,000.");
     return;
   }
 
   if (
-    !Number.isInteger(maxRedemptions) ||
+    !Number.isSafeInteger(maxRedemptions) ||
     maxRedemptions < 1 ||
     maxRedemptions > 100000
   ) {
-    toast("Enter a redemption limit from 1 to 100,000.");
+    toast("Uses must be between 1 and 100,000.");
     return;
   }
 
-  button.disabled = true;
-  button.textContent = "Creating...";
+  if (button) button.disabled = true;
+
   resultBox.style.display = "block";
-  resultBox.textContent = "Contacting Netlify...";
+  resultBox.textContent = "Creating giveaway code...";
 
   try {
-    const response = await fetch(
-      "/.netlify/functions/create-code",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({
-          rewardCoins,
-          maxRedemptions
-        })
-      }
-    );
+    const response = await fetch("/.netlify/functions/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "createCode",
+        token,
+        rewardCoins,
+        maxRedemptions
+      })
+    });
 
-    const result = await response.json();
+    const data = await response.json();
 
-    if (!response.ok || !result.ok) {
+    if (!response.ok || !data.ok) {
       throw new Error(
-        result.error || "Could not create giveaway code."
+        data.error || `Request failed (${response.status})`
       );
-    }
-
-    const code = result.code || result.redeemCode;
-
-    if (!code) {
-      throw new Error("Netlify did not return a code.");
     }
 
     resultBox.replaceChildren();
 
-    const title = document.createElement("strong");
-    title.textContent = "Code created: ";
-
-    const codeText = document.createElement("span");
-    codeText.textContent = code;
-    codeText.style.fontSize = "20px";
-    codeText.style.overflowWrap = "anywhere";
-
-    const details = document.createElement("p");
-    details.textContent =
-      `Reward: ${rewardCoins} coins • Maximum uses: ${maxRedemptions}`;
+    const message = document.createElement("p");
+    message.textContent =
+      `Code: ${data.code} — ${data.rewardCoins} coins, ` +
+      `${data.maxRedemptions} uses`;
 
     const copyButton = document.createElement("button");
-    copyButton.className = "btn full";
+    copyButton.type = "button";
     copyButton.textContent = "Copy Code";
 
     copyButton.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(code);
+        await navigator.clipboard.writeText(data.code);
         toast("Code copied!");
       } catch {
-        toast("Copy unavailable. Select the code and copy it.");
+        toast("Copy failed. Select and copy the code manually.");
       }
     });
 
-    resultBox.append(title, codeText, details, copyButton);
-    toast("Giveaway code created!");
+    resultBox.append(message, copyButton);
+    resultBox.style.display = "block";
 
+    toast("Giveaway code created!");
   } catch (error) {
-    console.error("Giveaway code error:", error);
     resultBox.textContent =
-      error.message || "Could not connect to Netlify.";
-    toast("Giveaway code creation failed.");
+      "Could not create code: " + error.message;
+    toast(error.message);
   } finally {
-    button.disabled = false;
-    button.textContent = "Generate Worldwide Code";
+    if (button) button.disabled = false;
   }
 }
+
 
 function adminRunCommand() {
   if (!adminToken()) {
