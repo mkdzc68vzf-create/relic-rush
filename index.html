@@ -83,9 +83,12 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
   </nav>
 </header>
 
-<button id="adminLauncher" class="btn secondary"
-style="position:fixed;bottom:12px;left:12px;right:auto;z-index:15;display:none">
-🛡️ Admin
+<button
+  id="adminLauncher"
+  class="btn secondary"
+  style="position:fixed;top:12px;left:12px;bottom:auto;right:auto;z-index:25;display:block;box-shadow:0 4px 18px #0008;"
+>
+  🛡️ Admin
 </button>
 
 <main>
@@ -202,7 +205,12 @@ style="position:fixed;bottom:12px;left:12px;right:auto;z-index:15;display:none">
 <div id="adminCommandStatus" class="notice" role="status" style="display:none;overflow-wrap:anywhere"></div>
     <h3 style="margin-top:20px">🎁 Giveaway Code Generator</h3>
     <p class="small">Requires your authenticated Netlify admin function and create-code function.</p>
-    <select id="adminReward" class="full" style="width:100%"><option value="100">100 Coins</option><option value="500">500 Coins</option><option value="1000">1,000 Coins</option></select>
+    <select id="adminVariant" class="full" style="width:100%;margin-top:8px">
+  <option value="normal">Normal</option>
+  <option value="diamond">💎 Diamond (+65% value)</option>
+  <option value="gold">🌟 Gold (5x value)</option>
+  <option value="candy">🍬 Candy Corn (2x value)</option>
+</select>
     <label for="adminUses" class="small">Worldwide redemption limit</label>
     <input id="adminUses" type="number" min="1" max="100000" value="50" class="full" style="width:100%">
     <button class="btn full" id="adminMakeCodeBtn">Generate Worldwide Code</button>
@@ -253,65 +261,67 @@ const PACKS = [
 {name:"Food",icon:"🍕",price:100,rarity:"Common"}
 ];
 
+
 const RELIC_DATA = [
-["Pebble","🪨",10,"Common","Starter"],
-["Tiny Crown","👑",25,"Common","Starter"],
-["Crystal","💎",35,"Uncommon","Cosmic"],
-["Moon Charm","🌙",50,"Uncommon","Cosmic"],
-["Ocean Pearl","🦪",65,"Rare","Ocean"],
-["Flame Heart","❤️‍🔥",90,"Rare","Inferno"],
-["Shadow Mask","🎭",110,"Rare","Shadow"],
-["Golden Apple","🍎",140,"Epic","Ancient"],
-["Ancient Rune","🔮",170,"Epic","Ancient"],
-["Dragon Egg","🥚",220,"Epic","Dragonfire"],
-["Galaxy Orb","🔮",300,"Legendary","Galaxy"],
-["Royal Scepter","🪄",400,"Legendary","Royal"],
-["Celestial Star","🌟",550,"Legendary","Celestial"],
-["Void Crystal","🟣",700,"Mythic","Void"],
-["Prismatic Heart","💖",900,"Mythic","Prismatic"],
-["Eternal Relic","💠",1200,"Divine","Ultimate"],
-["Candy Pumpkin","🎃",80,"Seasonal","Candy Corn"],
-["Ghost Lantern","🏮",150,"Seasonal","Ghostly"],
-["Witch Hat","🧙",200,"Seasonal","Witch's Brew"],
-["Haunted Skull","💀",350,"Seasonal","Haunted"],
-["Treasure Chest","🧰",180,"Epic","Treasure"],
-["Frost Crown","❄️",260,"Epic","Frostbite"],
-["Inferno Core","🌋",380,"Legendary","Volcanic"],
-["Ultimate Relic","🌠",2000,"Divine","Ultimate"],
-["Apple Pie","🥧",100,"Common","Food"],
-["Pizza Slice","🍕",120,"Common","Food"],
-["Burger Relic","🍔",150,"Uncommon","Food"],
-["Golden Taco","🌮",250,"Rare","Food"],
-["Candy Apple","🍎",300,"Epic","Food"],
-["Feast of Kings","🍱",600,"Legendary","Food"],
-["Toxic Slime","🧪",180,"Rare","Toxic"],
-["Venom Fang","🐍",280,"Epic","Toxic"],
-["Pumpkin King","🎃",320,"Epic","Pumpkin Patch"],
-["Nightmare Eye","👁️",500,"Legendary","Nightmare"],
-["Golden Ghost","👻",650,"Legendary","Haunted Gold"],
-["Prismatic Star","🌈",800,"Legendary","Prismatic"],
-["Dragonfire Heart","🐲",420,"Legendary","Dragonfire"],
-["Royal Gem","💎",350,"Epic","Royal"],
-["Star Fragment","☄️",240,"Rare","Celestial"],
-["Ocean Trident","🔱",240,"Epic","Ocean"],
+["Pebble","🪨",23,"Common","Starter"],
+["Tiny Crown","👑",56,"Common","Starter"],
+["Crystal","💎",68,"Uncommon","Cosmic"],
+["Moon Charm","🌙",135,"Uncommon","Cosmic"],
+["Ocean Pearl","🦪",75,"Rare","Ocean"],
+["Flame Heart","❤️‍🔥",113,"Rare","Inferno"],
+["Shadow Mask","🎭",135,"Rare","Shadow"],
+["Golden Apple","🍎",150,"Epic","Ancient"],
+["Ancient Rune","🔮",263,"Epic","Ancient"],
+["Dragon Egg","🥚",300,"Epic","Dragonfire"],
+["Galaxy Orb","🔮",413,"Legendary","Galaxy"],
+["Royal Scepter","🪄",600,"Legendary","Royal"],
+["Celestial Star","🌟",900,"Legendary","Celestial"],
+["Void Crystal","🟣",825,"Mythic","Void"],
+["Prismatic Heart","💖",1125,"Mythic","Prismatic"],
+["Eternal Relic","💠",1350,"Divine","Ultimate"],
+["Candy Pumpkin","🎃",90,"Seasonal","Candy Corn"],
+["Ghost Lantern","🏮",188,"Seasonal","Ghostly"],
+["Witch Hat","🧙",263,"Seasonal","Witch's Brew"],
+["Haunted Skull","💀",188,"Seasonal","Haunted"],
+["Treasure Chest","🧰",225,"Epic","Treasure"],
+["Frost Crown","❄️",165,"Epic","Frostbite"],
+["Inferno Core","🌋",375,"Legendary","Volcanic"],
+["Ultimate Relic","🌠",2250,"Divine","Ultimate"],
+["Apple Pie","🥧",53,"Common","Food"],
+["Pizza Slice","🍕",68,"Common","Food"],
+["Burger Relic","🍔",90,"Uncommon","Food"],
+["Golden Taco","🌮",135,"Rare","Food"],
+["Candy Apple","🍎",188,"Epic","Food"],
+["Feast of Kings","🍱",338,"Legendary","Food"],
+["Toxic Slime","🧪",150,"Rare","Toxic"],
+["Venom Fang","🐍",263,"Epic","Toxic"],
+["Pumpkin King","🎃",225,"Epic","Pumpkin Patch"],
+["Nightmare Eye","👁️",525,"Legendary","Nightmare"],
+["Golden Ghost","👻",638,"Legendary","Haunted Gold"],
+["Prismatic Star","🌈",750,"Legendary","Prismatic"],
+["Dragonfire Heart","🐲",450,"Legendary","Dragonfire"],
+["Royal Gem","💎",338,"Epic","Royal"],
+["Star Fragment","☄️",450,"Rare","Celestial"],
+["Ocean Trident","🔱",180,"Epic","Ocean"],
 ["Shadow Blade","🗡️",300,"Epic","Shadow"],
-["Ancient Idol","🗿",260,"Epic","Ancient"],
-["Cosmic Comet","☄️",350,"Legendary","Cosmic"],
-["Void Eye","👁️",550,"Mythic","Void"],
-["Frost Wolf","🐺",200,"Rare","Frostbite"],
-["Volcanic Beast","🌋",450,"Legendary","Volcanic"],
-["Ghostly Orb","👻",280,"Epic","Ghostly"],
-["Candy Corn Crown","🍬",190,"Seasonal","Candy Corn"],
-["Witch Cauldron","🧙",330,"Epic","Witch's Brew"],
-["Haunted Pumpkin","🎃",220,"Seasonal","Haunted"],
-["Prism Shard","🔷",500,"Legendary","Prismatic"],
-["Ultimate Crown","👑",1500,"Divine","Ultimate"],
-["Royal Dragon","🐉",750,"Mythic","Mythic"],
-["Mythic Phoenix","🔥",900,"Mythic","Mythic"],
-["Golden Pumpkin","🎃",500,"Legendary","Pumpkin Patch"],
-["Ghost Cookie","🍪",120,"Seasonal","Food"],
-["Food Feast","🍰",350,"Epic","Food"]
+["Ancient Idol","🗿",263,"Epic","Ancient"],
+["Cosmic Comet","☄️",188,"Legendary","Cosmic"],
+["Void Eye","👁️",675,"Mythic","Void"],
+["Frost Wolf","🐺",195,"Rare","Frostbite"],
+["Volcanic Beast","🌋",488,"Legendary","Volcanic"],
+["Ghostly Orb","👻",263,"Epic","Ghostly"],
+["Candy Corn Crown","🍬",150,"Seasonal","Candy Corn"],
+["Witch Cauldron","🧙",338,"Epic","Witch's Brew"],
+["Haunted Pumpkin","🎃",225,"Seasonal","Haunted"],
+["Prism Shard","🔷",600,"Legendary","Prismatic"],
+["Ultimate Crown","👑",1650,"Divine","Ultimate"],
+["Royal Dragon","🐉",488,"Mythic","Mythic"],
+["Mythic Phoenix","🔥",675,"Mythic","Mythic"],
+["Golden Pumpkin","🎃",263,"Legendary","Pumpkin Patch"],
+["Ghost Cookie","🍪",75,"Seasonal","Food"],
+["Food Feast","🍰",188,"Epic","Food"]
 ];
+
 
 const RELICS = RELIC_DATA.map((r,i)=>({
  id:"r"+i,name:r[0],icon:r[1],value:r[2],rarity:r[3],pack:r[4]
@@ -425,7 +435,14 @@ function variantChance() {
 function getRelic(id){return RELICS.find(r=>r.id===id)}
 function countRelic(id,variant){return game.inventory.filter(r=>r.id===id&&r.variant===variant).length}
 function totalRelics(){return game.inventory.length}
-function variantName(v){return v==="gold"?"Gold":v==="candy"?"Candy Corn":"Normal"}
+
+function variantName(v) {
+  if (v === "diamond") return "Diamond";
+  if (v === "gold") return "Gold";
+  if (v === "candy") return "Candy Corn";
+  return "Normal";
+}
+
 
 function variantValue(r, v) {
   if (v === "gold") return Math.round(r.value * 5);
@@ -439,15 +456,42 @@ function addRelic(relic,variant){
  game.discovery.unshift({name:relic.name,icon:relic.icon,variant,time:new Date().toLocaleString()});
  game.discovery=game.discovery.slice(0,20);
 }
-function showReveal(relic,variant){
- $("revealIcon").textContent=variant==="gold"?"🌟":variant==="candy"?"🍬":relic.icon;
- $("revealName").textContent=(variant==="gold"?"GOLD ":variant==="candy"?"CANDY CORN ":"")+relic.name;
- $("revealTag").textContent=variant==="gold"?"✨ GOLD VARIANT!":variant==="candy"?"🍬 CANDY CORN VARIANT":"NEW DISCOVERY";
- $("revealValue").textContent=variantValue(relic,variant)+" 🪙";
- $("revealDescription").textContent=relic.rarity+" relic • Added automatically to your inventory!";
- $("revealOverlay").classList.add("show");
- $("revealOverlay").querySelector(".modal").classList.toggle("gold-card",variant==="gold");
+
+function showReveal(relic, variant) {
+  const names = {
+    gold: "GOLD ",
+    candy: "CANDY CORN ",
+    diamond: "DIAMOND "
+  };
+
+  const icons = {
+    gold: "🌟",
+    candy: "🍬",
+    diamond: "💎"
+  };
+
+  $("revealIcon").textContent = icons[variant] || relic.icon;
+  $("revealName").textContent = (names[variant] || "") + relic.name;
+
+  $("revealTag").textContent =
+    variant === "diamond" ? "💎 DIAMOND VARIANT!" :
+    variant === "gold" ? "✨ GOLD VARIANT!" :
+    variant === "candy" ? "🍬 CANDY CORN VARIANT" :
+    "NEW DISCOVERY";
+
+  $("revealValue").textContent =
+    variantValue(relic, variant).toLocaleString() + " 🪙";
+
+  $("revealDescription").textContent =
+    relic.rarity + " relic • Added automatically to your inventory!";
+
+  $("revealOverlay").classList.add("show");
+
+  $("revealOverlay")
+    .querySelector(".modal")
+    .classList.toggle("gold-card", variant === "gold");
 }
+
 function closeReveal(){$("revealOverlay").classList.remove("show")}
 
 function chooseRelic(packName){
@@ -1051,10 +1095,7 @@ function adminRunCommand() {
     const relic = getRelic(parts[0]);
     const variant = (parts[1] || "normal").toLowerCase();
 
-    if (!relic || !["normal", "gold", "candy"].includes(variant)) {
-      reply("Usage: /giverelic r3 gold");
-      return;
-    }
+    if (!relic || !["normal", "diamond", "gold", "candy"].includes(variant)) {
 
     addRelic(relic, variant);
     save();
