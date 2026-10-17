@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relic Rush • Admin</title>
+<style>
+:root{color-scheme:dark;--bg:#080518;--panel:#100a28;--card:#171035;--purple:#8b35ff;--bright:#bd83ff;--gold:#ffca55;--text:#f7f1ff;--muted:#b9accf;--line:#38245d;--red:#ff667a;--green:#63e6a6}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#241044 0,#080518 58%);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px}
+main{width:min(760px,100%);margin:0 auto}
+header{text-align:center;margin:18px 0 24px}
+.logo{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,#8b35ff,#4515a6);font-size:30px;box-shadow:0 0 32px #8b35ff55}
+h1{margin:12px 0 4px;font-size:clamp(27px,5vw,38px);letter-spacing:-.7px}
+.sub{color:var(--muted);margin:0}
+.panel{background:#100a28ed;border:1px solid var(--line);border-radius:20px;padding:clamp(18px,4vw,28px);box-shadow:0 18px 55px #0006;margin:16px 0}
+h2{margin:0 0 14px;font-size:21px}
+label{display:block;font-size:14px;color:var(--muted);margin:13px 0 6px}
+input,select{width:100%;border:1px solid #49316f;border-radius:11px;background:#09051b;color:var(--text);padding:13px 14px;font:inherit;outline:none}
+input:focus,select:focus{border-color:var(--bright);box-shadow:0 0 0 3px #8b35ff30}
+button{border:0;border-radius:11px;padding:12px 16px;font:700 15px inherit;cursor:pointer;color:white;background:linear-gradient(135deg,#9c4cff,#6520cf);min-height:46px}
+button:disabled{opacity:.55;cursor:wait}
+button.secondary{background:#24163e;border:1px solid #49316f}
+button.full{width:100%;margin-top:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hidden{display:none!important}
+.note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.status{padding:12px 14px;border-radius:11px;margin-top:14px;white-space:pre-wrap;overflow-wrap:anywhere;background:#211738;border:1px solid var(--line)}
+.status.good{color:var(--green);border-color:#28664b}
+.status.bad{color:#ff9ba8;border-color:#773344}
+.codebox{display:flex;gap:10px;align-items:center;margin-top:14px}
+.codebox code{flex:1;min-width:0;overflow-wrap:anywhere;font-size:20px;color:var(--gold);background:#09051b;padding:13px;border:1px dashed #795a2b;border-radius:10px}
+footer{text-align:center;color:#897ba4;font-size:12px;margin:25px 0}
+@media(max-width:520px){body{padding:14px}.row{grid-template-columns:1fr}.codebox{align-items:stretch;flex-direction:column}.codebox code{font-size:18px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="logo">🛡️</div>
+  <h1>Relic Rush Admin</h1>
+  <p class="sub">Private control panel · Netlify-secured sign-in</p>
+</header>
+
+<section class="panel" id="loginPanel">
+  <h2>Admin login</h2>
+  <p class="sub">Your password is checked by the Netlify backend, not stored in this page.</p>
+  <form id="loginForm">
+    <label for="password">Admin password</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="Enter admin password" required>
+    <button class="full" id="loginBtn" type="submit">Sign in</button>
+  </form>
+  <div id="loginStatus" class="status hidden" role="status"></div>
+</section>
+
+<section class="panel hidden" id="dashboard">
+  <h2>🎁 Viewer reward codes</h2>
+  <p class="sub">Create a code viewers can redeem in Relic Rush. The Netlify function must support the <code>createCode</code> action.</p>
+  <form id="codeForm">
+    <div class="row">
+      <div>
+        <label for="rewardCoins">Coin reward</label>
+        <input id="rewardCoins" type="number" min="1" max="100000000" value="500" required>
+      </div>
+      <div>
+        <label for="maxRedemptions">Maximum redemptions</label>
+        <input id="maxRedemptions" type="number" min="1" max="100000" value="1" required>
+      </div>
+    </div>
+    <button class="full" id="createBtn" type="submit">✨ Generate reward code</button>
+  </form>
+  <div id="codeResult" class="hidden">
+    <div class="codebox"><code id="generatedCode"></code><button type="button" class="secondary" id="copyBtn">Copy code</button></div>
+    <p id="codeDetails" class="note"></p>
+  </div>
+  <div id="codeStatus" class="status hidden" role="status"></div>
+  <button type="button" class="secondary full" id="logoutBtn">Log out</button>
+</section>
+
+<section class="panel">
+  <h2>Connection notes</h2>
+  <p class="sub">This page calls <code>/.netlify/functions/admin</code>. If sign-in or code creation fails, the deployed function and its action names must match this page.</p>
+  <p class="note">This page does not modify your game’s <code>index.html</code>. Since player saves are browser-local, codes are the way to distribute rewards to viewers across their own browsers.</p>
+</section>
+<footer>Relic Rush · Admin tools</footer>
+</main>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const TOKEN_KEY = "relicRushAdminToken";
+function status(id, message, good=false) {
+  const el=$(id); el.textContent=message; el.classList.remove("hidden","good","bad"); el.classList.add(good?"good":"bad");
+}
+function clearStatus(id){$(id).classList.add("hidden");}
+function setLoggedIn(yes){
+  $("loginPanel").classList.toggle("hidden",yes);
+  $("dashboard").classList.toggle("hidden",!yes);
+}
+async function postAdmin(payload){
+  const response=await fetch("/.netlify/functions/admin",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  });
+  let result={};
+  try{result=await response.json();}catch(_){}
+  if(!response.ok || !result.ok) throw new Error(result.error || `Request failed (${response.status}).`);
+  return result;
+}
+$("loginForm").addEventListener("submit",async event=>{
+  event.preventDefault(); clearStatus("loginStatus");
+  const button=$("loginBtn"); button.disabled=true; button.textContent="Checking…";
+  try{
+    const result=await postAdmin({action:"login",code:$("password").value});
+    if(!result.token) throw new Error("The function did not return a session token. Check your Netlify admin function.");
+    sessionStorage.setItem(TOKEN_KEY,result.token);
+    $("password").value="";
+    setLoggedIn(true);
+  }catch(error){status("loginStatus",error.message);}
+  finally{button.disabled=false;button.textContent="Sign in";}
+});
+$("codeForm").addEventListener("submit",async event=>{
+  event.preventDefault(); clearStatus("codeStatus"); $("codeResult").classList.add("hidden");
+  const button=$("createBtn"); button.disabled=true; button.textContent="Generating…";
+  try{
+    const token=sessionStorage.getItem(TOKEN_KEY);
+    if(!token) throw new Error("Your session expired. Sign in again.");
+    const rewardCoins=Number($("rewardCoins").value);
+    const maxRedemptions=Number($("maxRedemptions").value);
+    if(!Number.isSafeInteger(rewardCoins)||rewardCoins<1) throw new Error("Enter a valid positive coin reward.");
+    if(!Number.isSafeInteger(maxRedemptions)||maxRedemptions<1) throw new Error("Enter a valid redemption limit.");
+    const result=await postAdmin({action:"createCode",token,rewardCoins,maxRedemptions});
+    if(!result.code) throw new Error("The function succeeded but did not return a code. Check its response format.");
+    $("generatedCode").textContent=result.code;
+    $("codeDetails").textContent=`Reward: ${Number(result.rewardCoins ?? rewardCoins).toLocaleString()} coins · Maximum redemptions: ${Number(result.maxRedemptions ?? maxRedemptions).toLocaleString()}`;
+    $("codeResult").classList.remove("hidden");
+    status("codeStatus","Reward code created successfully.",true);
+  }catch(error){
+    if(/session|token|unauthor/i.test(error.message)){sessionStorage.removeItem(TOKEN_KEY);setLoggedIn(false);}
+    status("codeStatus",error.message);
+  }finally{button.disabled=false;button.textContent="✨ Generate reward code";}
+});
+$("copyBtn").addEventListener("click",async()=>{
+  const code=$("generatedCode").textContent;
+  try{await navigator.clipboard.writeText(code);status("codeStatus","Code copied to clipboard.",true);}
+  catch(_){status("codeStatus","Select and copy the code manually.",false);}
+});
+$("logoutBtn").addEventListener("click",()=>{
+  sessionStorage.removeItem(TOKEN_KEY); $("password").value=""; $("codeResult").classList.add("hidden"); clearStatus("codeStatus"); setLoggedIn(false);
+});
+</script>
+</body>
+</html>
