@@ -1040,6 +1040,7 @@ function adminGiveRelic(){
 }
 
 
+
 function adminRunCommand() {
   if (!adminToken()) {
     toast("Log in again to use admin commands.");
@@ -1064,8 +1065,8 @@ function adminRunCommand() {
   if (command === "/givecoins") {
     const amount = Number(parts[0]);
 
-    if (!Number.isSafeInteger(amount) || amount < 1 ||
-        amount > 1000000) {
+    if (!Number.isSafeInteger(amount) ||
+        amount < 1 || amount > 1000000) {
       reply("Usage: /givecoins 500");
       return;
     }
@@ -1074,11 +1075,12 @@ function adminRunCommand() {
     save();
     renderAll();
     reply(`Added ${amount.toLocaleString()} coins to this browser.`);
+
   } else if (command === "/setcoins") {
     const amount = Number(parts[0]);
 
-    if (!Number.isSafeInteger(amount) || amount < 0 ||
-        amount > 1000000000) {
+    if (!Number.isSafeInteger(amount) ||
+        amount < 0 || amount > 1000000000) {
       reply("Usage: /setcoins 1000");
       return;
     }
@@ -1091,37 +1093,34 @@ function adminRunCommand() {
     save();
     renderAll();
     reply(`Coins set to ${amount.toLocaleString()}.`);
+
   } else if (command === "/giverelic") {
     const relic = getRelic(parts[0]);
     const variant = (parts[1] || "normal").toLowerCase();
 
-    if (!relic || !["normal", "diamond", "gold", "candy"].includes(variant)) {
+    if (!relic ||
+        !["normal", "diamond", "gold", "candy"].includes(variant)) {
+      reply("Usage: /giverelic r3 gold");
+      return;
+    }
 
     addRelic(relic, variant);
     save();
     renderAll();
     reply(`Added ${relic.name} (${variantName(variant)}).`);
+
   } else if (command === "/heal") {
     game.health = game.maxHealth;
     save();
     renderAll();
     reply("Health fully restored.");
+
   } else if (command === "/code") {
-    const reward = Number(parts[0]);
-    const uses = Number(parts[1]);
+    reply("Code generation needs the missing adminReward field and a working Netlify function.");
+    return;
 
-    if (![100, 500, 1000].includes(reward) ||
-        !Number.isInteger(uses) || uses < 1 || uses > 100000) {
-      reply("Usage: /code 1000 50");
-      return;
-    }
-
-    $("adminReward").value = String(reward);
-    $("adminUses").value = String(uses);
-    adminGenerateCode();
-    reply("Requesting a giveaway code from Netlify...");
   } else {
-    reply("Unknown command. Try /givecoins, /setcoins, /giverelic, /heal, or /code.");
+    reply("Unknown command. Try /givecoins, /setcoins, /giverelic, or /heal.");
     return;
   }
 
