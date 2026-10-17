@@ -146,3 +146,180 @@ exports.handler = async (event) => {
 
   return json(200, { command });
 };
+
+// ===== RELIC RUSH ADMIN PANEL =====
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  const panel = $("adminPanel");
+  const status = $("adminStatus");
+  const commandStatus = $("commandStatus");
+
+  if (!panel || !$("adminLoginBtn")) {
+    console.error("Admin panel HTML was not found.");
+    return;
+  }
+
+  let adminToken = null;
+
+  async function adminRequest(body) {
+    const response = await fetch("/.netlify/functions/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(adminToken
+          ? { Authorization: `Bearer ${adminToken}` }
+          : {})
+      },
+      body: JSON.stringify(body)
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || "Request failed.");
+    }
+
+    return data;
+  }
+
+  function showMessage(element, message) {
+    if (!element) return;
+    element.textContent = message;
+    element.classList.remove("hidden");
+  }
+
+  function showAdmin() {
+    $("adminLoginArea")?.classList.add("hidden");
+    $("adminCommands")?.classList.remove("hidden");
+  }
+
+  function hideAdmin() {
+    adminToken = null;
+    $("adminLoginArea")?.classList.remove("hidden");
+    $("adminCommands")?.classList.add("hidden");
+    $("adminCode").value = "";
+  }
+
+  $("adminOpenBtn")?.addEventListener("click", () => {
+    panel.classList.remove("hidden");
+  });
+
+  $("adminCloseBtn")?.addEventListener("click", () => {
+    panel.classList.add("hidden");
+  });
+
+  $("adminLoginBtn").addEventListener("click", async () => {
+    const password = $("adminCode").value;
+
+    if (!password) {
+      showMessage(status, "Enter your admin password.");
+      return;
+    }
+
+    $("adminLoginBtn").disabled = true;
+
+    try {
+      const result = await adminRequest({
+        action: "login",
+        password
+      });
+
+      adminToken = result.token || result.sessionToken;
+
+      if (!adminToken) {
+        throw new Error("The server did not return a session token.");
+      }
+
+      showAdmin();
+      showMessage(status, "Login successful!");
+    } catch (error) {
+      showMessage(status, error.message);
+    } finally {
+      $("adminLoginBtn").disabled = false;
+    }
+  });
+
+  $("adminCode")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") $("adminLoginBtn").click();
+  });
+
+  document.querySelectorAll("[data-command]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      if (!adminToken) {
+        showMessage(commandStatus, "Log in first.");
+        return;
+      }
+
+      const action = button.dataset.command;
+      let payload = { action };
+
+      if (action === "giveCoins") {
+        payload.amount = Number($("giveCoins").value);
+      } else if (action === "setCoins") {
+        payload.amount = Number($("setCoins").value);
+      } else if (action === "giveRelic") {
+        payload.relicId = $("giveRelic").value;
+        payload.gold = $("goldRelic").value === "true";
+      }
+
+      button.disabled = true;
+
+      try {
+        await adminRequest(payload);
+        showMessage(commandStatus, "Command completed!");
+      } catch (error) {
+        showMessage(commandStatus, error.message);
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+
+  $("createRewardCodeBtn")?.addEventListener("click", async () => {
+    const rewardType = $("rewardType").value;
+    const payload = {
+      action: "createRewardCode",
+      rewardType
+    };
+
+    if (rewardType === "coins") {
+      payload.amount = Number($("rewardCoins").value);
+    } else {
+      payload.relicId = $("rewardRelic").value;
+      payload.gold = $("rewardGold").value === "true";
+    }
+
+    try {
+      const result = await adminRequest(payload);
+      const code = result.code || result.rewardCode;
+
+      if (!code) {
+        throw new Error("The server did not return a giveaway code.");
+      }
+
+      showMessage($("createdCodeArea"), `Giveaway code: ${code}`);
+    } catch (error) {
+      showMessage($("createdCodeArea"), error.message);
+    }
+  });
+
+  $("rewardType")?.addEventListener("change", () => {
+    const coins = $("rewardType").value === "coins";
+    $("rewardCoinsArea")?.classList.toggle("hidden", !coins);
+    $("rewardRelicArea")?.classList.toggle("hidden", coins);
+  });
+
+  $("adminLogoutBtn")?.addEventListener("click", async () => {
+    try {
+      if (adminToken) {
+        await adminRequest({ action: "logout" });
+      }
+    } catch (_) {
+      // Clear the local session even if the server logout request fails.
+    }
+
+    hideAdmin();
+    showMessage(status, "Logged out.");
+  });
+})();
