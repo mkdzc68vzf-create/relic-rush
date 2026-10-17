@@ -317,6 +317,31 @@ const RELICS = RELIC_DATA.map((r,i)=>({
  id:"r"+i,name:r[0],icon:r[1],value:r[2],rarity:r[3],pack:r[4]
 }));
 
+
+/* PACK BALANCE:
+   Every pack costs no more than the cheapest relic
+   it can award, so a normal pull never sells for less
+   than the pack price. Gold and Candy Corn variants
+   are worth even more.
+*/
+for (const pack of PACKS) {
+  let pool = RELICS.filter(relic => relic.pack === pack.name);
+
+  // Match the existing fallback behavior for empty pools.
+  if (pool.length === 0) {
+    pool = RELICS.filter(relic => relic.rarity === pack.rarity);
+  }
+
+  if (pool.length > 0) {
+    const cheapestRelic = Math.min(
+      ...pool.map(relic => relic.value)
+    );
+
+    pack.price = Math.min(pack.price, cheapestRelic);
+  }
+}
+
+
 const DEFAULT = {
  coins:500,inventory:[],opened:0,kills:0,wave:1,highestWave:1,
  health:100,maxHealth:100,damage:10,level:1,xp:0,
