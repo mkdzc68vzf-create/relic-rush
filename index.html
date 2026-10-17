@@ -195,6 +195,11 @@ style="position:fixed;bottom:12px;left:12px;right:auto;z-index:15;display:none">
     <h3 style="margin-top:20px">💎 Give Relic</h3><select id="adminRelic" class="full" style="width:100%"></select>
     <select id="adminVariant" class="full" style="width:100%;margin-top:8px"><option value="normal">Normal</option><option value="gold">Gold</option><option value="candy">Candy Corn</option></select>
     <button class="btn full" id="adminGiveRelicBtn">Give Relic</button>
+    <h3 style="margin-top:20px">⌨️ Admin Command Console</h3>
+<p class="small">Try: /givecoins 500, /setcoins 1000, /giverelic r3 gold, /heal, /code 1000 50</p>
+<input id="adminCommandInput" class="full" type="text" placeholder="Enter admin command" autocomplete="off">
+<button class="btn full" id="adminRunCommandBtn">Run Command</button>
+<div id="adminCommandStatus" class="notice" role="status" style="display:none;overflow-wrap:anywhere"></div>
     <h3 style="margin-top:20px">🎁 Giveaway Code Generator</h3>
     <p class="small">Requires your authenticated Netlify admin function and create-code function.</p>
     <select id="adminReward" class="full" style="width:100%"><option value="100">100 Coins</option><option value="500">500 Coins</option><option value="1000">1,000 Coins</option></select>
@@ -860,6 +865,7 @@ function adminGiveRelic(){
  addRelic(relic,variant);save();renderAll();toast(`Added ${relic.name} to this browser!`);
 }
 async function adminGenerateCode(){
+async function adminGenerateCode(){
  const token=adminToken();
  if(!token){toast("Log in again before creating codes.");return}
  const rewardCoins=Number($("adminReward").value);
@@ -946,6 +952,7 @@ document.addEventListener("click",e=>{
    case"adminLoginBtn":adminLogin();break;
    case"adminGiveCoinsBtn":adminGiveCoins();break;
    case"adminGiveRelicBtn":adminGiveRelic();break;
+   case"adminRunCommandBtn":adminRunCommand();break;
    case"adminMakeCodeBtn":adminGenerateCode();break;
    case"adminLogoutBtn":
     sessionStorage.removeItem("relicRushAdminToken");
