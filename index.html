@@ -403,7 +403,8 @@ function addXP(amount){
  while(game.xp>=100){game.xp-=100;game.level++;addCoins(50);toast("⭐ Level up! +50 coins")}
 }
 function moneyMultiplier(){return 1+(Number(game.upgrades.money)||0)*0.5}
-function variantChance(){
+
+function variantChance() {
   const luck = Number(game.upgrades.luck) || 0;
   const boostActive = Date.now() < (game.luckBoostUntil || 0);
   const boost = boostActive ? 4 : 0;
@@ -412,15 +413,27 @@ function variantChance(){
   const goldChance = Math.min(25, 3 + luck * 2 + boost);
   const specialChance = Math.min(40, 8 + luck * 2 + boost);
 
-  if (roll < goldChance) return "gold";
-  if (roll < specialChance) return "candy";
+  // Diamond: 15% base chance
+  if (roll < 15) return "diamond";
+
+  if (roll < 15 + goldChance) return "gold";
+  if (roll < 15 + specialChance) return "candy";
+
   return "normal";
 }
+
 function getRelic(id){return RELICS.find(r=>r.id===id)}
 function countRelic(id,variant){return game.inventory.filter(r=>r.id===id&&r.variant===variant).length}
 function totalRelics(){return game.inventory.length}
 function variantName(v){return v==="gold"?"Gold":v==="candy"?"Candy Corn":"Normal"}
-function variantValue(r,v){return Math.round(r.value*(v==="gold"?5:v==="candy"?2:1))}
+
+function variantValue(r, v) {
+  if (v === "gold") return Math.round(r.value * 5);
+  if (v === "candy") return Math.round(r.value * 2);
+  if (v === "diamond") return Math.round(r.value * 1.65);
+  return r.value;
+}
+
 function addRelic(relic,variant){
  game.inventory.push({id:relic.id,variant,serial:Date.now()+Math.random()});
  game.discovery.unshift({name:relic.name,icon:relic.icon,variant,time:new Date().toLocaleString()});
