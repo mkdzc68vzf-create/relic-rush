@@ -1,280 +1,9 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Relic Rush</title>
-<style>
-:root{--bg:#080518;--panel:#100a28;--card:#171035;--purple:#8b35ff;--bright:#bd83ff;--gold:#ffca55;--text:#f6f1ff;--muted:#a79cbd;--border:#302052;--green:#52e0a0}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at top,#201044,var(--bg) 65%);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
-button{font:inherit;cursor:pointer;border:0}
-button:disabled{opacity:.45;cursor:not-allowed}
-header{position:sticky;top:0;z-index:5;background:#0c0723f5;border-bottom:1px solid var(--border);padding:14px}
-.header-inner,nav,main{max-width:1250px;margin:auto}
-.header-inner{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.logo{font-size:25px;font-weight:900}.logo span{color:var(--bright)}
-.stats,.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.stat{background:var(--card);border:1px solid var(--border);padding:9px 12px;border-radius:10px;font-weight:bold}
-nav{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
-nav button{background:transparent;color:var(--muted);padding:10px;border-radius:9px;font-weight:bold}
-nav button.active,nav button:hover{background:#29154b;color:white}
-main{padding:22px 16px 100px}
-.page{display:none}.page.active{display:block}
-.hero{padding:24px;border:1px solid #42286d;border-radius:18px;background:linear-gradient(120deg,#251044,#120a2c);margin-bottom:18px}
-h1{font-size:clamp(26px,4vw,39px);margin:8px 0}h2{margin:0 0 12px}h3{margin:0 0 8px}
-p{color:var(--muted);line-height:1.5}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
-.card{background:linear-gradient(145deg,#1a1238,#100a26);border:1px solid var(--border);border-radius:15px;padding:15px;min-width:0}
-.card p{margin:8px 0}
-.btn{background:var(--purple);color:white;padding:10px 13px;border-radius:9px;font-weight:bold;margin-top:5px}
-.btn:hover{filter:brightness(1.18)}.secondary{background:#30204f}.gold{background:#8d6412;color:#fff1bd}.danger{background:#8d2942}
-.full{width:100%}.small{font-size:12px}.muted{color:var(--muted)}
-.tag{display:inline-block;background:#30204f;color:#d9c4ff;border-radius:7px;padding:5px 8px;font-size:11px;font-weight:bold}
-.pack-icon,.relic-icon{font-size:42px;margin:10px 0}
-.price{font-size:24px;font-weight:900;margin:10px 0}
-.owned{display:inline-block;background:#24163e;color:#d7c6ff;padding:7px 9px;border-radius:8px;margin-top:6px;font-size:13px}
-.gold-relic{border-color:#c29636;background:linear-gradient(145deg,#382810,#171025)}
-.candy-relic{border-color:#e88b2b;background:linear-gradient(145deg,#422313,#171025)}
-.bar{height:10px;background:#302448;border-radius:20px;overflow:hidden;margin:12px 0}
-.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#8b35ff,#d0a0ff)}
-.notice{padding:12px;background:#1b1236;border:1px solid var(--border);border-radius:11px;margin:12px 0;color:#e6dcff;overflow-wrap:anywhere}
-.record{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
-.tier{border:1px solid var(--border);border-radius:12px;padding:13px;display:flex;flex-direction:column;gap:8px;min-height:165px;background:#171035}
-.tier.claimed{border-color:var(--green)}.tier.locked{opacity:.6}
-.season-track{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
-.tt-map{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;max-width:450px;margin:15px auto}
-.tt-tile{aspect-ratio:1;border-radius:7px;background:#183d30;border:1px solid #285642;font-size:clamp(15px,5vw,27px);padding:0}
-.tt-tile.path{background:#353047}.tt-tile.house{background:#39204e;border-color:#7544a0}.tt-tile.player{background:#5b2ca0}
-.overlay{display:none;position:fixed;inset:0;background:#05020df0;z-index:20;align-items:center;justify-content:center;padding:15px}
-.overlay.show{display:flex}
-.reveal{width:min(430px,100%);text-align:center;padding:25px;border:1px solid #6b3aa3;border-radius:20px;background:radial-gradient(ellipse at top,#352057,#100a25 70%)}
-.reveal-icon{font-size:85px;margin:10px}
-.reveal.gold-reveal{border-color:var(--gold)}
-#toast{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:80;background:#251744;border:1px solid #7146a0;border-radius:10px;padding:12px 16px;max-width:90%}
-#toast.show{display:block}
-input,select{background:#0b071c;border:1px solid var(--border);color:white;padding:11px;border-radius:8px;max-width:100%;font:inherit}
-input{width:100%;margin:6px 0}
-select{width:100%;margin:6px 0}
-footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
-#adminLauncher{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:40;min-width:155px;box-shadow:0 0 22px #8b35ff77;border:1px solid #bd83ff}
-#adminPanel{display:none;position:fixed;inset:0;z-index:50;background:#080518f7;color:var(--text);overflow:auto;padding:15px}
-#adminPanel .adminBox{max-width:650px;margin:15px auto 80px;background:#171035;border:1px solid #7146a0;border-radius:16px;padding:20px}
-#adminPanel h2{margin-top:22px}
-#adminStatus{padding:12px;background:#100a28;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}
-.code-display{font-size:21px;font-weight:900;letter-spacing:2px;text-align:center;color:#ffca55}
-@media(max-width:500px){
-header{padding:10px}.logo{font-size:21px}.stat{padding:7px;font-size:12px}
-nav button{font-size:12px;padding:8px}main{padding:15px 10px 100px}
-.hero{padding:17px}.grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}
-.card{padding:12px}#adminPanel .adminBox{padding:14px}
-}
-</style>
-</head>
-<body>
-<header>
-<div class="header-inner">
-<div class="logo">💎 RELIC <span>RUSH</span></div>
-<div class="stats">
-<div class="stat">🪙 <span id="coins">500</span></div>
-<div class="stat">💎 <span id="totalRelics">0</span> relics</div>
-<div class="stat">🌊 Wave <span id="waveStat">1</span></div>
-<div class="stat">⭐ Lv. <span id="levelStat">1</span></div>
-</div>
-</div>
-<nav id="nav">
-<button class="active" data-page="home">🏠 Home</button>
-<button data-page="zombies">🧟 Zombies</button>
-<button data-page="packs">🎁 Packs</button>
-<button data-page="relics">💎 Relics</button>
-<button data-page="season">🎟️ Season Pass</button>
-<button data-page="shop">🛒 Shop</button>
-<button data-page="market">🏪 Market</button>
-<button data-page="records">📜 Records</button>
-<button data-page="achievements">🏆 Achievements</button>
-<button data-page="trickortreat">🎃 Halloween</button>
-</nav>
-</header>
-
-<main>
-<section id="home" class="page active">
-<div class="hero">
-<span class="tag">COLLECT • UPGRADE • SURVIVE</span>
-<h1>Welcome to Relic Rush</h1>
-<p>Open relic packs, discover rare treasures, collect Gold and Candy Corn variants, and survive zombie waves!</p>
-<div class="row">
-<button class="btn" onclick="go('packs')">🎁 Open Packs</button>
-<button class="btn secondary" onclick="go('relics')">💎 My Collection</button>
-<button class="btn secondary" onclick="daily()">🎁 Daily Reward</button>
-<button class="btn gold" onclick="go('season')">🎟️ Season Pass</button>
-</div>
-</div>
-<div class="grid">
-<div class="card"><p>COLLECTION VALUE</p><h2 id="collectionValue">0 🪙</h2></div>
-<div class="card"><p>UNIQUE VARIANTS</p><h2 id="uniqueCount">0</h2></div>
-<div class="card"><p>GOLD RELICS</p><h2 id="goldCount">0</h2></div>
-<div class="card"><p>🍬 CANDY CORN RELICS</p><h2 id="candyCount">0</h2></div>
-<div class="card"><p>ZOMBIES DEFEATED</p><h2 id="kills">0</h2></div>
-</div>
-<h2 style="margin-top:25px">✨ Featured Packs</h2>
-<div class="grid" id="featuredPacks"></div>
-<div class="notice">Relics are added to your inventory automatically. Gold and Candy Corn variants are special finds!</div>
-
-<div class="card" id="playerRedeemCard">
-<h2>🎟️ Redeem a Giveaway Code</h2>
-<p>Enter a code from the Relic Rush creator to claim your reward.</p>
-<input id="playerRedeemCode" placeholder="ENTER YOUR CODE" maxlength="40" autocomplete="off">
-<button class="btn full" onclick="redeemPlayerCode()">🎁 Redeem Reward</button>
-<p class="small">Each code can be redeemed once in this browser.</p>
-</div>
-</section>
-
-<section id="packs" class="page">
-<div class="hero"><h1>🎁 Relic Packs</h1><p>Choose a pack to discover a relic. Your prize is automatically saved.</p>
-<div class="stat">🪙 Coins: <span id="packCoins">500</span></div></div>
-<div class="grid" id="packsGrid"></div>
-</section>
-
-<section id="relics" class="page">
-<div class="row" style="justify-content:space-between">
-<h1>💎 Your Relics</h1>
-<select id="relicFilter" onchange="renderRelics()">
-<option value="all">All Relics</option><option value="normal">Normal Only</option><option value="gold">Gold Only</option><option value="candy">Candy Corn Only</option>
-</select></div>
-<p>Duplicates count separately. Gold and Candy Corn versions have separate ownership counts.</p>
-<div class="grid" id="relicsGrid"></div>
-</section>
-
-<section id="zombies" class="page">
-<div class="hero"><h1>🧟 Zombie Battles</h1><p>Defeat zombies to earn coins and Season XP.</p>
-<div class="row"><div class="stat">❤️ Health: <span id="health">100</span></div><div class="stat">⚔️ Damage: <span id="damage">10</span></div><div class="stat">🧟 Remaining: <span id="remaining">5</span></div></div>
-<div class="bar"><span id="waveBar"></span></div>
-<button class="btn" onclick="attack()">⚔️ Attack Zombie</button>
-<button class="btn secondary" onclick="heal()">❤️ Heal (70 coins)</button>
-<button class="btn secondary" onclick="nextWave()">🌊 Next Wave</button>
-</div>
-<div class="card"><h3>Battle Log</h3><p id="battleLog">The arena is quiet... for now.</p></div>
-</section>
-
-<section id="season" class="page">
-<div class="hero"><span class="tag">SEASON 1 • FREE TRACK</span><h1>🌌 Relics of the Lost Galaxy</h1>
-<p>Earn XP by playing and claim exclusive rewards every 100 XP.</p>
-<div class="row"><b>Season Level: <span id="seasonLevel">1</span>/10</b><b><span id="seasonXP">0</span> XP</b></div>
-<div class="bar"><span id="seasonBar"></span></div>
-<button class="btn gold" onclick="claimSeason()">🎁 Claim Available Rewards</button>
-<p id="claimStatus">Play to unlock rewards!</p></div>
-<div class="grid" id="seasonTrack"></div>
-</section>
-
-<section id="shop" class="page">
-<div class="hero"><h1>🛒 Upgrade Shop</h1><p>Become stronger in zombie battles.</p></div>
-<div class="grid" id="shopGrid"></div>
-</section>
-
-<section id="market" class="page">
-<div class="hero"><h1>🏪 Relic Market</h1><p>Sell individual relic copies for coins.</p></div>
-<div class="grid" id="marketGrid"></div>
-</section>
-
-<section id="records" class="page">
-<div class="hero"><h1>📜 Your Records</h1></div>
-<div class="grid" id="recordsGrid"></div>
-<div class="card" style="margin-top:15px"><h3>Recent Discoveries</h3><div id="recentDiscoveries"></div></div>
-<button class="btn danger" onclick="resetGame()">Reset All Progress</button>
-</section>
-
-<section id="achievements" class="page">
-<div class="hero"><h1>🏆 Achievements</h1><p>Complete milestones and build your collection.</p></div>
-<div class="grid" id="achievementsGrid"></div>
-</section>
-
-<section id="trickortreat" class="page">
-<div class="hero"><span class="tag">HALLOWEEN EVENT</span><h1>🎃 Trick-or-Treat Town</h1>
-<p>Explore the neighborhood, visit houses, and collect candy!</p>
-<div class="row"><div class="stat">🍬 Candy: <span id="ttCandy">0</span></div><div class="stat">🏠 Visited: <span id="ttVisited">0</span>/5</div></div></div>
-<div class="card"><h2>🏘️ Neighborhood</h2><p>Walk around using the arrows. Stand next to a house to knock.</p>
-<div id="ttMap" class="tt-map"></div>
-<div style="text-align:center"><button class="btn secondary" onclick="ttMove(0,-1)">⬆️</button>
-<div><button class="btn secondary" onclick="ttMove(-1,0)">⬅️</button> <button class="btn secondary" onclick="ttMove(0,1)">⬇️</button> <button class="btn secondary" onclick="ttMove(1,0)">➡️</button></div></div>
-<div class="notice" id="ttMessage">Your Halloween adventure awaits!</div>
-<button class="btn gold full" onclick="ttKnock()">🚪 Knock on Nearby House</button></div>
-<div class="card" style="margin-top:12px"><h3>👻 Halloween Surprise</h3><p id="ttSurprise">Who knows what's around the corner?</p></div>
-</section>
-</main>
-
-<footer>RELIC RUSH • Progress and giveaway codes are stored in this browser.</footer>
-
-<div class="overlay" id="revealOverlay" onclick="if(event.target===this)closeReveal()">
-<div class="reveal" id="revealCard">
-<div class="tag" id="revealTag">RELIC DISCOVERED</div>
-<div class="reveal-icon" id="revealIcon">💎</div>
-<h2 id="revealName">Crystal Shard</h2>
-<div id="revealRarity"></div><p id="revealDescription"></p>
-<div class="owned" id="revealOwned">Owned: 1</div>
-<p style="color:var(--green)">✓ Automatically added to your inventory!</p>
-<p id="revealXP">⭐ +25 Season XP</p>
-<button class="btn" onclick="closeReveal()">Awesome!</button>
-<button class="btn secondary" onclick="closeReveal();go('relics')">View Collection</button>
-</div></div>
-<div id="toast"></div>
-
-<button id="adminLauncher" class="btn secondary" onclick="openAdmin()">🔐 Admin Panel</button>
-
-<div id="adminPanel">
-<div class="adminBox">
-<div class="row" style="justify-content:space-between">
-<h1>🔐 Relic Rush Admin</h1>
-<button class="btn danger" onclick="closeAdmin()">✕ Close</button>
-</div>
-<div id="adminLogin">
-<p>Enter your local admin PIN.</p>
-<input id="adminPassword" type="password" placeholder="Admin PIN">
-<button class="btn full" onclick="adminLogin()">Login</button>
-<p class="small">Default PIN: 1234. Change ADMIN_PIN in the script before using this file.</p>
-</div>
-<div id="adminTools" style="display:none">
-<div class="notice">Admin rewards affect this browser's game save. Giveaway codes are saved locally and are not shared with other devices.</div>
-<h2>🪙 Give Coins</h2>
-<input id="adminCoins" type="number" min="1" max="1000000" value="500">
-<button class="btn full" onclick="adminGiveCoins()">Give Coins</button>
-<h2>💎 Give a Relic</h2>
-<select id="adminRelic"></select>
-<select id="adminVariant"><option value="normal">Normal</option><option value="gold">Gold</option><option value="candy">Candy Corn</option></select>
-<button class="btn full" onclick="adminGiveRelic()">Give Relic</button>
-
-<h2>🎟️ Create Giveaway Code</h2>
-<p>Choose what the code gives to the player.</p>
-<select id="adminPrize">
-<option value="coins">1,000 Coins</option>
-<option value="coins5000">5,000 Coins</option>
-<option value="starter">Starter Pack Prize</option>
-<option value="cosmic">Cosmic Pack Prize</option>
-<option value="gold">Random Gold Relic</option>
-<option value="candy">Random Candy Corn Relic</option>
-<option value="legendary">Random Legendary Relic</option>
-</select>
-<button class="btn full" onclick="adminMakeCode()">✨ Generate Redeem Code</button>
-<div id="adminCode" class="notice code-display">Your code will appear here.</div>
-<button class="btn secondary full" onclick="adminCopyCode()">📋 Copy Code</button>
-
-<h2>📋 Saved Codes</h2>
-<div id="adminCodeList"></div>
-<button class="btn secondary full" onclick="renderAdminCodes()">Refresh Codes</button>
-<button class="btn danger full" onclick="adminLogout()">Log Out</button>
-</div>
-<p id="adminStatus">Admin panel ready.</p>
-</div></div>
-
 <script>
 "use strict";
 
 const SAVE_KEY="relicRushSave_v4";
 const CODES_KEY="relicRushGiveawayCodes_v1";
 const REDEEMED_KEY="relicRushRedeemedCodes_v1";
-
-/* HTML-only admin PIN. This is NOT secure authentication. */
-const ADMIN_PIN="1234";
 
 const PACKS=[
 {id:"starter",name:"Starter Pack",icon:"📦",price:44,weights:[60,25,11,4],description:"A good place to begin."},
@@ -346,6 +75,7 @@ coins:500,inventory:{},packsOpened:0,kills:0,coinsEarned:0,wave:1,highestWave:1,
 health:100,damage:10,zombies:5,seasonXP:0,seasonClaimed:[],dailyDate:"",
 upgrades:{damage:0,health:0},recent:[],ttCandy:0,ttVisited:[],ttX:3,ttY:6
 };}
+
 let game=freshGame();
 
 function el(id){return document.getElementById(id);}
@@ -549,128 +279,202 @@ if(game.ttVisited.length===5){game.ttCandy+=50;addCoins(200);el("ttMessage").tex
 saveGame();updateAll();
 }
 
-/* ADMIN PANEL */
-let adminAuthenticated=false;
+/* SECURE SERVER-VERIFIED ADMIN LOGIN */
+let adminToken=null;
+let adminExpiry=0;
 let generatedGiveawayCode="";
 
-function openAdmin(){el("adminPanel").style.display="block";}
-function closeAdmin(){el("adminPanel").style.display="none";}
-function adminStatus(msg){el("adminStatus").textContent=msg;}
-function adminLogin(){
-if(el("adminPassword").value!==ADMIN_PIN){adminStatus("Incorrect PIN.");return}
-adminAuthenticated=true;el("adminLogin").style.display="none";el("adminTools").style.display="block";
+function openAdmin(){
+el("adminPanel").style.display="block";
+}
+function closeAdmin(){
+el("adminPanel").style.display="none";
+}
+function adminStatus(msg){
+el("adminStatus").textContent=msg;
+}
+async function readJsonResponse(res){
+const text=await res.text();
+try{return JSON.parse(text);}
+catch{
+throw new Error("The server did not return JSON. Check that your Netlify Function is deployed.");
+}
+}
+async function adminRequest(action,extra={}){
+if(!adminToken||Date.now()>=adminExpiry){
+adminLogout();
+throw new Error("Your admin session expired. Please log in again.");
+}
+const res=await fetch("/.netlify/functions/admin",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+adminToken
+},
+body:JSON.stringify({action,...extra})
+});
+const data=await readJsonResponse(res);
+if(!res.ok)throw new Error(data.error||"Admin request rejected.");
+return data;
+}
+async function adminLogin(){
+const code=el("adminPassword").value.trim();
+if(!code){adminStatus("Enter your admin code.");return;}
+const btn=document.querySelector('#adminLogin button');
+btn.disabled=true;
+btn.textContent="Checking…";
+try{
+const res=await fetch("/.netlify/functions/admin",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({action:"login",code})
+});
+const data=await readJsonResponse(res);
+if(!res.ok||!data.token)throw new Error(data.error||"Login rejected.");
+adminToken=data.token;
+adminExpiry=Number(data.expiresAt)||Date.now()+15*60*1000;
+el("adminLogin").style.display="none";
+el("adminTools").style.display="block";
 el("adminPassword").value="";
 el("adminRelic").innerHTML=RELICS.map(r=>`<option value="${r.id}">${r.name}</option>`).join("");
-adminStatus("Admin panel unlocked.");renderAdminCodes();
+adminStatus("Server verified your admin login.");
+renderAdminCodes();
+}catch(err){
+adminStatus(err.message||"Could not verify your login.");
+}finally{
+btn.disabled=false;
+btn.textContent="Login";
+}
 }
 function adminLogout(){
-adminAuthenticated=false;el("adminLogin").style.display="block";el("adminTools").style.display="none";
+adminToken=null;
+adminExpiry=0;
+el("adminLogin").style.display="block";
+el("adminTools").style.display="none";
 adminStatus("Logged out.");
 }
 function checkAdmin(){
-if(!adminAuthenticated){adminStatus("Log in first.");return false}
+if(!adminToken||Date.now()>=adminExpiry){
+adminStatus("Please log in through the server first.");
+return false;
+}
 return true;
 }
-function adminGiveCoins(){
+async function adminGiveCoins(){
 if(!checkAdmin())return;
 const n=Number(el("adminCoins").value);
-if(!Number.isInteger(n)||n<1||n>1000000){adminStatus("Enter 1–1,000,000 coins.");return}
-addCoins(n);saveGame();updateAll();adminStatus("Added "+fmt(n)+" coins to this browser.");
+if(!Number.isInteger(n)||n<1||n>1000000){
+adminStatus("Enter 1–1,000,000 coins.");
+return;
 }
-function adminGiveRelic(){
+try{
+const data=await adminRequest("giveCoins",{amount:n});
+adminStatus(data.message||"Server accepted the coin command.");
+}catch(e){adminStatus(e.message);}
+}
+async function adminGiveRelic(){
 if(!checkAdmin())return;
-const r=RELICS.find(x=>x.id===el("adminRelic").value),v=el("adminVariant").value;
-if(!r)return;
-addRelic(r,v);saveGame();updateAll();adminStatus("Added "+r.name+" ("+v+") to this browser.");
+try{
+const data=await adminRequest("giveRelic",{
+relicId:el("adminRelic").value,
+variant:el("adminVariant").value
+});
+adminStatus(data.message||"Server accepted the relic command.");
+}catch(e){adminStatus(e.message);}
 }
 function getCodes(){return readStore(CODES_KEY,{});}
-function setCodes(c){try{localStorage.setItem(CODES_KEY,JSON.stringify(c));return true}catch(e){return false}}
+function setCodes(c){
+try{localStorage.setItem(CODES_KEY,JSON.stringify(c));return true}
+catch(e){return false}
+}
 function makeCodeString(){
 const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 let s="RR-";
 for(let i=0;i<8;i++)s+=chars[Math.floor(Math.random()*chars.length)];
 return s;
 }
-function adminMakeCode(){
+async function adminMakeCode(){
 if(!checkAdmin())return;
-const prize=el("adminPrize").value,codes=getCodes();
-let code;
-do{code=makeCodeString()}while(codes[code]);
-codes[code]={prize,created:Date.now(),used:false};
-if(!setCodes(codes)){adminStatus("Could not save code in this browser.");return}
-generatedGiveawayCode=code;
-el("adminCode").textContent=code;
-adminStatus("Code created! Share it with someone using this same browser storage.");
+const prize=el("adminPrize").value;
+try{
+const data=await adminRequest("createRewardCode",{prize});
+generatedGiveawayCode=data.code||data.rewardCode||"";
+if(!generatedGiveawayCode)throw new Error("The function did not return a code.");
+el("adminCode").textContent=generatedGiveawayCode;
+adminStatus("Code created by the server.");
 renderAdminCodes();
+}catch(e){adminStatus(e.message);}
 }
 async function adminCopyCode(){
-if(!checkAdmin()||!generatedGiveawayCode){adminStatus("Generate a code first.");return}
+if(!checkAdmin()||!generatedGiveawayCode){
+adminStatus("Generate a code first.");
+return;
+}
 try{
 await navigator.clipboard.writeText(generatedGiveawayCode);
-adminStatus("Code copied: "+generatedGiveawayCode);
+adminStatus("Code copied.");
 }catch(e){
 adminStatus("Copy unavailable. Select the code above and copy it manually.");
 }
 }
-function renderAdminCodes(){
+async function renderAdminCodes(){
 if(!checkAdmin())return;
-const codes=getCodes(),entries=Object.entries(codes).reverse();
-el("adminCodeList").innerHTML=entries.length?entries.map(([code,d])=>
-`<div class="record"><div><b>${code}</b><br><span class="small muted">${prizeLabel(d.prize)}</span></div><span>${d.used?"✅ Used":"🟢 Available"}</span></div>`
-).join(""):'<p>No codes generated yet.</p>';
+try{
+const data=await adminRequest("listRewardCodes");
+const codes=data.codes||[];
+el("adminCodeList").innerHTML=codes.length?codes.map(d=>
+`<div class="record"><div><b>${d.code||"Code"}</b><br><span class="small muted">${prizeLabel(d.prize)}</span></div><span>${d.used?"✅ Used":"🟢 Available"}</span></div>`
+).join(""):"<p>No server codes returned.</p>";
+}catch(e){
+el("adminCodeList").innerHTML="<p>Could not load server codes.</p>";
+adminStatus(e.message);
+}
 }
 function prizeLabel(p){
 return ({
-coins:"1,000 Coins",coins5000:"5,000 Coins",starter:"Starter Pack Prize",
-cosmic:"Cosmic Pack Prize",gold:"Random Gold Relic",candy:"Random Candy Corn Relic",
+coins:"1,000 Coins",
+coins5000:"5,000 Coins",
+starter:"Starter Pack Prize",
+cosmic:"Cosmic Pack Prize",
+gold:"Random Gold Relic",
+candy:"Random Candy Corn Relic",
 legendary:"Random Legendary Relic"
 })[p]||"Reward";
 }
-function redeemPlayerCode(){
-const input=el("playerRedeemCode"),code=input.value.trim().toUpperCase();
-if(!code){toast("Enter a code first!");return}
-redeemCodeValue(code);
+async function redeemPlayerCode(){
+const input=el("playerRedeemCode");
+const code=input.value.trim().toUpperCase();
+if(!code){toast("Enter a code first!");return;}
+try{
+const res=await fetch("/.netlify/functions/redeem",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({code})
+});
+const data=await readJsonResponse(res);
+if(!res.ok)throw new Error(data.error||"Code could not be redeemed.");
+if(data.coins)addCoins(Number(data.coins));
+if(data.relic&&data.relic.id){
+const r=RELICS.find(x=>x.id===data.relic.id);
+if(r)addRelic(r,data.relic.variant||"normal");
 }
-function redeemCodeValue(code){
-const codes=getCodes(),redeemed=readStore(REDEEMED_KEY,[]);
-if(redeemed.includes(code)){toast("You already redeemed this code in this browser!");return}
-const entry=codes[code];
-if(!entry){toast("Invalid code! Codes only work in the browser where they were created.");return}
-if(entry.used){toast("This code has already been used!");return}
-
-const p=entry.prize;
-if(p==="coins")addCoins(1000);
-else if(p==="coins5000")addCoins(5000);
-else if(p==="starter"){const r=RELICS[Math.floor(Math.random()*RELICS.length)];addRelic(r);addXP(25);}
-else if(p==="cosmic"){
-const pool=RELICS.filter(r=>r.rarity==="Epic"||r.rarity==="Legendary");
-addRelic(pool[Math.floor(Math.random()*pool.length)]);addXP(25);
+if(data.reward){
+if(data.reward.type==="coins")addCoins(Number(data.reward.amount)||0);
+if(data.reward.type==="relic"){
+const r=RELICS.find(x=>x.id===data.reward.relicId);
+if(r)addRelic(r,data.reward.variant||"normal");
 }
-else if(p==="gold"){
-const r=RELICS[Math.floor(Math.random()*RELICS.length)];addRelic(r,"gold");
 }
-else if(p==="candy"){
-const r=RELICS[Math.floor(Math.random()*RELICS.length)];addRelic(r,"candy");
+input.value="";
+saveGame();
+updateAll();
+toast(data.message||"🎉 Code redeemed!");
+}catch(e){
+toast(e.message||"Redemption failed.");
 }
-else if(p==="legendary"){
-const pool=RELICS.filter(r=>r.rarity==="Legendary");
-addRelic(pool[Math.floor(Math.random()*pool.length)]);
-}
-else{toast("Unknown reward.");return}
-
-entry.used=true;entry.usedAt=Date.now();codes[code]=entry;
-redeemed.push(code);
-try{localStorage.setItem(REDEEMED_KEY,JSON.stringify(redeemed))}catch(e){}
-setCodes(codes);saveGame();updateAll();
-if(el("playerRedeemCode"))el("playerRedeemCode").value="";
-toast("🎉 Code redeemed! Reward: "+prizeLabel(p));
-if(adminAuthenticated)renderAdminCodes();
 }
 function redeemCode(){
-if(!checkAdmin())return;
-const code=el("redeemInput")?.value?.trim().toUpperCase();
-if(!code){adminStatus("Enter a code to redeem.");return}
-redeemCodeValue(code);
+adminStatus("Redeem codes using the player redeem box.");
 }
 function updateAll(){
 el("coins").textContent=fmt(game.coins);
@@ -679,11 +483,21 @@ el("waveStat").textContent=game.wave;
 el("levelStat").textContent=Math.floor(game.seasonXP/100)+1;
 el("collectionValue").textContent=fmt(Object.entries(game.inventory).reduce((s,[k,v])=>s+relicValue(k.replace(/_(normal|gold|candy)$/,""),k.endsWith("_gold")?"gold":k.endsWith("_candy")?"candy":"normal")*v,0))+" 🪙";
 el("uniqueCount").textContent=Object.keys(game.inventory).filter(k=>game.inventory[k]>0).length;
-el("goldCount").textContent=totalGold();el("candyCount").textContent=totalCandy();
-el("kills").textContent=game.kills;el("packCoins").textContent=fmt(game.coins);
-el("health").textContent=game.health;el("damage").textContent=game.damage;el("remaining").textContent=game.zombies;
+el("goldCount").textContent=totalGold();
+el("candyCount").textContent=totalCandy();
+el("kills").textContent=game.kills;
+el("packCoins").textContent=fmt(game.coins);
+el("health").textContent=game.health;
+el("damage").textContent=game.damage;
+el("remaining").textContent=game.zombies;
 el("waveBar").style.width=(game.zombies===0?100:Math.round((1-game.zombies/(5+game.wave))*100))+"%";
-renderRelics();renderMarket();renderShop();renderSeason();renderRecords();renderAchievements();renderTT();
+renderRelics();
+renderMarket();
+renderShop();
+renderSeason();
+renderRecords();
+renderAchievements();
+renderTT();
 }
 function resetGame(){
 if(!confirm("Reset ALL game progress? This cannot be undone."))return;
@@ -694,5 +508,3 @@ loadGame();
 renderPacks();
 updateAll();
 </script>
-</body>
-</html>
