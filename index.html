@@ -788,5 +788,174 @@ $("adminOverlay").addEventListener("click", e => {
   if (e.target === $("adminOverlay")) closeAdminPanel();
 });
 </script>
+
+<!-- RELIC RUSH PURPLE ADMIN PANEL -->
+
+<div class="bottom-admin">
+  <p>Developer Access</p>
+  <button id="adminOpenBtn">🛡️ Admin Login</button>
+</div>
+
+<section id="adminPanel" class="panel admin-box hidden">
+
+  <div class="spread">
+    <div>
+      <h2>💎 Relic Rush Admin</h2>
+      <p class="muted">Server-verified developer console</p>
+    </div>
+    <button id="adminCloseBtn" class="secondary">✕ Close</button>
+  </div>
+
+  <!-- SERVER-VERIFIED LOGIN -->
+  <div id="adminLoginArea">
+    <h3>🔐 Admin Login</h3>
+    <p class="muted">
+      Enter your developer password to access admin commands.
+    </p>
+
+    <label for="adminCode">Developer Password</label>
+    <div class="row">
+      <input
+        id="adminCode"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Enter password"
+      >
+      <button id="adminLoginBtn">Verify with Netlify</button>
+    </div>
+
+    <p id="adminStatus" class="notice hidden" role="status"></p>
+  </div>
+
+  <!-- COMMANDS: SHOWN AFTER SERVER LOGIN -->
+  <div id="adminCommands" class="hidden">
+
+    <p class="notice success">
+      ✅ Server-verified session active · Expires after 10 minutes
+    </p>
+
+    <div class="grid">
+
+      <!-- GIVE COINS -->
+      <div class="card">
+        <h3>🪙 Give Coins</h3>
+        <p class="muted">Add coins to the current browser's save.</p>
+        <label for="giveCoins">Amount</label>
+        <input
+          id="giveCoins"
+          type="number"
+          min="1"
+          max="1000000"
+          value="100"
+        >
+        <button data-command="giveCoins">✨ Give Coins</button>
+      </div>
+
+      <!-- SET BALANCE -->
+      <div class="card">
+        <h3>💰 Set Coin Balance</h3>
+        <p class="muted">Set the current browser's coin balance.</p>
+        <label for="setCoins">New Balance</label>
+        <input
+          id="setCoins"
+          type="number"
+          min="0"
+          max="10000000"
+          value="1000"
+        >
+        <button data-command="setCoins">Set Balance</button>
+      </div>
+
+      <!-- GIVE RELIC -->
+      <div class="card">
+        <h3>💎 Give Relic</h3>
+        <label for="giveRelic">Choose Relic</label>
+        <select id="giveRelic"></select>
+
+        <label for="goldRelic">Variant</label>
+        <select id="goldRelic">
+          <option value="false">Normal</option>
+          <option value="true">✨ Gold</option>
+        </select>
+
+        <button data-command="giveRelic">Give Relic</button>
+      </div>
+
+      <!-- HEAL -->
+      <div class="card">
+        <h3>❤️ Restore Health</h3>
+        <p class="muted">Restore player health to full.</p>
+        <button data-command="heal">Heal Player</button>
+      </div>
+
+    </div>
+
+    <!-- GIVEAWAY CODES -->
+    <div class="card" style="margin-top:16px">
+      <h3>🎁 Viewer Giveaway Codes</h3>
+      <p class="muted">
+        Generate reward codes for your stream viewers.
+        Codes are verified by your Netlify function.
+      </p>
+
+      <label for="rewardType">Reward Type</label>
+      <select id="rewardType">
+        <option value="coins">🪙 Coins</option>
+        <option value="relic">💎 Relic</option>
+        <option value="pack">🎁 Free Pack</option>
+      </select>
+
+      <div id="rewardCoinsArea">
+        <label for="rewardCoins">Coin Reward</label>
+        <input
+          id="rewardCoins"
+          type="number"
+          min="1"
+          max="1000000"
+          value="250"
+        >
+      </div>
+
+      <div id="rewardRelicArea" class="hidden">
+        <label for="rewardRelic">Relic</label>
+        <select id="rewardRelic"></select>
+
+        <label for="rewardGold">Variant</label>
+        <select id="rewardGold">
+          <option value="false">Normal</option>
+          <option value="true">Gold</option>
+        </select>
+      </div>
+
+      <div id="rewardPackArea" class="hidden">
+        <label for="rewardPack">Pack</label>
+        <select id="rewardPack"></select>
+      </div>
+
+      <button id="createRewardCodeBtn">
+        🎁 Generate Giveaway Code
+      </button>
+
+      <p id="createdCodeArea" class="notice hidden" role="status"></p>
+    </div>
+
+    <p class="muted">
+      Game progress is stored locally in this browser.
+      Admin commands do not automatically update other players'
+      saves or synchronize progress between devices.
+    </p>
+
+    <button id="adminLogoutBtn" class="secondary">
+      🔒 Log Out
+    </button>
+
+  </div>
+
+  <p id="commandStatus" class="notice hidden" role="status"></p>
+
+</section>
+
+<!-- END RELIC RUSH ADMIN PANEL -->
+
 </body>
 </html>
