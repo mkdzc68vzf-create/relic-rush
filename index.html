@@ -649,25 +649,61 @@ function daily(){
  addCoins(reward);addXP(10);save();renderAll();
  toast(`Daily reward: ${reward} coins! Day ${game.dailyStreak}`);
 }
+
 function attack(){
- if(game.health<=0){toast("You're out of health! Heal before fighting.");return}
- if(game.remaining<=0){toast("Wave cleared! Start the next wave.");return}
- game.remaining--;game.battles++;
- const enemyDamage=Math.max(3,Math.floor(game.wave*3+Math.random()*7));
- if(game.remaining>0)game.health=Math.max(0,game.health-enemyDamage);
+ if(game.health<=0){
+  toast("You're out of health! Heal before fighting.");
+  return;
+ }
+
+ if(game.remaining<=0){
+  toast("Wave cleared! Start the next wave.");
+  return;
+ }
+
+ // Defeat one zombie and give coins immediately.
+ game.remaining--;
+ game.battles++;
+
+ const zombieReward = Math.round(10 * moneyMultiplier());
+ addCoins(zombieReward);
+ game.kills++;
+
+ const enemyDamage = Math.max(
+  3,
+  Math.floor(game.wave * 3 + Math.random() * 7)
+ );
+
+ if(game.remaining>0){
+  game.health=Math.max(0,game.health-enemyDamage);
+ }
+
  if(game.remaining===0){
-  const reward=Math.round((50+game.wave*20)*moneyMultiplier());
-  addCoins(reward);
-  game.kills+=game.wave*5;
+  // Bonus coins for clearing the wave.
+  const waveReward = Math.round(
+   (50 + game.wave * 20) * moneyMultiplier()
+  );
+
+  addCoins(waveReward);
   game.highestWave=Math.max(game.highestWave,game.wave);
   addXP(30);
-  $("battleLog").textContent=`🏆 Wave ${game.wave} cleared! You earned ${reward.toLocaleString()} coins and 30 XP.`;
+
+  $("battleLog").textContent =
+   `🏆 Wave ${game.wave} cleared! +${zombieReward} coins for the last zombie and +${waveReward} wave bonus!`;
  }else{
-  $("battleLog").textContent=`⚔️ You attacked! ${game.remaining} zombies remain. You took ${enemyDamage} damage.`;
+  $("battleLog").textContent =
+   `🧟 Zombie defeated! +${zombieReward} coins. ${game.remaining} zombies remain. You took ${enemyDamage} damage.`;
  }
- if(game.health<=0)$("battleLog").textContent+=" You need to heal before attacking again.";
- save();renderAll();
+
+ if(game.health<=0){
+  $("battleLog").textContent +=
+   " You need to heal before attacking again.";
+ }
+
+ save();
+ renderAll();
 }
+
 function heal(){
  if(game.health>=game.maxHealth){toast("Your health is already full!");return}
  if(game.coins<70){toast("You need 70 coins to heal.");return}
