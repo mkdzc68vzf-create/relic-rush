@@ -1,325 +1,183 @@
-const crypto = require("node:crypto");
-const { getStore } = require("@netlify/blobs");
 
-const ALLOWED_ORIGIN = process.env.URL || "";
-const SESSION_TTL_SECONDS = 10 * 60;
-const MAX_BODY_BYTES = 4096;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relic Rush Admin</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:20px;background:radial-gradient(circle at top,#32105b,#080414 70%);color:#fff;font-family:Arial,sans-serif}
+.panel{max-width:580px;margin:30px auto;padding:24px;background:#160d2b;border:1px solid #7540ad;border-radius:20px;box-shadow:0 0 35px #8b35ff33}
+h1{color:#c9a3ff}
+p{color:#c6b8dd;line-height:1.5}
+label{display:block;margin:15px 0 7px;font-weight:bold}
+input,select{width:100%;padding:13px;border-radius:9px;border:1px solid #59357f;background:#0b0618;color:white;font-size:16px}
+button{width:100%;margin-top:14px;padding:13px;border:0;border-radius:9px;background:linear-gradient(90deg,#782cff,#d946ef);color:white;font-size:15px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6}
+.secondary{background:#302044;border:1px solid #65428b}
+#status{display:none;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:15px;padding:13px;border:1px solid #6844a0;border-radius:9px;background:#24163c}
+#status.success{border-color:#4adea2}
+#status.error{border-color:#f87191}
+.small{font-size:12px;color:#a99abf}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main class="panel">
+  <h1>🛡️ Relic Rush Admin</h1>
+  <p>Sign in to manage worldwide giveaway codes.</p>
 
-function json(statusCode, body) {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
-      "X-Content-Type-Options": "nosniff",
-      "Vary": "Origin"
-    },
-    body: JSON.stringify(body)
-  };
+  <section id="loginPanel">
+    <label for="secret">Admin Code</label>
+    <input id="secret" type="password" autocomplete="current-password" placeholder="Enter admin code">
+    <button id="loginButton">🔐 Login</button>
+  </section>
+
+  <section id="controls" hidden>
+    <p>✅ Admin access verified.</p>
+
+    <label for="reward">Coins per player</label>
+    <select id="reward">
+      <option value="100">100 Coins</option>
+      <option value="500">500 Coins</option>
+      <option value="1000" selected>1,000 Coins</option>
+      <option value="2500">2,500 Coins</option>
+      <option value="10000">10,000 Coins</option>
+    </select>
+
+    <label for="uses">Total worldwide uses</label>
+    <input id="uses" type="number" min="1" max="100000" value="50">
+
+    <label for="expiry">Expiry in days (blank = never)</label>
+    <input id="expiry" type="number" min="1" max="3650" placeholder="Optional">
+
+    <button id="generateButton">✨ Generate Giveaway Code</button>
+    <button id="copyButton" class="secondary" hidden>📋 Copy Code</button>
+    <button id="logoutButton" class="secondary">Log Out</button>
+  </section>
+
+  <div id="status" role="status" aria-live="polite"></div>
+  <p class="small">Never share your admin code with viewers. Keep it in Netlify environment variables, not in your public game code.</p>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let adminSecret = "";
+let generatedCode = "";
+
+function show(message, type = "error") {
+  $("status").textContent = message;
+  $("status").className = type;
+  $("status").style.display = "block";
 }
 
-function b64url(input) {
-  return Buffer.from(input).toString("base64url");
-}
-
-function safeEqual(a, b) {
-  const aa = Buffer.from(String(a));
-  const bb = Buffer.from(String(b));
-  return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
-}
-
-function sign(payload, secret) {
-  const body = b64url(JSON.stringify(payload));
-  const sig = crypto.createHmac("sha256", secret).update(body).digest("base64url");
-  return `${body}.${sig}`;
-}
-
-function verify(token, secret) {
-  if (typeof token !== "string" || token.length > 2048) return null;
-  const parts = token.split(".");
-  if (parts.length !== 2) return null;
-  const expected = crypto.createHmac("sha256", secret).update(parts[0]).digest("base64url");
-  if (!safeEqual(parts[1], expected)) return null;
-  try {
-    const payload = JSON.parse(Buffer.from(parts[0], "base64url").toString("utf8"));
-    if (!payload || payload.role !== "admin" || !Number.isInteger(payload.exp) || payload.exp < Math.floor(Date.now() / 1000)) return null;
-    return payload;
-  } catch {
-    return null;
-  }
-}
-
-function validInteger(value, min, max) {
-  return Number.isSafeInteger(value) && value >= min && value <= max;
-}
-
-exports.handler = async (event) => {
-  if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers: { "Cache-Control": "no-store" }, body: "" };
-  }
-  if (event.httpMethod !== "POST") return json(405, { error: "Use POST." });
-  if (!event.body || Buffer.byteLength(event.body, "utf8") > MAX_BODY_BYTES) {
-    return json(413, { error: "Request is too large." });
-  }
-
-  // Same-origin browser requests are expected. This is defense in depth, not a substitute for auth.
-  const origin = event.headers.origin || event.headers.Origin;
-  if (ALLOWED_ORIGIN && origin) {
-    try {
-      if (new URL(origin).host !== new URL(ALLOWED_ORIGIN).host) return json(403, { error: "Origin not allowed." });
-    } catch {
-      return json(403, { error: "Invalid origin." });
-    }
-  }
-
-  const adminCode = process.env.RELIC_RUSH_ADMIN_CODE;
-  const sessionSecret = process.env.RELIC_RUSH_SESSION_SECRET;
-  if (!adminCode || adminCode.length < 8 || !sessionSecret || sessionSecret.length < 32) {
-    return json(500, { error: "Admin is not configured. Set RELIC_RUSH_ADMIN_CODE and RELIC_RUSH_SESSION_SECRET in Netlify environment variables." });
-  }
-
-  let body;
-  try { body = JSON.parse(event.body); }
-  catch { return json(400, { error: "Invalid JSON." }); }
-
-  if (body.action === "login") {
-    if (typeof body.code !== "string" || body.code.length > 256 || !safeEqual(body.code, adminCode)) {
-      // Avoid telling a caller whether the code or configuration is the issue.
-      return json(401, { error: "Incorrect developer code." });
-    }
-    const now = Math.floor(Date.now() / 1000);
-    const token = sign({ role: "admin", iat: now, exp: now + SESSION_TTL_SECONDS, nonce: crypto.randomBytes(12).toString("hex") }, sessionSecret);
-    return json(200, { token, expiresAt: (now + SESSION_TTL_SECONDS) * 1000 });
-  }
-
-  const session = verify(body.token, sessionSecret);
-  if (!session) return json(401, { error: "Admin session token is invalid or expired. Log in again." });
-
-  // Only allow specific, validated commands. Do not accept arbitrary JS or arbitrary save objects.
-  let command;
-  switch (body.action) {
-    case "giveCoins":
-      if (!validInteger(body.amount, 1, 1000000)) return json(400, { error: "Coin amount must be an integer from 1 to 1,000,000." });
-      command = { action: "giveCoins", amount: body.amount, message: `give ${body.amount} coins` };
-      break;
-    case "setCoins":
-      if (!validInteger(body.amount, 0, 10000000)) return json(400, { error: "Coin balance must be an integer from 0 to 10,000,000." });
-      command = { action: "setCoins", amount: body.amount, message: `set coin balance to ${body.amount}` };
-      break;
-    case "giveRelic": {
-      const allowedRelics = new Set(["forest", "stone", "moon", "frost", "dragon", "phantom", "solar", "void"]);
-      if (typeof body.relicId !== "string" || !allowedRelics.has(body.relicId) || typeof body.gold !== "boolean") {
-        return json(400, { error: "Invalid relic selection." });
-      }
-      command = { action: "giveRelic", relicId: body.relicId, gold: body.gold, message: `grant ${body.gold ? "Gold " : ""}${body.relicId} relic` };
-      break;
-    }
-    case "heal":
-      command = { action: "heal", message: "restore health to 100" };
-      break;
-    case "createRewardCode": {
-      const reward = body.reward;
-      if (!reward || typeof reward !== "object") return json(400, { error: "Missing reward details." });
-      let cleanReward;
-      let rewardLabel;
-      if (reward.type === "coins" && validInteger(reward.amount, 1, 1000000)) {
-        cleanReward = { type: "coins", amount: reward.amount };
-        rewardLabel = `${reward.amount} coins`;
-      } else if (reward.type === "relic") {
-        const allowedRelics = new Set(["forest", "stone", "moon", "frost", "dragon", "phantom", "solar", "void"]);
-        if (typeof reward.relicId !== "string" || !allowedRelics.has(reward.relicId) || typeof reward.gold !== "boolean") {
-          return json(400, { error: "Invalid relic reward." });
-        }
-        cleanReward = { type: "relic", relicId: reward.relicId, gold: reward.gold };
-        rewardLabel = `${reward.gold ? "Gold " : ""}${reward.relicId} relic`;
-      } else {
-        return json(400, { error: "Choose a valid coin amount or relic reward." });
-      }
-      const code = "RR-" + crypto.randomBytes(5).toString("hex").toUpperCase();
-      const store = getStore("relic-rush-reward-codes");
-      await store.setJSON(code, { reward: cleanReward, createdAt: new Date().toISOString(), redeemed: false });
-      return json(200, { code, rewardLabel });
-    }
-    default:
-      return json(400, { error: "Unknown admin command." });
-  }
-
-  return json(200, { command });
-};
-
-// ===== RELIC RUSH ADMIN PANEL =====
-(() => {
-  const $ = (id) => document.getElementById(id);
-
-  const panel = $("adminPanel");
-  const status = $("adminStatus");
-  const commandStatus = $("commandStatus");
-
-  if (!panel || !$("adminLoginBtn")) {
-    console.error("Admin panel HTML was not found.");
+$("loginButton").addEventListener("click", async () => {
+  const candidate = $("secret").value;
+  if (!candidate) {
+    show("Enter your admin code.");
     return;
   }
 
-  let adminToken = null;
+  $("loginButton").disabled = true;
+  $("loginButton").textContent = "Checking…";
 
-  async function adminRequest(body) {
-    const response = await fetch("/.netlify/functions/admin", {
+  try {
+    const response = await fetch("/.netlify/functions/verify-admin", {
+      method: "POST",
+      headers: {
+        "x-relic-admin-code": candidate
+      }
+    });
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || "Incorrect admin code.");
+    }
+
+    adminSecret = candidate;
+    $("secret").value = "";
+    $("loginPanel").hidden = true;
+    $("controls").hidden = false;
+    $("status").style.display = "none";
+  } catch (error) {
+    show(error.message || "Could not verify admin code.");
+  } finally {
+    $("loginButton").disabled = false;
+    $("loginButton").textContent = "🔐 Login";
+  }
+});
+
+$("generateButton").addEventListener("click", async () => {
+  const uses = Number($("uses").value);
+  const expiryDays = $("expiry").value;
+
+  if (!Number.isInteger(uses) || uses < 1 || uses > 100000) {
+    show("Enter a valid use limit.");
+    return;
+  }
+
+  $("generateButton").disabled = true;
+  $("generateButton").textContent = "Generating…";
+  $("copyButton").hidden = true;
+
+  try {
+    const response = await fetch("/.netlify/functions/create-code", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(adminToken
-          ? { Authorization: `Bearer ${adminToken}` }
-          : {})
+        "x-relic-admin-code": adminSecret
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        rewardCoins: Number($("reward").value),
+        maxRedemptions: uses,
+        expiryDays
+      })
     });
 
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data.error || data.message || "Request failed.");
+    const result = await response.json();
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || "Code generation failed.");
     }
 
-    return data;
+    generatedCode = result.code;
+    show(
+      "🎉 CODE CREATED!\n\n" + result.code +
+      "\nReward: " + result.rewardCoins + " coins per player" +
+      "\nWorldwide uses: " + result.maxRedemptions +
+      "\nExpires: " + (result.expiresAt
+        ? new Date(result.expiresAt).toLocaleString()
+        : "Never"),
+      "success"
+    );
+    $("copyButton").hidden = false;
+  } catch (error) {
+    show(error.message || "Could not contact the server.");
+  } finally {
+    $("generateButton").disabled = false;
+    $("generateButton").textContent = "✨ Generate Giveaway Code";
   }
+});
 
-  function showMessage(element, message) {
-    if (!element) return;
-    element.textContent = message;
-    element.classList.remove("hidden");
+$("copyButton").addEventListener("click", async () => {
+  if (!generatedCode) return;
+  try {
+    await navigator.clipboard.writeText(generatedCode);
+    show("Code copied: " + generatedCode, "success");
+  } catch {
+    show("Copy this code: " + generatedCode, "success");
   }
+});
 
-  function showAdmin() {
-    $("adminLoginArea")?.classList.add("hidden");
-    $("adminCommands")?.classList.remove("hidden");
-  }
-
-  function hideAdmin() {
-    adminToken = null;
-    $("adminLoginArea")?.classList.remove("hidden");
-    $("adminCommands")?.classList.add("hidden");
-    $("adminCode").value = "";
-  }
-
-  $("adminOpenBtn")?.addEventListener("click", () => {
-    panel.classList.remove("hidden");
-  });
-
-  $("adminCloseBtn")?.addEventListener("click", () => {
-    panel.classList.add("hidden");
-  });
-
-  $("adminLoginBtn").addEventListener("click", async () => {
-    const password = $("adminCode").value;
-
-    if (!password) {
-      showMessage(status, "Enter your admin password.");
-      return;
-    }
-
-    $("adminLoginBtn").disabled = true;
-
-    try {
-      const result = await adminRequest({
-        action: "login",
-        password
-      });
-
-      adminToken = result.token || result.sessionToken;
-
-      if (!adminToken) {
-        throw new Error("The server did not return a session token.");
-      }
-
-      showAdmin();
-      showMessage(status, "Login successful!");
-    } catch (error) {
-      showMessage(status, error.message);
-    } finally {
-      $("adminLoginBtn").disabled = false;
-    }
-  });
-
-  $("adminCode")?.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") $("adminLoginBtn").click();
-  });
-
-  document.querySelectorAll("[data-command]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      if (!adminToken) {
-        showMessage(commandStatus, "Log in first.");
-        return;
-      }
-
-      const action = button.dataset.command;
-      let payload = { action };
-
-      if (action === "giveCoins") {
-        payload.amount = Number($("giveCoins").value);
-      } else if (action === "setCoins") {
-        payload.amount = Number($("setCoins").value);
-      } else if (action === "giveRelic") {
-        payload.relicId = $("giveRelic").value;
-        payload.gold = $("goldRelic").value === "true";
-      }
-
-      button.disabled = true;
-
-      try {
-        await adminRequest(payload);
-        showMessage(commandStatus, "Command completed!");
-      } catch (error) {
-        showMessage(commandStatus, error.message);
-      } finally {
-        button.disabled = false;
-      }
-    });
-  });
-
-  $("createRewardCodeBtn")?.addEventListener("click", async () => {
-    const rewardType = $("rewardType").value;
-    const payload = {
-      action: "createRewardCode",
-      rewardType
-    };
-
-    if (rewardType === "coins") {
-      payload.amount = Number($("rewardCoins").value);
-    } else {
-      payload.relicId = $("rewardRelic").value;
-      payload.gold = $("rewardGold").value === "true";
-    }
-
-    try {
-      const result = await adminRequest(payload);
-      const code = result.code || result.rewardCode;
-
-      if (!code) {
-        throw new Error("The server did not return a giveaway code.");
-      }
-
-      showMessage($("createdCodeArea"), `Giveaway code: ${code}`);
-    } catch (error) {
-      showMessage($("createdCodeArea"), error.message);
-    }
-  });
-
-  $("rewardType")?.addEventListener("change", () => {
-    const coins = $("rewardType").value === "coins";
-    $("rewardCoinsArea")?.classList.toggle("hidden", !coins);
-    $("rewardRelicArea")?.classList.toggle("hidden", coins);
-  });
-
-  $("adminLogoutBtn")?.addEventListener("click", async () => {
-    try {
-      if (adminToken) {
-        await adminRequest({ action: "logout" });
-      }
-    } catch (_) {
-      // Clear the local session even if the server logout request fails.
-    }
-
-    hideAdmin();
-    showMessage(status, "Logged out.");
-  });
-})();
+$("logoutButton").addEventListener("click", () => {
+  adminSecret = "";
+  generatedCode = "";
+  $("controls").hidden = true;
+  $("loginPanel").hidden = false;
+  $("copyButton").hidden = true;
+  $("secret").value = "";
+  $("status").style.display = "none";
+});
+</script>
+</body>
+</html>
