@@ -1,63 +1,74 @@
 
 const { getStore } = require("@netlify/blobs");
 
-function reply(statusCode, data) {
+const codes = getStore("relic-rush-giveaway-codes");
+
+function json(statusCode, body) {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff"
+    },
+    body: JSON.stringify(body)
   };
 }
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
-    return reply(405, { ok: false, error: "Method not allowed." });
+    return json(405, { ok: false, error: "Use POST." });
+  }
+
+  if (!event.body || Buffer.byteLength(event.body, "utf8") > 1024) {
+    return json(400, { ok: false, error: "Invalid request." });
   }
 
   let body;
   try {
-    body = JSON.parse(event.body || "{}");
+    body = JSON.parse(event.body);
   } catch {
-    return reply(400, { ok: false, error: "Invalid request." });
+    return json(400, { ok: false, error: "Invalid JSON." });
   }
 
-  if (typeof body.code !== "string" || body.code.length > 40) {
-    return reply(400, { ok: false, error: "Enter a valid giveaway code." });
-  }
+  const code = typeof body.code === "string"
+    ? body.code.trim().toUpperCase()
+    : "";
 
-  const code = body.code.trim().toUpperCase();
+  if (!/^RR-[A-F0-9]{10}$/.test(code)) {
+    return json(400, { ok: false, error: "Invalid giveaway code." });
+  }
 
   try {
-    const store = getStore("relic-rush-codes");
-    const key = `code:${code}`;
-    const record = await store.get(key, { type: "json" });
+    const record = await codes.get(code, { type: "json" });
 
     if (!record) {
-      return reply(404, { ok: false, error: "Code not found." });
+      return json(404, { ok: false, error: "Code not found." });
     }
 
-    if (record.expiresAt && Date.now() >= record.expiresAt) {
-      return reply(410, { ok: false, error: "This code has expired." });
+    if (
+      !Number.isSafeInteger(record.rewardCoins) ||
+      !Number.isSafeInteger(record.maxRedemptions) ||
+      !Number.isSafeInteger(record.redeemed)
+    ) {
+      return json(500, { ok: false, error: "Invalid code record." });
     }
 
-    if (record.redemptions >= record.maxRedemptions) {
-      return reply(410, { ok: false, error: "This code has reached its use limit." });
+    if (record.redeemed >= record.maxRedemptions) {
+      return json(410, { ok: false, error: "This code has reached its redemption limit." });
     }
 
-    record.redemptions += 1;
-    await store.setJSON(key, record);
+    // Save the redemption count on the server.
+    record.redeemed += 1;
+    await codes.setJSON(code, record);
 
-    return reply(200, {
+    return json(200, {
       ok: true,
       rewardCoins: record.rewardCoins,
-      redemptions: record.redemptions,
-      maxRedemptions: record.maxRedemptions
+      message: `Code redeemed! You received ${record.rewardCoins.toLocaleString()} coins.`
     });
   } catch (error) {
-    console.error("Code redemption failed:", error);
-    return reply(500, {
-      ok: false,
-      error: "Could not redeem the code. Please try again."
-    });
+    console.error("Redeem code error:", error);
+    return json(500, { ok: false, error: "Could not redeem the code right now." });
   }
 };
