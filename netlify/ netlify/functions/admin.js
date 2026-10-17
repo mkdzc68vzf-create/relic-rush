@@ -5,6 +5,7 @@ const { getStore } = require("@netlify/blobs");
 const ALLOWED_ORIGIN = process.env.URL || "";
 const SESSION_TTL_SECONDS = 10 * 60;
 const MAX_BODY_BYTES = 4096;
+
 const codes = getStore("relic-rush-giveaway-codes");
 
 function json(statusCode, body) {
@@ -22,26 +23,43 @@ function json(statusCode, body) {
 function safeEqual(a, b) {
   const aa = Buffer.from(String(a));
   const bb = Buffer.from(String(b));
-  return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
+
+  return (
+    aa.length === bb.length &&
+    crypto.timingSafeEqual(aa, bb)
+  );
 }
 
 function sign(payload, secret) {
   const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const signature = crypto.createHmac("sha256", secret)
-    .update(data).digest("base64url");
+
+  const signature = crypto
+    .createHmac("sha256", secret)
+    .update(data)
+    .digest("base64url");
+
   return `${data}.${signature}`;
 }
 
 function verify(token, secret) {
-  if (typeof token !== "string" || token.length > 2048) return null;
+  if (typeof token !== "string" || token.length > 2048) {
+    return null;
+  }
 
   const parts = token.split(".");
-  if (parts.length !== 2) return null;
 
-  const expected = crypto.createHmac("sha256", secret)
-    .update(parts[0]).digest("base64url");
+  if (parts.length !== 2) {
+    return null;
+  }
 
-  if (!safeEqual(parts[1], expected)) return null;
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(parts[0])
+    .digest("base64url");
+
+  if (!safeEqual(parts[1], expected)) {
+    return null;
+  }
 
   try {
     const payload = JSON.parse(
@@ -52,7 +70,9 @@ function verify(token, secret) {
       payload.role !== "admin" ||
       !Number.isInteger(payload.exp) ||
       payload.exp <= Math.floor(Date.now() / 1000)
-    ) return null;
+    ) {
+      return null;
+    }
 
     return payload;
   } catch {
@@ -61,26 +81,46 @@ function verify(token, secret) {
 }
 
 function validInt(value, min, max) {
-  return Number.isSafeInteger(value) && value >= min && value <= max;
+  return (
+    Number.isSafeInteger(value) &&
+    value >= min &&
+    value <= max
+  );
 }
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
-    return json(405, { error: "Use POST." });
+    return json(405, {
+      ok: false,
+      error: "Use POST."
+    });
   }
 
-  if (!event.body || Buffer.byteLength(event.body, "utf8") > MAX_BODY_BYTES) {
-    return json(413, { error: "Request is too large." });
+  if (
+    !event.body ||
+    Buffer.byteLength(event.body, "utf8") > MAX_BODY_BYTES
+  ) {
+    return json(413, {
+      ok: false,
+      error: "Request is empty or too large."
+    });
   }
 
   const origin = event.headers?.origin || event.headers?.Origin;
+
   if (ALLOWED_ORIGIN && origin) {
     try {
       if (new URL(origin).host !== new URL(ALLOWED_ORIGIN).host) {
-        return json(403, { error: "Origin not allowed." });
+        return json(403, {
+          ok: false,
+          error: "Origin not allowed."
+        });
       }
     } catch {
-      return json(403, { error: "Invalid origin." });
+      return json(403, {
+        ok: false,
+        error: "Invalid origin."
+      });
     }
   }
 
@@ -88,70 +128,124 @@ exports.handler = async (event) => {
   const sessionSecret = process.env.RELIC_RUSH_SESSION_SECRET;
 
   if (
-    !adminCode || adminCode.length < 8 ||
-    !sessionSecret || sessionSecret.length < 32
+    !adminCode ||
+    adminCode.length < 8 ||
+    !sessionSecret ||
+    sessionSecret.length < 32
   ) {
-    return json(500, { error: "Admin environment variables are not configured." });
-  }
-
-  let body;
-  try {
-    body = JSON.parse(event.body);
-  } catch {
-    return json(400, { error: "Invalid JSON." });
-  }
-
-  // Login: the password is checked only on the server.
-  if (body.action === "login") {
-    if (typeof body.code !== "string" || !safeEqual(body.code, adminCode)) {
-      return json(401, { error: "Incorrect admin password." });
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    const token = sign({
-      role: "admin",
-      iat: now,
-      exp: now + SESSION_TTL_SECONDS,
-      nonce: crypto.randomBytes(16).toString("hex")
-    }, sessionSecret);
-
-    return json(200, {
-      token,
-      expiresAt: (now + SESSION_TTL_SECONDS) * 1000
+    return json(500, {
+      ok: false,
+      error: "Admin environment variables are not configured."
     });
   }
 
-  // Every action below requires a valid server-signed session.
+  let body;
+
+  try {
+    body = JSON.parse(event.body);
+  } catch {
+    return json(400, {
+      ok: false,
+      error: "Invalid JSON."
+    });
+  }
+
+  // ADMIN LOGIN
+  if (body.action === "login") {
+    if (
+      typeof body.code !== "string" ||
+      !safeEqual(body.code, adminCode)
+    ) {
+      return json(401, {
+        ok: false,
+        error: "Incorrect admin password."
+      });
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const expiresAt = (now + SESSION_TTL_SECONDS) * 1000;
+
+    const token = sign(
+      {
+        role: "admin",
+        iat: now,
+        exp: now + SESSION_TTL_SECONDS,
+        nonce: crypto.randomBytes(16).toString("hex")
+      },
+      sessionSecret
+    );
+
+    // FIX: The frontend expects ok: true.
+    return json(200, {
+      ok: true,
+      token,
+      expiresAt
+    });
+  }
+
+  // ALL OTHER ACTIONS REQUIRE A VALID SESSION
   if (!verify(body.token, sessionSecret)) {
-    return json(401, { error: "Admin session expired. Log in again." });
+    return json(401, {
+      ok: false,
+      error: "Admin session expired. Log in again."
+    });
   }
 
   switch (body.action) {
-    case "giveCoins":
+    case "giveCoins": {
       if (!validInt(body.amount, 1, 1000000)) {
-        return json(400, { error: "Coins must be from 1 to 1,000,000." });
+        return json(400, {
+          ok: false,
+          error: "Coins must be from 1 to 1,000,000."
+        });
       }
-      return json(200, {
-        command: { action: "giveCoins", amount: body.amount }
-      });
 
-    case "setCoins":
-      if (!validInt(body.amount, 0, 10000000)) {
-        return json(400, { error: "Balance must be from 0 to 10,000,000." });
-      }
       return json(200, {
-        command: { action: "setCoins", amount: body.amount }
+        ok: true,
+        command: {
+          action: "giveCoins",
+          amount: body.amount
+        }
       });
+    }
+
+    case "setCoins": {
+      if (!validInt(body.amount, 0, 10000000)) {
+        return json(400, {
+          ok: false,
+          error: "Balance must be from 0 to 10,000,000."
+        });
+      }
+
+      return json(200, {
+        ok: true,
+        command: {
+          action: "setCoins",
+          amount: body.amount
+        }
+      });
+    }
 
     case "giveRelic": {
-      const validRelic = /^r(?:[0-9]|1[0-9]|2[0-3])$/.test(body.relicId || "");
-      const validVariant = ["normal", "gold", "candy"].includes(body.variant);
+      const validRelic = /^r(?:[0-9]|1[0-9]|2[0-3])$/.test(
+        body.relicId || ""
+      );
+
+      const validVariant = [
+        "normal",
+        "gold",
+        "candy"
+      ].includes(body.variant);
 
       if (!validRelic || !validVariant) {
-        return json(400, { error: "Invalid relic or variant." });
+        return json(400, {
+          ok: false,
+          error: "Invalid relic or variant."
+        });
       }
 
       return json(200, {
+        ok: true,
         command: {
           action: "giveRelic",
           relicId: body.relicId,
@@ -160,26 +254,40 @@ exports.handler = async (event) => {
       });
     }
 
-    case "heal":
-      return json(200, { command: { action: "heal" } });
+    case "heal": {
+      return json(200, {
+        ok: true,
+        command: {
+          action: "heal"
+        }
+      });
+    }
 
-    // Create a globally redeemable coin code.
+    // CREATE A GLOBALLY REDEEMABLE COIN CODE
     case "createCode": {
       if (
         !validInt(body.rewardCoins, 1, 1000000) ||
         !validInt(body.maxRedemptions, 1, 100000)
       ) {
-        return json(400, { error: "Invalid coin reward or redemption limit." });
+        return json(400, {
+          ok: false,
+          error: "Invalid coin reward or redemption limit."
+        });
       }
 
       let code;
       let saved = false;
 
       for (let attempt = 0; attempt < 5; attempt++) {
-        code = "RR-" + crypto.randomBytes(5).toString("hex").toUpperCase();
+        code =
+          "RR-" +
+          crypto.randomBytes(5).toString("hex").toUpperCase();
 
         const existing = await codes.get(code);
-        if (existing !== null) continue;
+
+        if (existing !== null) {
+          continue;
+        }
 
         await codes.setJSON(code, {
           rewardCoins: body.rewardCoins,
@@ -193,7 +301,10 @@ exports.handler = async (event) => {
       }
 
       if (!saved) {
-        return json(500, { error: "Could not create a unique code. Try again." });
+        return json(500, {
+          ok: false,
+          error: "Could not create a unique code. Try again."
+        });
       }
 
       return json(200, {
@@ -205,6 +316,9 @@ exports.handler = async (event) => {
     }
 
     default:
-      return json(400, { error: "Unknown admin action." });
+      return json(400, {
+        ok: false,
+        error: "Unknown admin action."
+      });
   }
 };
