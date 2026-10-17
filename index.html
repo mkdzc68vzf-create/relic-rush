@@ -865,15 +865,67 @@ function adminGiveRelic(){
  addRelic(relic,variant);save();renderAll();toast(`Added ${relic.name} to this browser!`);
 }
 async function adminGenerateCode(){
-async function adminGenerateCode(){
- const token=adminToken();
- if(!token){toast("Log in again before creating codes.");return}
- const rewardCoins=Number($("adminReward").value);
- const maxRedemptions=Number($("adminUses").value);
- const resultBox=$("adminCodeResult");
- if(!Number.isInteger(maxRedemptions)||maxRedemptions<1||maxRedemptions>100000){
-  toast("Enter a redemption limit from 1 to 100,000.");return;
- }
+  const token = adminToken();
+
+  if(!token){
+    toast("Log in again before creating codes.");
+    return;
+  }
+
+  const rewardCoins = Number($("adminReward").value);
+  const maxRedemptions = Number($("adminUses").value);
+  const resultBox = $("adminCodeResult");
+
+  if(!Number.isFinite(rewardCoins) || rewardCoins < 1 ||
+     !Number.isInteger(maxRedemptions) || maxRedemptions < 1){
+    toast("Enter a valid reward and redemption limit.");
+    return;
+  }
+
+  const button = $("adminGenerateCodeBtn");
+  if(button){
+    button.disabled = true;
+    button.textContent = "Creating...";
+  }
+
+  try{
+    const response = await fetch("/.netlify/functions/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "createCode",
+        token,
+        rewardCoins,
+        maxRedemptions
+      })
+    });
+
+    const result = await response.json();
+
+    if(!response.ok || !result.ok){
+      throw new Error(result.error || "Could not create giveaway code.");
+    }
+
+    const code = result.code || result.redeemCode;
+
+    if(!code){
+      throw new Error("The server did not return a giveaway code.");
+    }
+
+    resultBox.textContent = code;
+    toast("Giveaway code created!");
+  }catch(error){
+    console.error("Giveaway code error:", error);
+    toast(error.message || "Could not connect to the admin function.");
+  }finally{
+    if(button){
+      button.disabled = false;
+      button.textContent = "Generate Code";
+    }
+  }
+}
  resultBox.style.display="block";resultBox.textContent="Contacting Netlify...";
  try{
   const response=await fetch("/.netlify/functions/create-code",{
