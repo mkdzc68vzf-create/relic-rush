@@ -864,91 +864,201 @@ function adminGiveRelic(){
  if(!relic){toast("Please select a valid relic.");return}
  addRelic(relic,variant);save();renderAll();toast(`Added ${relic.name} to this browser!`);
 }
-async function adminGenerateCode(){
-  const token = adminToken();
 
-  if(!token){
+async function adminGenerateCode() {
+  const token = adminToken();
+  const resultBox = $("adminCodeResult");
+  const button = $("adminMakeCodeBtn");
+
+  if (!token) {
     toast("Log in again before creating codes.");
     return;
   }
 
   const rewardCoins = Number($("adminReward").value);
   const maxRedemptions = Number($("adminUses").value);
-  const resultBox = $("adminCodeResult");
 
-  if(!Number.isFinite(rewardCoins) || rewardCoins < 1 ||
-     !Number.isInteger(maxRedemptions) || maxRedemptions < 1){
-    toast("Enter a valid reward and redemption limit.");
+  if (![100, 500, 1000].includes(rewardCoins)) {
+    toast("Select a valid reward.");
     return;
   }
 
-  const button = $("adminGenerateCodeBtn");
-  if(button){
-    button.disabled = true;
-    button.textContent = "Creating...";
+  if (
+    !Number.isInteger(maxRedemptions) ||
+    maxRedemptions < 1 ||
+    maxRedemptions > 100000
+  ) {
+    toast("Enter a redemption limit from 1 to 100,000.");
+    return;
   }
 
-  try{
-    const response = await fetch("/.netlify/functions/admin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        action: "createCode",
-        token,
-        rewardCoins,
-        maxRedemptions
-      })
-    });
+  button.disabled = true;
+  button.textContent = "Creating...";
+  resultBox.style.display = "block";
+  resultBox.textContent = "Contacting Netlify...";
+
+  try {
+    const response = await fetch(
+      "/.netlify/functions/create-code",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+          rewardCoins,
+          maxRedemptions
+        })
+      }
+    );
 
     const result = await response.json();
 
-    if(!response.ok || !result.ok){
-      throw new Error(result.error || "Could not create giveaway code.");
+    if (!response.ok || !result.ok) {
+      throw new Error(
+        result.error || "Could not create giveaway code."
+      );
     }
 
     const code = result.code || result.redeemCode;
 
-    if(!code){
-      throw new Error("The server did not return a giveaway code.");
+    if (!code) {
+      throw new Error("Netlify did not return a code.");
     }
 
-    resultBox.textContent = code;
+    resultBox.replaceChildren();
+
+    const title = document.createElement("strong");
+    title.textContent = "Code created: ";
+
+    const codeText = document.createElement("span");
+    codeText.textContent = code;
+    codeText.style.fontSize = "20px";
+    codeText.style.overflowWrap = "anywhere";
+
+    const details = document.createElement("p");
+    details.textContent =
+      `Reward: ${rewardCoins} coins • Maximum uses: ${maxRedemptions}`;
+
+    const copyButton = document.createElement("button");
+    copyButton.className = "btn full";
+    copyButton.textContent = "Copy Code";
+
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(code);
+        toast("Code copied!");
+      } catch {
+        toast("Copy unavailable. Select the code and copy it.");
+      }
+    });
+
+    resultBox.append(title, codeText, details, copyButton);
     toast("Giveaway code created!");
-  }catch(error){
+
+  } catch (error) {
     console.error("Giveaway code error:", error);
-    toast(error.message || "Could not connect to the admin function.");
-  }finally{
-    if(button){
-      button.disabled = false;
-      button.textContent = "Generate Code";
-    }
+    resultBox.textContent =
+      error.message || "Could not connect to Netlify.";
+    toast("Giveaway code creation failed.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Generate Worldwide Code";
   }
 }
- resultBox.style.display="block";resultBox.textContent="Contacting Netlify...";
- try{
-  const response=await fetch("/.netlify/functions/create-code",{
-   method:"POST",
-   headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
-   body:JSON.stringify({rewardCoins,maxRedemptions})
-  });
-  const result=await response.json();
-  if(!response.ok||!result.ok)throw new Error(result.error||"Could not create the code.");
-  resultBox.replaceChildren();
-  const title=document.createElement("strong");title.textContent="Code created: ";
-  const code=document.createElement("span");code.textContent=result.code;code.style.fontSize="20px";
-  const detail=document.createElement("p");detail.textContent=`Reward: ${result.rewardCoins} coins • Maximum uses: ${result.maxRedemptions}`;
-  const copy=document.createElement("button");copy.className="btn full";copy.textContent="Copy Code";
-  copy.addEventListener("click",async()=>{
-   try{await navigator.clipboard.writeText(result.code);toast("Code copied!")}
-   catch{toast("Select the code and copy it.")}
-  });
-  resultBox.append(title,code,detail,copy);
- }catch(err){
-  resultBox.textContent=(err.message||"Unable to create code.")+" Check that your Netlify function accepts the admin session token.";
- }
+
+function adminRunCommand() {
+  if (!adminToken()) {
+    toast("Log in again to use admin commands.");
+    return;
+  }
+
+  const input = $("adminCommandInput");
+  const status = $("adminCommandStatus");
+  const parts = input.value.trim().split(/\s+/);
+  const command = (parts.shift() || "").toLowerCase();
+
+  const reply = message => {
+    status.style.display = "block";
+    status.textContent = message;
+  };
+
+  if (!command) {
+    reply("Enter an admin command.");
+    return;
+  }
+
+  if (command === "/givecoins") {
+    const amount = Number(parts[0]);
+
+    if (!Number.isSafeInteger(amount) || amount < 1 ||
+        amount > 1000000) {
+      reply("Usage: /givecoins 500");
+      return;
+    }
+
+    addCoins(amount);
+    save();
+    renderAll();
+    reply(`Added ${amount.toLocaleString()} coins to this browser.`);
+  } else if (command === "/setcoins") {
+    const amount = Number(parts[0]);
+
+    if (!Number.isSafeInteger(amount) || amount < 0 ||
+        amount > 1000000000) {
+      reply("Usage: /setcoins 1000");
+      return;
+    }
+
+    const difference = amount - game.coins;
+    game.coins = amount;
+
+    if (difference > 0) game.totalEarned += difference;
+
+    save();
+    renderAll();
+    reply(`Coins set to ${amount.toLocaleString()}.`);
+  } else if (command === "/giverelic") {
+    const relic = getRelic(parts[0]);
+    const variant = (parts[1] || "normal").toLowerCase();
+
+    if (!relic || !["normal", "gold", "candy"].includes(variant)) {
+      reply("Usage: /giverelic r3 gold");
+      return;
+    }
+
+    addRelic(relic, variant);
+    save();
+    renderAll();
+    reply(`Added ${relic.name} (${variantName(variant)}).`);
+  } else if (command === "/heal") {
+    game.health = game.maxHealth;
+    save();
+    renderAll();
+    reply("Health fully restored.");
+  } else if (command === "/code") {
+    const reward = Number(parts[0]);
+    const uses = Number(parts[1]);
+
+    if (![100, 500, 1000].includes(reward) ||
+        !Number.isInteger(uses) || uses < 1 || uses > 100000) {
+      reply("Usage: /code 1000 50");
+      return;
+    }
+
+    $("adminReward").value = String(reward);
+    $("adminUses").value = String(uses);
+    adminGenerateCode();
+    reply("Requesting a giveaway code from Netlify...");
+  } else {
+    reply("Unknown command. Try /givecoins, /setcoins, /giverelic, /heal, or /code.");
+    return;
+  }
+
+  input.value = "";
 }
+
 async function redeemCode(){
  const code=$("redeemCode").value.trim(),box=$("redeemStatus");
  if(!code){toast("Enter a giveaway code first.");return}
