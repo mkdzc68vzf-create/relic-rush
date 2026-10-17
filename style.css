@@ -204,3 +204,169 @@ footer {
   color: #9298bd;
   border-top: 1px solid #292d51;
 }
+/* RELIC RUSH — PURPLE ADMIN THEME */
+.bottom-admin {
+  text-align: center;
+  padding: 24px 12px;
+  margin: 30px auto;
+}
+
+.bottom-admin p {
+  color: #c4a5ff;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.admin-box {
+  background: linear-gradient(145deg, #100625, #1b0938);
+  border: 2px solid #922bff;
+  border-radius: 22px;
+  padding: 24px;
+  margin: 20px auto;
+  max-width: 950px;
+  color: #f6edff;
+  box-shadow:
+    0 0 18px #7b18ff55,
+    inset 0 0 25px #6b16ff12;
+}
+
+.admin-box h2 {
+  color: #d9a0ff;
+  font-size: 28px;
+  text-shadow: 0 0 12px #a42aff88;
+}
+
+.admin-box h3 {
+  color: #c78aff;
+  margin-top: 22px;
+}
+
+.admin-box .muted {
+  color: #bba8dd;
+}
+
+.admin-box label {
+  display: block;
+  color: #d9c5ff;
+  margin: 12px 0 7px;
+}
+
+.admin-box input,
+.admin-box select {
+  box-sizing: border-box;
+  background: #130a2b;
+  color: #fff;
+  border: 1px solid #7d35d9;
+  border-radius: 12px;
+  padding: 13px;
+  min-width: 0;
+  outline: none;
+}
+
+.admin-box input:focus,
+.admin-box select:focus {
+  border-color: #d18aff;
+  box-shadow: 0 0 12px #962cff66;
+}
+
+.admin-box button,
+.bottom-admin button {
+  background: linear-gradient(135deg, #bd42ff, #7300ff);
+  border: 1px solid #d38aff;
+  border-radius: 12px;
+  color: white;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.admin-box button:hover,
+.bottom-admin button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px #a02cff99;
+}
+
+.admin-box button:disabled {
+  opacity: .6;
+  cursor: wait;
+  transform: none;
+}
+
+.admin-box .secondary {
+  background: #21113e;
+  border-color: #6935a9;
+}
+
+.admin-box .row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-box .row input {
+  flex: 1;
+  width: 100%;
+}
+
+.admin-box .full {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.admin-box .grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.admin-box .card {
+  background: linear-gradient(145deg, #1b0b35, #100720);
+  border: 1px solid #7130c9;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.admin-box .notice {
+  background: #190d31;
+  border: 1px solid #7534c5;
+  border-radius: 12px;
+  padding: 12px;
+  color: #d7c2ff;
+  overflow-wrap: anywhere;
+}
+
+.admin-box .notice:empty {
+  display: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .admin-box {
+    padding: 15px;
+    margin: 12px 0;
+  }
+
+  .admin-box .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-box .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-box .row button {
+    width: 100%;
+  }
+
+  .admin-box h2 {
+    font-size: 22px;
+  }
+}
+
