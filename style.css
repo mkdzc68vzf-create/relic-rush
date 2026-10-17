@@ -370,3 +370,73 @@ footer {
   }
 }
 
+/* PURPLE ADMIN PANEL */
+.admin-box {
+  position: fixed;
+  z-index: 9998;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(900px, calc(100vw - 24px));
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: 0;
+  background: linear-gradient(145deg, #211438, #100a28);
+  border: 2px solid #a855f7;
+  border-radius: 18px;
+  box-shadow: 0 0 35px #8535ff55;
+  padding: 20px;
+}
+
+#adminOpenBtn {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1000;
+  background: #35145c;
+  border: 1px solid #c084fc;
+  border-radius: 10px;
+  color: white;
+  padding: 10px 14px;
+}
+
+.admin-box h2,
+.admin-box h3 {
+  color: #c084fc;
+}
+
+.admin-box .card {
+  background: #1b1230;
+  border: 1px solid #493263;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.admin-box input,
+.admin-box select {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  background: #111629;
+  color: white;
+  border: 1px solid #7045a6;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.admin-box button {
+  margin-top: 8px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .admin-box {
+    width: calc(100vw - 16px);
+    max-height: 94vh;
+    padding: 12px;
+  }
+}
+
