@@ -932,16 +932,19 @@ $("redeemCode").addEventListener("keydown",e=>{if(e.key==="Enter")redeemCode()})
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeReveal();closeAdminPanel()}});
 function updateAdminLauncher(){
   const button = $("adminLauncher");
-
-  const atBottom =
-    window.innerHeight + window.scrollY >=
-    document.documentElement.scrollHeight - 10;
-
-  button.style.display = atBottom ? "block" : "none";
+  button.style.display = "block";
 }
 
 window.addEventListener("scroll", updateAdminLauncher, {passive:true});
 window.addEventListener("resize", updateAdminLauncher);
+renderAll();
+updateAdminLauncher();
+
+setInterval(() => {
+  if(document.getElementById("shop")?.classList.contains("active")){
+    renderShop();
+  }
+}, 1000);
 renderAll();
 setInterval(() => {
   if(document.getElementById("shop")?.classList.contains("active")){
