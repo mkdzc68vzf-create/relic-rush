@@ -858,5 +858,234 @@ $("adminOverlay").addEventListener("click", e => {
 </script>
 
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relic Rush Admin</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 24px;
+  background: radial-gradient(circle at top, #32105b, #080414 70%);
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.panel {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 25px;
+  background: #160d2b;
+  border: 1px solid #7540ad;
+  border-radius: 20px;
+  box-shadow: 0 0 35px #8b35ff33;
+}
+
+h1 { color: #c9a3ff; }
+
+p { color: #c6b8dd; line-height: 1.5; }
+
+label {
+  display: block;
+  margin: 16px 0 7px;
+  font-weight: bold;
+}
+
+input, select {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: 1px solid #59357f;
+  background: #0b0618;
+  color: white;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #782cff, #d946ef);
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:disabled { opacity: 0.6; }
+
+.secondary {
+  background: #302044;
+  border: 1px solid #65428b;
+}
+
+#status {
+  display: none;
+  margin-top: 18px;
+  padding: 15px;
+  background: #24163c;
+  border: 1px solid #6844a0;
+  border-radius: 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+#status.error { border-color: #f87191; }
+#status.success { border-color: #4adea2; }
+
+.small {
+  font-size: 12px;
+  color: #a99abf;
+}
+</style>
+</head>
+
+<body>
+<div class="panel">
+  <h1>🛡️ Relic Rush Admin</h1>
+  <p>Create giveaway codes that players around the world can redeem.</p>
+
+  <label for="adminSecret">Admin Secret</label>
+  <input
+    id="adminSecret"
+    type="password"
+    autocomplete="current-password"
+    placeholder="Enter your admin secret"
+  >
+
+  <label for="reward">Coins per player</label>
+  <select id="reward">
+    <option value="100">100 Coins</option>
+    <option value="500">500 Coins</option>
+    <option value="1000" selected>1,000 Coins</option>
+    <option value="2500">2,500 Coins</option>
+    <option value="10000">10,000 Coins</option>
+  </select>
+
+  <label for="uses">Total worldwide redemptions</label>
+  <input id="uses" type="number" min="1" max="100000" value="50">
+
+  <label for="expiry">Expires after how many days?</label>
+  <input id="expiry" type="number" min="1" max="3650" placeholder="Leave blank for no expiry">
+
+  <button id="generate">✨ Generate Giveaway Code</button>
+
+  <div id="status" role="status" aria-live="polite"></div>
+
+  <button id="copy" class="secondary" hidden>📋 Copy Code</button>
+
+  <p class="small">
+    Keep your admin secret private. This panel requires the Netlify
+    create-code function and configured Supabase database.
+  </p>
+</div>
+
+<script>
+const secretInput = document.getElementById("adminSecret");
+const generateButton = document.getElementById("generate");
+const statusBox = document.getElementById("status");
+const copyButton = document.getElementById("copy");
+
+let generatedCode = "";
+
+function showStatus(message, type = "error") {
+  statusBox.textContent = message;
+  statusBox.className = type;
+  statusBox.style.display = "block";
+}
+
+generateButton.addEventListener("click", async () => {
+  const secret = secretInput.value.trim();
+  const rewardCoins = Number(document.getElementById("reward").value);
+  const maxRedemptions = Number(document.getElementById("uses").value);
+  const expiryDays = document.getElementById("expiry").value;
+
+  if (!secret) {
+    showStatus("Enter your admin secret.");
+    return;
+  }
+
+  if (!Number.isInteger(maxRedemptions) ||
+      maxRedemptions < 1 || maxRedemptions > 100000) {
+    showStatus("Enter a valid redemption limit.");
+    return;
+  }
+
+  generateButton.disabled = true;
+  generateButton.textContent = "Generating...";
+  copyButton.hidden = true;
+
+  try {
+    const response = await fetch(
+      "/.netlify/functions/create-code",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-relic-admin-code": secret
+        },
+        body: JSON.stringify({
+          rewardCoins,
+          maxRedemptions,
+          expiryDays
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || "Could not generate code.");
+    }
+
+    generatedCode = result.code;
+
+    showStatus(
+      "🎉 CODE CREATED!\n\n" +
+      "Code: " + result.code + "\n" +
+      "Reward: " + result.rewardCoins.toLocaleString() + " coins\n" +
+      "Total uses: " + result.maxRedemptions + "\n" +
+      "Expires: " +
+      (result.expiresAt
+        ? new Date(result.expiresAt).toLocaleString()
+        : "Never"),
+      "success"
+    );
+
+    copyButton.hidden = false;
+
+  } catch (error) {
+    showStatus(
+      error.message ||
+      "Connection failed. Check your Netlify deployment."
+    );
+  } finally {
+    generateButton.disabled = false;
+    generateButton.textContent = "✨ Generate Giveaway Code";
+  }
+});
+
+copyButton.addEventListener("click", async () => {
+  if (!generatedCode) return;
+
+  try {
+    await navigator.clipboard.writeText(generatedCode);
+    copyButton.textContent = "✅ Copied!";
+  } catch {
+    showStatus("Your code is: " + generatedCode, "success");
+  }
+});
+</script>
+</body>
+</html>
+
 </body>
 </html>
