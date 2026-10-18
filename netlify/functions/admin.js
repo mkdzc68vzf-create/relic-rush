@@ -78,6 +78,7 @@ function validInt(value, min, max) {
 }
 
 exports.handler = async (event) => {
+  const codes = getStore("relic-rush-giveaway-codes");
   if (event.httpMethod !== "POST") {
     return json(405, { ok: false, error: "Use POST." });
   }
