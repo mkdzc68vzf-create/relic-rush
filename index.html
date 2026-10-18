@@ -1498,39 +1498,20 @@ async function handleTradingAction(action, button) {
   }
 }
 
-/* One click handler for Trading and normal game buttons. */
-/* Trading button click fix — keeps normal game buttons untouched */
-document.addEventListener("click", function (e) {
-  const target = e.target;
-  if (!target || typeof target.closest !== "function") return;
 
-  const button = target.closest("button");
+/* One click handler for Trading and normal game buttons. */
+document.addEventListener("click", async e => {
+  const button = e.target.closest("button");
   if (!button) return;
 
-  const action = button.getAttribute("data-trading-action");
-  if (!action) return;
-
-  e.preventDefault();
-
-  if (typeof handleTradingAction !== "function") {
-    console.error("Trading error: handleTradingAction is missing.");
-    const status = document.getElementById("tradeStatus");
-    if (status) status.textContent =
-      "Trading script failed to load. Please check the Trading code.";
+  // Trading buttons
+  if (button.dataset.tradingAction) {
+    e.preventDefault();
+    await handleTradingAction(button.dataset.tradingAction, button);
     return;
   }
 
-  Promise.resolve()
-    .then(() => handleTradingAction(action, button))
-    .catch(error => {
-      console.error("Trading error:", error);
-      const status = document.getElementById("tradeStatus");
-      if (status) {
-        status.textContent =
-          error?.message || "Trading request failed.";
-      }
-    });
-}, true);
+  // Normal game buttons
   try {
     if (button.dataset.page) return go(button.dataset.page);
     if (button.dataset.go) return go(button.dataset.go);
@@ -1547,7 +1528,10 @@ document.addEventListener("click", function (e) {
     }
 
     if (button.dataset.upgrade) {
-      return buyUpgrade(button.dataset.upgrade, Number(button.dataset.price));
+      return buyUpgrade(
+        button.dataset.upgrade,
+        Number(button.dataset.price)
+      );
     }
 
     if (button.dataset.luckboost) return buyLuckBoost();
@@ -1561,7 +1545,10 @@ document.addEventListener("click", function (e) {
       case "resetWaveBtn": resetWave(); break;
       case "sellDuplicatesBtn": sellDuplicates(); break;
       case "closeRevealBtn": closeReveal(); break;
-      case "viewCollectionBtn": closeReveal(); go("relics"); break;
+      case "viewCollectionBtn":
+        closeReveal();
+        go("relics");
+        break;
       case "resetBtn": resetGame(); break;
       case "adminLauncher": openAdminPanel(); break;
       case "adminCloseBtn": closeAdminPanel(); break;
