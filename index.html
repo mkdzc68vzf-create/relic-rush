@@ -1233,6 +1233,20 @@ function renderAll(){
  renderMarket();renderRecords();renderAchievements();updateStats();
 }
 
+// Your existing JavaScript functions stay here.
+
+// PASTE THE TRADING FUNCTIONS HERE
+
+document.addEventListener("click",e=>{
+ const button=e.target.closest("button");if(!button)return;
+
+ if(button.dataset.tradingAction){
+  handleTradingAction(button.dataset.tradingAction,button);
+  return;
+ }
+
+ try{
+
 document.addEventListener("click",e=>{
  const button=e.target.closest("button");if(!button)return;
 
