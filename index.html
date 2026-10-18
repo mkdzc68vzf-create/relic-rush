@@ -80,6 +80,7 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
     <button data-page="records">📜 Records</button>
     <button data-page="achievements">🏆 Achievements</button>
     <button data-page="redeem">🎟️ Redeem Code</button>
+    <button data-page="trading">🔄 Trading</button>
   </nav>
 </header>
 
@@ -187,6 +188,85 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
     <div id="redeemStatus" class="notice" style="display:none"></div>
   </div>
 </section>
+
+<section class="page" id="trading">
+  <div class="hero">
+    <span class="tag">PLAYER MARKETPLACE</span>
+    <h1>🔄 Relic Trading</h1>
+    <p>Create an account to keep a server-side trading inventory. Your existing local game save will not be reset.</p>
+    <div id="tradeAccountStatus" class="notice">Not logged in.</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>👤 Account</h2>
+      <label for="tradeUsername">Username</label>
+      <input id="tradeUsername" class="full" maxlength="20" autocomplete="username" placeholder="3–20 letters, numbers or _">
+      <label for="tradePassword">Password</label>
+      <input id="tradePassword" class="full" type="password" autocomplete="current-password" placeholder="At least 8 characters" style="margin-top:8px">
+      <button class="btn full" data-trading-action="register">Create Account</button>
+      <button class="btn secondary full" data-trading-action="login">Log In</button>
+      <button class="btn red-btn full" data-trading-action="logout">Log Out</button>
+    </div>
+
+    <div class="card">
+      <h2>📥 Import Your Relics</h2>
+      <p>Import your current browser inventory into your account once. Imported relics are marked unverified.</p>
+      <button class="btn full" data-trading-action="import">Import Existing Inventory</button>
+      <button class="btn secondary full" data-trading-action="refresh">Refresh Server Inventory</button>
+      <p class="small">Import does not remove relics from your local game save.</p>
+    </div>
+
+    <div class="card">
+      <h2>🎟️ Trade Code</h2>
+      <label for="tradeCodeInventory">Your server inventory item ID</label>
+      <input id="tradeCodeInventory" class="full" placeholder="Paste an inventory ID">
+      <label for="tradeCodeHours">Expires after</label>
+      <select id="tradeCodeHours" class="full">
+        <option value="1">1 hour</option>
+        <option value="24" selected>24 hours</option>
+        <option value="72">3 days</option>
+        <option value="168">7 days</option>
+      </select>
+      <button class="btn full" data-trading-action="makecode">Generate Trade Code</button>
+      <label for="tradeCodeRedeem">Redeem someone else's code</label>
+      <input id="tradeCodeRedeem" class="full" placeholder="Enter trade code">
+      <button class="btn gold-btn full" data-trading-action="redeemcode">Redeem Code</button>
+      <div id="tradeCodeStatus" class="notice" style="overflow-wrap:anywhere">Trade codes appear here.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h2>💎 Your Server Inventory</h2>
+    <p>Use an item's ID when creating a trade. Share only the item ID with the player you're trading with, never your password or login token.</p>
+    <div id="tradeInventoryList"><p>Log in and refresh to load your inventory.</p></div>
+  </div>
+
+  <div class="grid" style="margin-top:16px">
+    <div class="card">
+      <h2>🤝 Propose a Trade</h2>
+      <label for="tradeToUsername">Other player's username</label>
+      <input id="tradeToUsername" class="full" placeholder="Exact username">
+      <label for="tradeOfferIds">Your offered inventory IDs</label>
+      <textarea id="tradeOfferIds" class="full" rows="3" placeholder="Paste one or more IDs, separated by commas"></textarea>
+      <label for="tradeRequestIds">Inventory IDs you want from them</label>
+      <textarea id="tradeRequestIds" class="full" rows="3" placeholder="Ask the other player for their item IDs"></textarea>
+      <button class="btn full" data-trading-action="createtrade">Send Trade Request</button>
+      <p class="small">Both players must be logged in. A trade only transfers items after the recipient accepts it.</p>
+    </div>
+
+    <div class="card">
+      <h2>📨 Trade Requests</h2>
+      <button class="btn secondary full" data-trading-action="trades">Refresh Trade Requests</button>
+      <div id="tradeRequestsList"><p>Log in to load trade requests.</p></div>
+    </div>
+  </div>
+
+  <div id="tradeStatus" class="notice" role="status" style="overflow-wrap:anywhere">
+    Trading status will appear here.
+  </div>
+</section>
+
 </main>
 
 <div class="overlay" id="adminOverlay"><div class="modal">
@@ -1155,6 +1235,12 @@ function renderAll(){
 
 document.addEventListener("click",e=>{
  const button=e.target.closest("button");if(!button)return;
+
+ if(button.dataset.tradingAction){
+  handleTradingAction(button.dataset.tradingAction,button);
+  return;
+ }
+
  try{
   if(button.dataset.page){go(button.dataset.page);return}
   if(button.dataset.go){go(button.dataset.go);return}
