@@ -1047,7 +1047,8 @@ function adminGiveRelic(){
 }
 
 
- async function adminGenerateCode() {
+ 
+async function adminGenerateCode() {
   const token = adminToken();
 
   if (!token) {
@@ -1055,17 +1056,27 @@ function adminGiveRelic(){
     return;
   }
 
-  const rewardCoins = Number($("adminReward").value);
+  const rewardType = $("adminRewardType").value;
+  const rewardAmount = Number($("adminReward").value);
   const maxRedemptions = Number($("adminUses").value);
   const resultBox = $("adminCodeResult");
   const button = $("adminMakeCodeBtn");
 
+  if (!["coins", "relics"].includes(rewardType)) {
+    toast("Choose coins or relics.");
+    return;
+  }
+
   if (
-    !Number.isSafeInteger(rewardCoins) ||
-    rewardCoins < 1 ||
-    rewardCoins > 1000000
+    !Number.isSafeInteger(rewardAmount) ||
+    rewardAmount < 1 ||
+    rewardAmount > (rewardType === "relics" ? 100000 : 1000000)
   ) {
-    toast("Coins must be between 1 and 1,000,000.");
+    toast(
+      rewardType === "relics"
+        ? "Relic copies must be between 1 and 100,000."
+        : "Coins must be between 1 and 1,000,000."
+    );
     return;
   }
 
@@ -1078,23 +1089,51 @@ function adminGiveRelic(){
     return;
   }
 
+  let relicId;
+  let variant;
+
+  if (rewardType === "relics") {
+    relicId = $("adminCodeRelic").value;
+    variant = $("adminCodeVariant").value;
+
+    if (!/^r(?:[0-9]|1[0-9]|2[0-3])$/.test(relicId)) {
+      toast("Choose a valid relic.");
+      return;
+    }
+
+    if (!["normal", "gold", "candy"].includes(variant)) {
+      toast("Choose a supported relic variant.");
+      return;
+    }
+  }
+
   if (button) button.disabled = true;
 
   resultBox.style.display = "block";
   resultBox.textContent = "Creating giveaway code...";
 
   try {
+    const payload = {
+      action: "createCode",
+      token,
+      rewardType,
+      rewardAmount,
+      maxRedemptions
+    };
+
+    if (rewardType === "coins") {
+      payload.rewardCoins = rewardAmount;
+    } else {
+      payload.relicId = relicId;
+      payload.variant = variant;
+    }
+
     const response = await fetch("/.netlify/functions/admin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        action: "createCode",
-        token,
-        rewardCoins,
-        maxRedemptions
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();
@@ -1108,9 +1147,9 @@ function adminGiveRelic(){
     resultBox.replaceChildren();
 
     const message = document.createElement("p");
-    message.textContent =
-      `Code: ${data.code} — ${data.rewardCoins} coins, ` +
-      `${data.maxRedemptions} uses`;
+    message.textContent = rewardType === "coins"
+      ? `Code: ${data.code} — ${rewardAmount.toLocaleString()} coins — ${maxRedemptions} uses`
+      : `Code: ${data.code} — ${rewardAmount.toLocaleString()} copies of ${relicId} (${variant}) — ${maxRedemptions} uses`;
 
     const copyButton = document.createElement("button");
     copyButton.type = "button";
@@ -1130,13 +1169,13 @@ function adminGiveRelic(){
 
     toast("Giveaway code created!");
   } catch (error) {
-    resultBox.textContent =
-      "Could not create code: " + error.message;
+    resultBox.textContent = "Could not create code: " + error.message;
     toast(error.message);
   } finally {
     if (button) button.disabled = false;
   }
 }
+
 
 
 
@@ -1226,27 +1265,75 @@ function adminRunCommand() {
   input.value = "";
 }
 
-async function redeemCode(){
- const code=$("redeemCode").value.trim(),box=$("redeemStatus");
- if(!code){toast("Enter a giveaway code first.");return}
- box.style.display="block";box.textContent="Checking code...";
- try{
-  const response=await fetch("/.netlify/functions/redeem-code",{
-   method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({code})
-  });
-  const result=await response.json();
-  if(!response.ok||!result.ok)throw new Error(result.error||"Code could not be redeemed.");
-  if(result.rewardCoins){
-   addCoins(Number(result.rewardCoins));save();renderAll();
+
+async function redeemCode() {
+  const code = $("redeemCode").value.trim();
+  const box = $("redeemStatus");
+
+  if (!code) {
+    toast("Enter a giveaway code first.");
+    return;
   }
-  box.textContent=result.message||`Code redeemed! Reward: ${result.rewardCoins||0} coins.`;
-  box.style.color="var(--green)";
- }catch(err){
-  box.textContent=(err.message||"Unable to redeem code.")+" Check that your Netlify redeem-code function is deployed.";
-  box.style.color="#ff9bb2";
- }
+
+  box.style.display = "block";
+  box.textContent = "Checking code...";
+
+  try {
+    const response = await fetch("/.netlify/functions/redeem-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || "Code could not be redeemed.");
+    }
+
+    if (result.rewardType === "relics") {
+      if (
+        !/^r(?:[0-9]|1[0-9]|2[0-3])$/.test(result.relicId || "") ||
+        !["normal", "gold", "candy"].includes(result.variant) ||
+        !Number.isSafeInteger(result.rewardAmount) ||
+        result.rewardAmount < 1 ||
+        result.rewardAmount > 100000
+      ) {
+        throw new Error("Invalid relic reward received.");
+      }
+
+      for (let i = 0; i < result.rewardAmount; i++) {
+        addRelic(result.relicId, result.variant);
+      }
+
+      save();
+      renderAll();
+
+      box.textContent = result.message ||
+        `Code redeemed! You received ${result.rewardAmount} relics.`;
+    } else {
+      const coins = Number(result.rewardCoins);
+
+      if (!Number.isSafeInteger(coins) || coins < 1) {
+        throw new Error("Invalid coin reward received.");
+      }
+
+      addCoins(coins);
+      save();
+      renderAll();
+
+      box.textContent = result.message ||
+        `Code redeemed! You received ${coins.toLocaleString()} coins.`;
+    }
+
+    box.style.color = "var(--green)";
+  } catch (err) {
+    box.textContent = err.message ||
+      "Unable to redeem code. Check your Netlify function.";
+    box.style.color = "#ff9bb2";
+  }
 }
+
 function renderAll(){
  renderPacks();renderHome();renderRelics();renderShop();renderSeason();
  renderMarket();renderRecords();renderAchievements();updateStats();
