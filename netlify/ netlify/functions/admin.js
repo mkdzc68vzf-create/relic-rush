@@ -263,58 +263,42 @@ exports.handler = async (event) => {
       });
     }
 
-    // CREATE A GLOBALLY REDEEMABLE COIN CODE
-    case "createCode": {
-      if (
-        !validInt(body.rewardCoins, 1, 1000000) ||
-        !validInt(body.maxRedemptions, 1, 100000)
-      ) {
-        return json(400, {
-          ok: false,
-          error: "Invalid coin reward or redemption limit."
-        });
-      }
+    <h3 style="margin-top:20px">🎁 Giveaway Code Generator</h3>
 
-      let code;
-      let saved = false;
+<label for="adminRewardType">Reward type</label>
+<select id="adminRewardType" class="full" style="width:100%">
+  <option value="coins">🪙 Coins</option>
+  <option value="relics">💎 Relics</option>
+</select>
 
-      for (let attempt = 0; attempt < 5; attempt++) {
-        code =
-          "RR-" +
-          crypto.randomBytes(5).toString("hex").toUpperCase();
+<label for="adminReward" class="small">Reward amount</label>
+<input id="adminReward" type="number" min="1" max="1000000"
+  value="5000" class="full" style="width:100%">
 
-        const existing = await codes.get(code);
+<div id="adminCodeRelicFields">
+  <label for="adminCodeRelic" class="small">Relic to award</label>
+  <select id="adminCodeRelic" class="full" style="width:100%"></select>
 
-        if (existing !== null) {
-          continue;
-        }
+  <label for="adminCodeVariant" class="small">Relic variant</label>
+  <select id="adminCodeVariant" class="full" style="width:100%">
+    <option value="normal">Normal</option>
+    <option value="diamond">💎 Diamond</option>
+    <option value="gold">🌟 Gold</option>
+    <option value="candy">🍬 Candy Corn</option>
+  </select>
+  <p class="small">For relic rewards, the amount is the number of copies awarded.</p>
+</div>
 
-        await codes.setJSON(code, {
-          rewardCoins: body.rewardCoins,
-          maxRedemptions: body.maxRedemptions,
-          redeemed: 0,
-          createdAt: new Date().toISOString()
-        });
+<label for="adminUses" class="small">Maximum worldwide redemptions</label>
+<input id="adminUses" type="number" min="1" max="100000"
+  value="1" class="full" style="width:100%">
 
-        saved = true;
-        break;
-      }
+<button class="btn full" id="adminMakeCodeBtn">
+  Generate Worldwide Code
+</button>
 
-      if (!saved) {
-        return json(500, {
-          ok: false,
-          error: "Could not create a unique code. Try again."
-        });
-      }
-
-      return json(200, {
-        ok: true,
-        code,
-        rewardCoins: body.rewardCoins,
-        maxRedemptions: body.maxRedemptions
-      });
-    }
-
+<div id="adminCodeResult" class="notice"
+  style="display:none;overflow-wrap:anywhere"></div>
     default:
       return json(400, {
         ok: false,
