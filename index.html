@@ -1499,15 +1499,38 @@ async function handleTradingAction(action, button) {
 }
 
 /* One click handler for Trading and normal game buttons. */
-document.addEventListener("click", e => {
-  const button = e.target.closest("button");
+/* Trading button click fix — keeps normal game buttons untouched */
+document.addEventListener("click", function (e) {
+  const target = e.target;
+  if (!target || typeof target.closest !== "function") return;
+
+  const button = target.closest("button");
   if (!button) return;
 
-  if (button.dataset.tradingAction) {
-    handleTradingAction(button.dataset.tradingAction, button);
+  const action = button.getAttribute("data-trading-action");
+  if (!action) return;
+
+  e.preventDefault();
+
+  if (typeof handleTradingAction !== "function") {
+    console.error("Trading error: handleTradingAction is missing.");
+    const status = document.getElementById("tradeStatus");
+    if (status) status.textContent =
+      "Trading script failed to load. Please check the Trading code.";
     return;
   }
 
+  Promise.resolve()
+    .then(() => handleTradingAction(action, button))
+    .catch(error => {
+      console.error("Trading error:", error);
+      const status = document.getElementById("tradeStatus");
+      if (status) {
+        status.textContent =
+          error?.message || "Trading request failed.";
+      }
+    });
+}, true);
   try {
     if (button.dataset.page) return go(button.dataset.page);
     if (button.dataset.go) return go(button.dataset.go);
