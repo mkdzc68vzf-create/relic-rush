@@ -1019,6 +1019,14 @@ async function adminLogin(){
    body:JSON.stringify({action:"login",code:password})
   });
   const result=await response.json();
+  if (result.diagnostic) {
+  alert("Password diagnostic:\nReceived length: " +
+    result.diagnostic.receivedLength +
+    "\nReceived trimmed length: " +
+    result.diagnostic.receivedTrimmedLength +
+    "\nConfigured length: " +
+    result.diagnostic.configuredLength);
+}
   if(!response.ok||!result.ok){toast(result.error||"Incorrect admin password.");return}
   if(!result.token){toast("Your admin function did not return a session token.");return}
   sessionStorage.setItem("relicRushAdminToken",result.token);
