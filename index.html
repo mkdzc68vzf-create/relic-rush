@@ -1266,6 +1266,7 @@ function adminRunCommand() {
 }
 
 
+
 async function redeemCode() {
   const code = $("redeemCode").value.trim();
   const box = $("redeemStatus");
@@ -1292,47 +1293,56 @@ async function redeemCode() {
     }
 
     if (result.rewardType === "relics") {
+      const relic = getRelic(result.relicId);
+      const variant = result.variant;
+      const amount = result.rewardAmount;
+
       if (
-        !/^r(?:[0-9]|1[0-9]|2[0-3])$/.test(result.relicId || "") ||
-        !["normal", "gold", "candy"].includes(result.variant) ||
-        !Number.isSafeInteger(result.rewardAmount) ||
-        result.rewardAmount < 1 ||
-        result.rewardAmount > 100000
+        !relic ||
+        !["normal", "diamond", "gold", "candy"].includes(variant) ||
+        !Number.isSafeInteger(amount) ||
+        amount < 1 ||
+        amount > 100000
       ) {
         throw new Error("Invalid relic reward received.");
       }
 
-      for (let i = 0; i < result.rewardAmount; i++) {
-        addRelic(result.relicId, result.variant);
+      for (let i = 0; i < amount; i++) {
+        addRelic(relic, variant);
       }
 
       save();
       renderAll();
 
-      box.textContent = result.message ||
-        `Code redeemed! You received ${result.rewardAmount} relics.`;
-    } else {
-      const coins = Number(result.rewardCoins);
-
-      if (!Number.isSafeInteger(coins) || coins < 1) {
-        throw new Error("Invalid coin reward received.");
-      }
-
-      addCoins(coins);
-      save();
-      renderAll();
-
-      box.textContent = result.message ||
-        `Code redeemed! You received ${coins.toLocaleString()} coins.`;
+      box.textContent =
+        result.message ||
+        `Code redeemed! You received ${amount} copies of ${relic.name}.`;
+      box.style.color = "var(--green)";
+      return;
     }
 
+    const coins = Number(result.rewardCoins);
+
+    if (!Number.isSafeInteger(coins) || coins < 1) {
+      throw new Error("Invalid coin reward received.");
+    }
+
+    addCoins(coins);
+    save();
+    renderAll();
+
+    box.textContent =
+      result.message ||
+      `Code redeemed! You received ${coins.toLocaleString()} coins.`;
     box.style.color = "var(--green)";
   } catch (err) {
-    box.textContent = err.message ||
-      "Unable to redeem code. Check your Netlify function.";
+    box.textContent =
+      (err.message || "Unable to redeem code.") +
+      " Check that your Netlify functions are deployed.";
     box.style.color = "#ff9bb2";
   }
 }
+
 
 function renderAll(){
  renderPacks();renderHome();renderRelics();renderShop();renderSeason();
