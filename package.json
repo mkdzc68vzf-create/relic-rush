@@ -1,11 +1,3 @@
-{
-  "name": "relic-rush-streamer-rewards",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@netlify/blobs": "^8.1.0"
-  }
-}
 
 {
   "name": "relic-rush-trading",
@@ -21,3 +13,4 @@
     "netlify-cli": "^17.37.2"
   }
 }
+
