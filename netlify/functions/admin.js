@@ -110,7 +110,7 @@ exports.handler = async (event) => {
     }
   }
 
-  const adminCode = process.env.RELIC_RUSH_ADMIN_CODE;
+  const adminCode = (process.env.RELIC_RUSH_ADMIN_CODE || "").trim();
   const sessionSecret = process.env.RELIC_RUSH_SESSION_SECRET;
 
   if (
@@ -137,7 +137,7 @@ exports.handler = async (event) => {
   if (body.action === "login") {
     if (
       typeof body.code !== "string" ||
-      !safeEqual(body.code, adminCode)
+      !safeEqual(body.code.trim(), adminCode)
     ) {
       return json(401, {
         ok: false,
