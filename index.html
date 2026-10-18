@@ -1233,7 +1233,9 @@ function renderAll(){
  renderMarket();renderRecords();renderAchievements();updateStats();
 }
 
+
 const TRADING_ENDPOINT = "/.netlify/functions/trading";
+
 async function tradingApi(action, payload = {}, needsLogin = true) {
   const token = sessionStorage.getItem("relicRushTradingToken") || "";
 
@@ -1272,14 +1274,8 @@ async function refreshTradingInventory() {
   if (!list) return;
 
   list.replaceChildren();
-  const items = data.inventory || [];
 
-  if (!items.length) {
-    list.textContent = "No server inventory items yet.";
-    return;
-  }
-
-  items.forEach(item => {
+  for (const item of data.inventory || []) {
     const row = document.createElement("div");
     row.className = "record";
 
@@ -1287,24 +1283,28 @@ async function refreshTradingInventory() {
     details.style.overflowWrap = "anywhere";
     details.textContent =
       `${item.relicId ?? item.relic_id ?? "Relic"} · ` +
-      `${item.variant || "normal"} · ` +
-      `${item.verificationStatus ?? item.verification_status ?? "unknown"} · ` +
-      `ID: ${item.id}`;
+      `${item.variant || "normal"} · ID: ${item.id}`;
 
-    const button = document.createElement("button");
-    button.className = "btn secondary";
-    button.textContent = "Use ID";
-    button.onclick = () => {
+    const useButton = document.createElement("button");
+    useButton.type = "button";
+    useButton.className = "btn secondary";
+    useButton.textContent = "Use ID";
+
+    useButton.addEventListener("click", () => {
       $("tradeCodeInventory").value = item.id;
       const field = $("tradeOfferIds");
       const ids = field.value.split(",").map(x => x.trim()).filter(Boolean);
       if (!ids.includes(String(item.id))) ids.push(String(item.id));
       field.value = ids.join(", ");
-    };
+    });
 
-    row.append(details, button);
+    row.append(details, useButton);
     list.appendChild(row);
-  });
+  }
+
+  if (!(data.inventory || []).length) {
+    list.textContent = "No server inventory items yet.";
+  }
 }
 
 async function refreshTradingRequests() {
@@ -1320,23 +1320,22 @@ async function refreshTradingRequests() {
     return;
   }
 
-  trades.forEach(trade => {
+  for (const trade of trades) {
     const row = document.createElement("div");
     row.className = "record";
 
     const details = document.createElement("span");
-    details.style.overflowWrap = "anywhere";
     details.textContent =
       `${trade.fromUsername || "Player"} → ` +
       `${trade.toUsername || "Player"} · ${trade.status}`;
-
     row.appendChild(details);
 
     if (String(trade.status).toLowerCase() === "pending") {
       for (const decision of ["accept", "reject"]) {
         const button = document.createElement("button");
-        button.className = "btn " +
-          (decision === "accept" ? "green-btn" : "red-btn");
+        button.type = "button";
+        button.className =
+          "btn " + (decision === "accept" ? "green-btn" : "red-btn");
         button.textContent = decision === "accept" ? "Accept" : "Reject";
         button.dataset.tradingAction = "respondtrade";
         button.dataset.tradeId = trade.id;
@@ -1346,7 +1345,7 @@ async function refreshTradingRequests() {
     }
 
     list.appendChild(row);
-  });
+  }
 }
 
 async function handleTradingAction(action, button) {
@@ -1354,12 +1353,16 @@ async function handleTradingAction(action, button) {
     switch (action) {
       case "register":
       case "login": {
-        const username = $("tradeUsername").value.trim();
-        const password = $("tradePassword").value;
+        const username = $("tradeUsername")?.value.trim();
+        const password = $("tradePassword")?.value;
 
         if (!username || !password) {
           throw new Error("Enter your username and password.");
         }
+
+        tradeMessage(action === "register"
+          ? "Creating account..."
+          : "Logging in...");
 
         const data = await tradingApi(
           action,
@@ -1368,7 +1371,9 @@ async function handleTradingAction(action, button) {
         );
 
         if (!data.token) {
-          throw new Error("The server did not return a login token.");
+          throw new Error(
+            "The server response has no token. Check your Netlify trading function."
+          );
         }
 
         sessionStorage.setItem("relicRushTradingToken", data.token);
@@ -1381,14 +1386,19 @@ async function handleTradingAction(action, button) {
         $("tradeAccountStatus").textContent =
           "Logged in as " + (data.account?.username || username);
 
-        tradeMessage(
-          action === "register"
-            ? "Trading account created!"
-            : "Logged in successfully!"
-        );
+        tradeMessage(action === "register"
+          ? "Trading account created!"
+          : "Logged in successfully!");
 
-        await refreshTradingInventory();
-        await refreshTradingRequests();
+        try {
+          await refreshTradingInventory();
+          await refreshTradingRequests();
+        } catch (err) {
+          tradeMessage(
+            "Logged in, but inventory loading failed: " + err.message,
+            true
+          );
+        }
         break;
       }
 
@@ -1398,7 +1408,7 @@ async function handleTradingAction(action, button) {
         $("tradeAccountStatus").textContent = "Not logged in.";
         $("tradeInventoryList").textContent = "Log in to view inventory.";
         $("tradeRequestsList").textContent = "Log in to view trade requests.";
-        tradeMessage("Logged out of trading. Game progress is unchanged.");
+        tradeMessage("Logged out. Game progress is unchanged.");
         break;
 
       case "import": {
@@ -1407,14 +1417,8 @@ async function handleTradingAction(action, button) {
           variant: item.variant || "normal",
           serial: String(item.serial ?? "")
         }));
-
         const data = await tradingApi("importInventory", { relics });
-
-        tradeMessage(
-          `Import complete: ${data.imported ?? 0} item(s). ` +
-          `Verification: ${data.verificationStatus || "imported_unverified"}.`
-        );
-
+        tradeMessage(`Import complete: ${data.imported ?? 0} item(s).`);
         await refreshTradingInventory();
         break;
       }
@@ -1431,26 +1435,18 @@ async function handleTradingAction(action, button) {
 
       case "createtrade": {
         const toUsername = $("tradeToUsername").value.trim();
-        const offerIds = $("tradeOfferIds").value
-          .split(",").map(x => x.trim()).filter(Boolean);
-        const requestIds = $("tradeRequestIds").value
-          .split(",").map(x => x.trim()).filter(Boolean);
+        const offerIds = $("tradeOfferIds").value.split(",").map(x => x.trim()).filter(Boolean);
+        const requestIds = $("tradeRequestIds").value.split(",").map(x => x.trim()).filter(Boolean);
 
         if (!toUsername || !offerIds.length || !requestIds.length) {
-          throw new Error(
-            "Enter the other player's username and both sets of item IDs."
-          );
+          throw new Error("Enter the other player's username and both sets of item IDs.");
         }
 
         const data = await tradingApi("createTrade", {
           toUsername, offerIds, requestIds
         });
 
-        tradeMessage(
-          `Trade submitted. ID: ${data.tradeId || "created"} · ` +
-          `Status: ${data.status || "pending"}`
-        );
-
+        tradeMessage(`Trade submitted. ID: ${data.tradeId || "created"}`);
         await refreshTradingRequests();
         break;
       }
@@ -1459,18 +1455,14 @@ async function handleTradingAction(action, button) {
         const inventoryId = $("tradeCodeInventory").value.trim();
         const hours = Number($("tradeCodeHours").value);
 
-        if (!inventoryId) {
-          throw new Error("Enter an item ID from your server inventory.");
-        }
+        if (!inventoryId) throw new Error("Enter an item ID.");
 
         const data = await tradingApi("createTradeCode", {
           inventoryId, hours
         });
 
         $("tradeCodeStatus").textContent =
-          `Your code: ${data.code || "No code returned"}. ` +
-          `Expires in ${data.expiresInHours ?? hours} hour(s).`;
-
+          `Your code: ${data.code || "No code returned"}.`;
         tradeMessage("Trade code generated.");
         break;
       }
@@ -1491,11 +1483,7 @@ async function handleTradingAction(action, button) {
           tradeId: button.dataset.tradeId,
           decision: button.dataset.decision
         });
-
-        tradeMessage(
-          "Trade response: " + (data.status || button.dataset.decision)
-        );
-
+        tradeMessage("Trade response: " + (data.status || button.dataset.decision));
         await refreshTradingRequests();
         await refreshTradingInventory();
         break;
@@ -1510,7 +1498,7 @@ async function handleTradingAction(action, button) {
   }
 }
 
-/* Main click handler: keep all game buttons in one handler. */
+/* One click handler for Trading and normal game buttons. */
 document.addEventListener("click", e => {
   const button = e.target.closest("button");
   if (!button) return;
@@ -1521,47 +1509,26 @@ document.addEventListener("click", e => {
   }
 
   try {
-    if (button.dataset.page) {
-      go(button.dataset.page);
-      return;
-    }
-
-    if (button.dataset.go) {
-      go(button.dataset.go);
-      return;
-    }
-
-    if (button.dataset.pack) {
-      openPack(button.dataset.pack);
-      return;
-    }
+    if (button.dataset.page) return go(button.dataset.page);
+    if (button.dataset.go) return go(button.dataset.go);
+    if (button.dataset.pack) return openPack(button.dataset.pack);
 
     if (button.dataset.sell) {
       const [id, variant] = button.dataset.sell.split("|");
-      sell(id, variant, false);
-      return;
+      return sell(id, variant, false);
     }
 
     if (button.dataset.sellall) {
       const [id, variant] = button.dataset.sellall.split("|");
-      sell(id, variant, true);
-      return;
+      return sell(id, variant, true);
     }
 
     if (button.dataset.upgrade) {
-      buyUpgrade(button.dataset.upgrade, Number(button.dataset.price));
-      return;
+      return buyUpgrade(button.dataset.upgrade, Number(button.dataset.price));
     }
 
-    if (button.dataset.luckboost) {
-      buyLuckBoost();
-      return;
-    }
-
-    if (button.dataset.claim) {
-      claimSeason(Number(button.dataset.claim));
-      return;
-    }
+    if (button.dataset.luckboost) return buyLuckBoost();
+    if (button.dataset.claim) return claimSeason(Number(button.dataset.claim));
 
     switch (button.id) {
       case "dailyBtn": daily(); break;
@@ -1571,10 +1538,7 @@ document.addEventListener("click", e => {
       case "resetWaveBtn": resetWave(); break;
       case "sellDuplicatesBtn": sellDuplicates(); break;
       case "closeRevealBtn": closeReveal(); break;
-      case "viewCollectionBtn":
-        closeReveal();
-        go("relics");
-        break;
+      case "viewCollectionBtn": closeReveal(); go("relics"); break;
       case "resetBtn": resetGame(); break;
       case "adminLauncher": openAdminPanel(); break;
       case "adminCloseBtn": closeAdminPanel(); break;
@@ -1583,6 +1547,8 @@ document.addEventListener("click", e => {
       case "adminGiveRelicBtn": adminGiveRelic(); break;
       case "adminRunCommandBtn": adminRunCommand(); break;
       case "adminMakeCodeBtn": adminGenerateCode(); break;
+      case "redeemCodeBtn": redeemCode(); break;
+
       case "adminLogoutBtn":
         sessionStorage.removeItem("relicRushAdminToken");
         $("adminControls").style.display = "none";
@@ -1590,11 +1556,10 @@ document.addEventListener("click", e => {
         $("adminPassword").value = "";
         toast("Logged out.");
         break;
-      case "redeemCodeBtn": redeemCode(); break;
     }
   } catch (err) {
     console.error("Relic Rush error:", err);
-    toast("Something went wrong. Try refreshing the game.");
+    toast("Something went wrong. Check the console for details.");
   }
 });
 
