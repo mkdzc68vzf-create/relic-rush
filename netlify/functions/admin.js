@@ -1,5 +1,5 @@
-const crypto = require("node:crypto");
-const { getStore } = require("@netlify/blobs");
+import crypto from "node:crypto";
+import { getStore } from "@netlify/blobs";
 
 const ALLOWED_ORIGIN = process.env.URL || "";
 const SESSION_TTL_SECONDS = 10 * 60;
@@ -8,15 +8,14 @@ const MAX_BODY_BYTES = 4096;
 const codes = getStore("relic-rush-giveaway-codes");
 
 function json(statusCode, body) {
-  return {
-    statusCode,
+  return new Response(JSON.stringify(body), {
+    status: statusCode,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
       "X-Content-Type-Options": "nosniff"
-    },
-    body: JSON.stringify(body)
-  };
+    }
+  });
 }
 
 function safeEqual(a, b) {
@@ -77,23 +76,25 @@ function validInt(value, min, max) {
     value <= max;
 }
 
-exports.handler = async (event) => {
-  const codes = getStore("relic-rush-giveaway-codes");
-  if (event.httpMethod !== "POST") {
+export default async (request, context) => {
+
+  if (request.method !== "POST") {
     return json(405, { ok: false, error: "Use POST." });
   }
 
-  if (
-    !event.body ||
-    Buffer.byteLength(event.body, "utf8") > MAX_BODY_BYTES
-  ) {
-    return json(413, {
-      ok: false,
-      error: "Request is empty or too large."
-    });
-  }
+  const rawBody = await request.text();
 
-  const origin = event.headers?.origin || event.headers?.Origin;
+if (
+  !rawBody ||
+  Buffer.byteLength(rawBody, "utf8") > MAX_BODY_BYTES
+) {
+  return json(413, {
+    ok: false,
+    error: "Request is empty or too large."
+  });
+}
+
+  const origin = request.headers.get("origin");
 
   if (ALLOWED_ORIGIN && origin) {
     try {
@@ -129,7 +130,7 @@ exports.handler = async (event) => {
   let body;
 
   try {
-    body = JSON.parse(event.body);
+    body = JSON.parse(rawBody);
   } catch {
     return json(400, { ok: false, error: "Invalid JSON." });
   }
