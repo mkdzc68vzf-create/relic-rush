@@ -2,10 +2,5 @@
 [build]
   functions = "netlify/functions"
 
-  
-[build]
-  functions = "netlify/functions"
-
 [functions]
   node_bundler = "esbuild"
-
