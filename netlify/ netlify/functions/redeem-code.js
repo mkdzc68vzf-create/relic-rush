@@ -86,7 +86,7 @@ exports.handler = async (event) => {
 if (rewardType === "relics") {
   if (
     !/^r(?:[0-9]|1[0-9]|2[0-3])$/.test(record.relicId || "") ||
-    !["normal", "gold", "candy"].includes(record.variant) ||
+    !["normal", "diamond", "gold", "candy"].includes(record.variant) ||
     !Number.isSafeInteger(record.rewardAmount) ||
     record.rewardAmount < 1
   ) {
