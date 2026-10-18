@@ -1235,7 +1235,6 @@ function renderAll(){
 
  try{
 
-if(button.dataset.page){go(button.dataset.page);return}
 
 const TRADING_ENDPOINT = "/.netlify/functions/trading";
 
@@ -1266,16 +1265,18 @@ async function tradingApi(action, payload = {}, needsLogin = true) {
 
 function tradeMessage(message, error = false) {
   const status = $("tradeStatus");
+  if (!status) return;
   status.textContent = message;
   status.style.color = error ? "#ff7777" : "#bd83ff";
 }
 
 async function refreshTradingInventory() {
   const data = await tradingApi("inventory");
-  const items = data.inventory || [];
   const list = $("tradeInventoryList");
+  if (!list) return;
 
   list.replaceChildren();
+  const items = data.inventory || [];
 
   if (!items.length) {
     list.textContent = "No server inventory items yet.";
@@ -1301,7 +1302,7 @@ async function refreshTradingInventory() {
       $("tradeCodeInventory").value = item.id;
       const field = $("tradeOfferIds");
       const ids = field.value.split(",").map(x => x.trim()).filter(Boolean);
-      if (!ids.includes(item.id)) ids.push(item.id);
+      if (!ids.includes(String(item.id))) ids.push(String(item.id));
       field.value = ids.join(", ");
     };
 
@@ -1313,8 +1314,9 @@ async function refreshTradingInventory() {
 async function refreshTradingRequests() {
   const data = await tradingApi("listTrades");
   const list = $("tradeRequestsList");
-  list.replaceChildren();
+  if (!list) return;
 
+  list.replaceChildren();
   const trades = data.trades || [];
 
   if (!trades.length) {
@@ -1339,8 +1341,7 @@ async function refreshTradingRequests() {
         const button = document.createElement("button");
         button.className = "btn " +
           (decision === "accept" ? "green-btn" : "red-btn");
-        button.textContent =
-          decision === "accept" ? "Accept" : "Reject";
+        button.textContent = decision === "accept" ? "Accept" : "Reject";
         button.dataset.tradingAction = "respondtrade";
         button.dataset.tradeId = trade.id;
         button.dataset.decision = decision;
@@ -1384,9 +1385,11 @@ async function handleTradingAction(action, button) {
         $("tradeAccountStatus").textContent =
           "Logged in as " + (data.account?.username || username);
 
-        tradeMessage(action === "register"
-          ? "Trading account created!"
-          : "Logged in successfully!");
+        tradeMessage(
+          action === "register"
+            ? "Trading account created!"
+            : "Logged in successfully!"
+        );
 
         await refreshTradingInventory();
         await refreshTradingRequests();
@@ -1493,7 +1496,10 @@ async function handleTradingAction(action, button) {
           decision: button.dataset.decision
         });
 
-        tradeMessage("Trade response: " + (data.status || button.dataset.decision));
+        tradeMessage(
+          "Trade response: " + (data.status || button.dataset.decision)
+        );
+
         await refreshTradingRequests();
         await refreshTradingInventory();
         break;
@@ -1508,76 +1514,132 @@ async function handleTradingAction(action, button) {
   }
 }
 
+/* Main click handler: keep all game buttons in one handler. */
+document.addEventListener("click", e => {
+  const button = e.target.closest("button");
+  if (!button) return;
 
- try{
-  if(button.dataset.page){go(button.dataset.page);return}
-  if(button.dataset.go){go(button.dataset.go);return}
-  if(button.dataset.pack){openPack(button.dataset.pack);return}
-  if(button.dataset.sell){const [id,v]=button.dataset.sell.split("|");sell(id,v,false);return}
-  if(button.dataset.sellall){const [id,v]=button.dataset.sellall.split("|");sell(id,v,true);return}
-  if(button.dataset.upgrade){buyUpgrade(button.dataset.upgrade,Number(button.dataset.price));return}
-  if(button.dataset.luckboost){
-  buyLuckBoost();
-  return;
-}
-  if(button.dataset.claim){claimSeason(Number(button.dataset.claim));return}
-  switch(button.id){
-   case"dailyBtn":daily();break;
-   case"attackBtn":attack();break;
-   case"healBtn":heal();break;
-   case"nextWaveBtn":nextWave();break;
-   case"resetWaveBtn":resetWave();break;
-   case"sellDuplicatesBtn":sellDuplicates();break;
-   case"closeRevealBtn":closeReveal();break;
-   case"viewCollectionBtn":closeReveal();go("relics");break;
-   case"resetBtn":resetGame();break;
-   case"adminLauncher":openAdminPanel();break;
-   case"adminCloseBtn":closeAdminPanel();break;
-   case"adminLoginBtn":adminLogin();break;
-   case"adminGiveCoinsBtn":adminGiveCoins();break;
-   case"adminGiveRelicBtn":adminGiveRelic();break;
-   case"adminRunCommandBtn":adminRunCommand();break;
-   case"adminMakeCodeBtn":adminGenerateCode();break;
-   case"adminLogoutBtn":
-    sessionStorage.removeItem("relicRushAdminToken");
-    $("adminControls").style.display="none";
-    $("adminLogin").style.display="block";
-    $("adminPassword").value="";
-    toast("Logged out.");break;
-   case"redeemCodeBtn":redeemCode();break;
+  if (button.dataset.tradingAction) {
+    handleTradingAction(button.dataset.tradingAction, button);
+    return;
   }
- }catch(err){
-  console.error("Relic Rush error:",err);
-  toast("Something went wrong. Try refreshing the game.");
- }
+
+  try {
+    if (button.dataset.page) {
+      go(button.dataset.page);
+      return;
+    }
+
+    if (button.dataset.go) {
+      go(button.dataset.go);
+      return;
+    }
+
+    if (button.dataset.pack) {
+      openPack(button.dataset.pack);
+      return;
+    }
+
+    if (button.dataset.sell) {
+      const [id, variant] = button.dataset.sell.split("|");
+      sell(id, variant, false);
+      return;
+    }
+
+    if (button.dataset.sellall) {
+      const [id, variant] = button.dataset.sellall.split("|");
+      sell(id, variant, true);
+      return;
+    }
+
+    if (button.dataset.upgrade) {
+      buyUpgrade(button.dataset.upgrade, Number(button.dataset.price));
+      return;
+    }
+
+    if (button.dataset.luckboost) {
+      buyLuckBoost();
+      return;
+    }
+
+    if (button.dataset.claim) {
+      claimSeason(Number(button.dataset.claim));
+      return;
+    }
+
+    switch (button.id) {
+      case "dailyBtn": daily(); break;
+      case "attackBtn": attack(); break;
+      case "healBtn": heal(); break;
+      case "nextWaveBtn": nextWave(); break;
+      case "resetWaveBtn": resetWave(); break;
+      case "sellDuplicatesBtn": sellDuplicates(); break;
+      case "closeRevealBtn": closeReveal(); break;
+      case "viewCollectionBtn":
+        closeReveal();
+        go("relics");
+        break;
+      case "resetBtn": resetGame(); break;
+      case "adminLauncher": openAdminPanel(); break;
+      case "adminCloseBtn": closeAdminPanel(); break;
+      case "adminLoginBtn": adminLogin(); break;
+      case "adminGiveCoinsBtn": adminGiveCoins(); break;
+      case "adminGiveRelicBtn": adminGiveRelic(); break;
+      case "adminRunCommandBtn": adminRunCommand(); break;
+      case "adminMakeCodeBtn": adminGenerateCode(); break;
+      case "adminLogoutBtn":
+        sessionStorage.removeItem("relicRushAdminToken");
+        $("adminControls").style.display = "none";
+        $("adminLogin").style.display = "block";
+        $("adminPassword").value = "";
+        toast("Logged out.");
+        break;
+      case "redeemCodeBtn": redeemCode(); break;
+    }
+  } catch (err) {
+    console.error("Relic Rush error:", err);
+    toast("Something went wrong. Try refreshing the game.");
+  }
 });
-$("relicFilter").addEventListener("change",renderRelics);
-$("adminPassword").addEventListener("keydown",e=>{if(e.key==="Enter")adminLogin()});
-$("adminOverlay").addEventListener("click",e=>{if(e.target===$("adminOverlay"))closeAdminPanel()});
-$("revealOverlay").addEventListener("click",e=>{if(e.target===$("revealOverlay"))closeReveal()});
-$("redeemCode").addEventListener("keydown",e=>{if(e.key==="Enter")redeemCode()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeReveal();closeAdminPanel()}});
-function updateAdminLauncher(){
+
+$("relicFilter").addEventListener("change", renderRelics);
+$("adminPassword").addEventListener("keydown", e => {
+  if (e.key === "Enter") adminLogin();
+});
+$("adminOverlay").addEventListener("click", e => {
+  if (e.target === $("adminOverlay")) closeAdminPanel();
+});
+$("revealOverlay").addEventListener("click", e => {
+  if (e.target === $("revealOverlay")) closeReveal();
+});
+$("redeemCode").addEventListener("keydown", e => {
+  if (e.key === "Enter") redeemCode();
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    closeReveal();
+    closeAdminPanel();
+  }
+});
+
+function updateAdminLauncher() {
   const button = $("adminLauncher");
-  button.style.display = "block";
+  if (button) button.style.display = "block";
 }
 
-window.addEventListener("scroll", updateAdminLauncher, {passive:true});
+window.addEventListener("scroll", updateAdminLauncher, { passive: true });
 window.addEventListener("resize", updateAdminLauncher);
+
 renderAll();
 updateAdminLauncher();
 
 setInterval(() => {
-  if(document.getElementById("shop")?.classList.contains("active")){
+  if (document.getElementById("shop")?.classList.contains("active")) {
     renderShop();
   }
 }, 1000);
-renderAll();
-setInterval(() => {
-  if(document.getElementById("shop")?.classList.contains("active")){
-    renderShop();
-  }
-}, 1000);
+
 </script>
 </body>
 </html>
