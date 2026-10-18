@@ -1504,12 +1504,32 @@ document.addEventListener("click", async e => {
   const button = e.target.closest("button");
   if (!button) return;
 
-  // Trading buttons
-  if (button.dataset.tradingAction) {
-    e.preventDefault();
+
+if (button.dataset.tradingAction) {
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  const status = document.getElementById("tradeStatus");
+
+  try {
+    if (typeof handleTradingAction !== "function") {
+      throw new Error("Trading handler is missing from the JavaScript.");
+    }
+
+    if (status) status.textContent = "Processing Trading action...";
+
     await handleTradingAction(button.dataset.tradingAction, button);
-    return;
+  } catch (error) {
+    console.error("Relic Rush Trading error:", error);
+
+    if (status) {
+      status.textContent = error.message || "Trading action failed.";
+    }
   }
+
+  return;
+}
+
 
   // Normal game buttons
   try {
