@@ -24,15 +24,12 @@ function safeEqual(a, b) {
   const aa = Buffer.from(String(a));
   const bb = Buffer.from(String(b));
 
-  return (
-    aa.length === bb.length &&
-    crypto.timingSafeEqual(aa, bb)
-  );
+  return aa.length === bb.length &&
+    crypto.timingSafeEqual(aa, bb);
 }
 
 function sign(payload, secret) {
   const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
-
   const signature = crypto
     .createHmac("sha256", secret)
     .update(data)
@@ -47,19 +44,14 @@ function verify(token, secret) {
   }
 
   const parts = token.split(".");
-
-  if (parts.length !== 2) {
-    return null;
-  }
+  if (parts.length !== 2) return null;
 
   const expected = crypto
     .createHmac("sha256", secret)
     .update(parts[0])
     .digest("base64url");
 
-  if (!safeEqual(parts[1], expected)) {
-    return null;
-  }
+  if (!safeEqual(parts[1], expected)) return null;
 
   try {
     const payload = JSON.parse(
@@ -81,19 +73,14 @@ function verify(token, secret) {
 }
 
 function validInt(value, min, max) {
-  return (
-    Number.isSafeInteger(value) &&
+  return Number.isSafeInteger(value) &&
     value >= min &&
-    value <= max
-  );
+    value <= max;
 }
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
-    return json(405, {
-      ok: false,
-      error: "Use POST."
-    });
+    return json(405, { ok: false, error: "Use POST." });
   }
 
   if (
@@ -144,10 +131,7 @@ exports.handler = async (event) => {
   try {
     body = JSON.parse(event.body);
   } catch {
-    return json(400, {
-      ok: false,
-      error: "Invalid JSON."
-    });
+    return json(400, { ok: false, error: "Invalid JSON." });
   }
 
   // ADMIN LOGIN
@@ -165,22 +149,14 @@ exports.handler = async (event) => {
     const now = Math.floor(Date.now() / 1000);
     const expiresAt = (now + SESSION_TTL_SECONDS) * 1000;
 
-    const token = sign(
-      {
-        role: "admin",
-        iat: now,
-        exp: now + SESSION_TTL_SECONDS,
-        nonce: crypto.randomBytes(16).toString("hex")
-      },
-      sessionSecret
-    );
+    const token = sign({
+      role: "admin",
+      iat: now,
+      exp: now + SESSION_TTL_SECONDS,
+      nonce: crypto.randomBytes(16).toString("hex")
+    }, sessionSecret);
 
-    // FIX: The frontend expects ok: true.
-    return json(200, {
-      ok: true,
-      token,
-      expiresAt
-    });
+    return json(200, { ok: true, token, expiresAt });
   }
 
   // ALL OTHER ACTIONS REQUIRE A VALID SESSION
@@ -202,10 +178,7 @@ exports.handler = async (event) => {
 
       return json(200, {
         ok: true,
-        command: {
-          action: "giveCoins",
-          amount: body.amount
-        }
+        command: { action: "giveCoins", amount: body.amount }
       });
     }
 
@@ -219,23 +192,16 @@ exports.handler = async (event) => {
 
       return json(200, {
         ok: true,
-        command: {
-          action: "setCoins",
-          amount: body.amount
-        }
+        command: { action: "setCoins", amount: body.amount }
       });
     }
 
     case "giveRelic": {
-      const validRelic = /^r(?:[0-9]|1[0-9]|2[0-3])$/.test(
-        body.relicId || ""
-      );
+      const validRelic =
+        /^r(?:[0-9]|1[0-9]|2[0-3])$/.test(body.relicId || "");
 
-      const validVariant = [
-        "normal",
-        "gold",
-        "candy"
-      ].includes(body.variant);
+      const validVariant =
+        ["normal", "gold", "candy"].includes(body.variant);
 
       if (!validRelic || !validVariant) {
         return json(400, {
@@ -257,48 +223,112 @@ exports.handler = async (event) => {
     case "heal": {
       return json(200, {
         ok: true,
-        command: {
-          action: "heal"
-        }
+        command: { action: "heal" }
       });
     }
 
-    <h3 style="margin-top:20px">🎁 Giveaway Code Generator</h3>
+    // CREATE A WORLDWIDE COIN OR RELIC GIVEAWAY CODE
+    case "createCode": {
+      const rewardType =
+        body.rewardType === undefined ? "coins" : body.rewardType;
 
-<label for="adminRewardType">Reward type</label>
-<select id="adminRewardType" class="full" style="width:100%">
-  <option value="coins">🪙 Coins</option>
-  <option value="relics">💎 Relics</option>
-</select>
+      const rewardAmount = rewardType === "coins"
+        ? (body.rewardCoins ?? body.rewardAmount)
+        : body.rewardAmount;
 
-<label for="adminReward" class="small">Reward amount</label>
-<input id="adminReward" type="number" min="1" max="1000000"
-  value="5000" class="full" style="width:100%">
+      if (!["coins", "relics"].includes(rewardType)) {
+        return json(400, {
+          ok: false,
+          error: "Reward type must be coins or relics."
+        });
+      }
 
-<div id="adminCodeRelicFields">
-  <label for="adminCodeRelic" class="small">Relic to award</label>
-  <select id="adminCodeRelic" class="full" style="width:100%"></select>
+      if (!validInt(rewardAmount, 1, 1000000)) {
+        return json(400, {
+          ok: false,
+          error: "Reward amount must be from 1 to 1,000,000."
+        });
+      }
 
-  <label for="adminCodeVariant" class="small">Relic variant</label>
-  <select id="adminCodeVariant" class="full" style="width:100%">
-    <option value="normal">Normal</option>
-    <option value="diamond">💎 Diamond</option>
-    <option value="gold">🌟 Gold</option>
-    <option value="candy">🍬 Candy Corn</option>
-  </select>
-  <p class="small">For relic rewards, the amount is the number of copies awarded.</p>
-</div>
+      if (!validInt(body.maxRedemptions, 1, 100000)) {
+        return json(400, {
+          ok: false,
+          error: "Maximum redemptions must be from 1 to 100,000."
+        });
+      }
 
-<label for="adminUses" class="small">Maximum worldwide redemptions</label>
-<input id="adminUses" type="number" min="1" max="100000"
-  value="1" class="full" style="width:100%">
+      let relicId;
+      let variant;
 
-<button class="btn full" id="adminMakeCodeBtn">
-  Generate Worldwide Code
-</button>
+      if (rewardType === "relics") {
+        relicId = body.relicId;
+        variant = body.variant;
 
-<div id="adminCodeResult" class="notice"
-  style="display:none;overflow-wrap:anywhere"></div>
+        if (!/^r(?:[0-9]|1[0-9]|2[0-3])$/.test(relicId || "")) {
+          return json(400, {
+            ok: false,
+            error: "Choose a valid relic."
+          });
+        }
+
+        if (!["normal", "gold", "candy"].includes(variant)) {
+          return json(400, {
+            ok: false,
+            error: "Choose normal, gold, or candy variant."
+          });
+        }
+      }
+
+      let code;
+      let saved = false;
+
+      for (let attempt = 0; attempt < 5; attempt++) {
+        code = "RR-" +
+          crypto.randomBytes(5).toString("hex").toUpperCase();
+
+        const existing = await codes.get(code);
+
+        if (existing !== null) continue;
+
+        const record = {
+          rewardType,
+          maxRedemptions: body.maxRedemptions,
+          redeemed: 0,
+          createdAt: new Date().toISOString()
+        };
+
+        if (rewardType === "coins") {
+          record.rewardCoins = rewardAmount;
+        } else {
+          record.rewardAmount = rewardAmount;
+          record.relicId = relicId;
+          record.variant = variant;
+        }
+
+        await codes.setJSON(code, record);
+        saved = true;
+        break;
+      }
+
+      if (!saved) {
+        return json(500, {
+          ok: false,
+          error: "Could not create a unique code. Try again."
+        });
+      }
+
+      return json(200, {
+        ok: true,
+        code,
+        rewardType,
+        rewardAmount,
+        ...(rewardType === "coins"
+          ? { rewardCoins: rewardAmount }
+          : { relicId, variant }),
+        maxRedemptions: body.maxRedemptions
+      });
+    }
+
     default:
       return json(400, {
         ok: false,
@@ -306,3 +336,4 @@ exports.handler = async (event) => {
       });
   }
 };
+;
