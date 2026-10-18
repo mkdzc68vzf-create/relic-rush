@@ -135,15 +135,25 @@ exports.handler = async (event) => {
 
   // ADMIN LOGIN
   if (body.action === "login") {
-    if (
-      typeof body.code !== "string" ||
-      !safeEqual(body.code.trim(), adminCode)
-    ) {
-      return json(401, {
-        ok: false,
-        error: "Incorrect admin password."
-      });
-    }
+  if (typeof body.code !== "string") {
+    return json(400, {ok:false,error:"Login code was not received as text."});
+  }
+
+  if (!adminCode) {
+    return json(500, {ok:false,error:"RELIC_RUSH_ADMIN_CODE is empty."});
+  }
+
+  if (!safeEqual(body.code.trim(), adminCode)) {
+    return json(401, {
+      ok: false,
+      error: "Password mismatch.",
+      diagnostic: {
+        receivedLength: body.code.length,
+        receivedTrimmedLength: body.code.trim().length,
+        configuredLength: adminCode.length
+      }
+    });
+  }
 
     const now = Math.floor(Date.now() / 1000);
     const expiresAt = (now + SESSION_TTL_SECONDS) * 1000;
