@@ -1233,12 +1233,7 @@ function renderAll(){
  renderMarket();renderRecords();renderAchievements();updateStats();
 }
 
- try{
-
-document.addEventListener("click", e => {
-
 const TRADING_ENDPOINT = "/.netlify/functions/trading";
-
 async function tradingApi(action, payload = {}, needsLogin = true) {
   const token = sessionStorage.getItem("relicRushTradingToken") || "";
 
