@@ -817,59 +817,78 @@ function daily(){
  toast(`Daily reward: ${reward} coins! Day ${game.dailyStreak}`);
 }
 
+
 function attack(){
- if(game.health<=0){
-  toast("You're out of health! Heal before fighting.");
-  return;
- }
+  if(game.health<=0){
+    toast("You're out of health! Heal before fighting.");
+    return;
+  }
 
- if(game.remaining<=0){
-  toast("Wave cleared! Start the next wave.");
-  return;
- }
+  if(game.remaining<=0){
+    toast("Wave cleared! Start the next wave.");
+    return;
+  }
 
- // Defeat one zombie and give coins immediately.
- game.remaining--;
- game.battles++;
-
- const zombieReward = Math.round(10 * moneyMultiplier());
- addCoins(zombieReward);
- game.kills++;
-
- const enemyDamage = Math.max(
-  3,
-  Math.floor(game.wave * 3 + Math.random() * 7)
- );
-
- if(game.remaining>0){
-  game.health=Math.max(0,game.health-enemyDamage);
- }
-
- if(game.remaining===0){
-  // Bonus coins for clearing the wave.
-  const waveReward = Math.round(
-   (50 + game.wave * 20) * moneyMultiplier()
+  // Every 10 damage defeats one zombie.
+  // Higher damage upgrades defeat multiple zombies per click.
+  const damage = Math.max(1, Number(game.damage) || 10);
+  const zombiesKilled = Math.min(
+    game.remaining,
+    Math.max(1, Math.floor(damage / 10))
   );
 
-  addCoins(waveReward);
-  game.highestWave=Math.max(game.highestWave,game.wave);
-  addXP(30);
+  // Apply kills without going below zero zombies.
+  game.remaining -= zombiesKilled;
+  game.battles++;
+  game.kills += zombiesKilled;
 
-  $("battleLog").textContent =
-   `🏆 Wave ${game.wave} cleared! +${zombieReward} coins for the last zombie and +${waveReward} wave bonus!`;
- }else{
-  $("battleLog").textContent =
-   `🧟 Zombie defeated! +${zombieReward} coins. ${game.remaining} zombies remain. You took ${enemyDamage} damage.`;
- }
+  // Award coins for every zombie defeated.
+  const zombieReward = Math.round(
+    10 * zombiesKilled * moneyMultiplier()
+  );
+  addCoins(zombieReward);
 
- if(game.health<=0){
-  $("battleLog").textContent +=
-   " You need to heal before attacking again.";
- }
+  // The zombies retaliate once per attack, not once per zombie.
+  let enemyDamage = 0;
 
- save();
- renderAll();
+  if(game.remaining > 0){
+    enemyDamage = Math.max(
+      3,
+      Math.floor(game.wave * 3 + Math.random() * 7)
+    );
+
+    game.health = Math.max(0, game.health - enemyDamage);
+  }
+
+  if(game.remaining === 0){
+    const waveReward = Math.round(
+      (50 + game.wave * 20) * moneyMultiplier()
+    );
+
+    addCoins(waveReward);
+    game.highestWave = Math.max(game.highestWave, game.wave);
+    addXP(30);
+
+    $("battleLog").textContent =
+      `🏆 Wave ${game.wave} cleared! You defeated ${zombiesKilled} ` +
+      `zombie(s) in one attack, earned ${zombieReward} coins from kills ` +
+      `and a ${waveReward}-coin wave bonus!`;
+  }else{
+    $("battleLog").textContent =
+      `⚔️ Your ${damage} damage defeated ${zombiesKilled} zombie(s)! ` +
+      `+${zombieReward} coins. ${game.remaining} zombies remain. ` +
+      `You took ${enemyDamage} damage.`;
+  }
+
+  if(game.health <= 0){
+    $("battleLog").textContent +=
+      " You need to heal before attacking again.";
+  }
+
+  save();
+  renderAll();
 }
+
 
 function heal(){
  if(game.health>=game.maxHealth){toast("Your health is already full!");return}
