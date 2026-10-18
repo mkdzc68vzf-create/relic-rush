@@ -1700,7 +1700,10 @@ if (button.dataset.tradingAction) {
       case "adminGiveCoinsBtn": adminGiveCoins(); break;
       case "adminGiveRelicBtn": adminGiveRelic(); break;
       case "adminRunCommandBtn": adminRunCommand(); break;
-      case "adminMakeCodeBtn": adminGenerateCode(); break;
+      case "adminMakeCodeBtn":
+  toast("Generate Code button clicked.");
+  adminGenerateCode();
+  break;
       case "redeemCodeBtn": redeemCode(); break;
 
       case "adminLogoutBtn":
