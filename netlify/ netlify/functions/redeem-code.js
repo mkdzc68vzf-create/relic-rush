@@ -82,14 +82,30 @@ exports.handler = async (event) => {
     record.redeemed += 1;
     await codes.setJSON(code, record);
 
-    if (rewardType === "relics") {
-      return json(200, {
-        ok: true,
-        rewardType: "relics",
-        rewardAmount: record.rewardAmount,
-        message: `Code redeemed! Relic reward: ${record.rewardAmount}.`
-      });
-    }
+    
+if (rewardType === "relics") {
+  if (
+    !/^r(?:[0-9]|1[0-9]|2[0-3])$/.test(record.relicId || "") ||
+    !["normal", "gold", "candy"].includes(record.variant) ||
+    !Number.isSafeInteger(record.rewardAmount) ||
+    record.rewardAmount < 1
+  ) {
+    return json(500, {
+      ok: false,
+      error: "Invalid relic reward."
+    });
+  }
+
+  return json(200, {
+    ok: true,
+    rewardType: "relics",
+    rewardAmount: record.rewardAmount,
+    relicId: record.relicId,
+    variant: record.variant,
+    message: `Code redeemed! Reward: ${record.rewardAmount} relic copies.`
+  });
+}
+
 
     return json(200, {
       ok: true,
