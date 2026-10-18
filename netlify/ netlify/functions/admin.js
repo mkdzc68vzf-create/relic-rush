@@ -271,10 +271,10 @@ exports.handler = async (event) => {
           });
         }
 
-        if (!["normal", "gold", "candy"].includes(variant)) {
+        if (!["normal", "diamond", "gold", "candy"].includes(variant)) {
           return json(400, {
             ok: false,
-            error: "Choose normal, gold, or candy variant."
+            error: "Choose normal, diamond, gold, or candy variant."
           });
         }
       }
