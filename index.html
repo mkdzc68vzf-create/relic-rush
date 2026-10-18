@@ -1019,6 +1019,7 @@ async function adminLogin(){
    body:JSON.stringify({action:"login",code:password})
   });
   const result=await response.json();
+  alert(JSON.stringify(result));
   if (result.diagnostic) {
   alert("Password diagnostic:\nReceived length: " +
     result.diagnostic.receivedLength +
