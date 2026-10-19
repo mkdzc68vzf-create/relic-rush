@@ -635,23 +635,27 @@ function addXP(amount){
 }
 function moneyMultiplier(){return 1+(Number(game.upgrades.money)||0)*0.5}
 
+
 function variantChance() {
   const luck = Number(game.upgrades.luck) || 0;
   const boostActive = Date.now() < (game.luckBoostUntil || 0);
   const boost = boostActive ? 4 : 0;
   const roll = Math.random() * 100;
 
+  // Candy: exactly 0.5% chance, unaffected by pack type or luck boosts
+  if (roll < 0.5) return "candy";
+
+  const remainingRoll = (roll - 0.5) / 99.5 * 100;
+
   const goldChance = Math.min(25, 3 + luck * 2 + boost);
-  const specialChance = Math.min(40, 8 + luck * 2 + boost);
+  const diamondChance = 15;
 
-  // Diamond: 15% base chance
-  if (roll < 15) return "diamond";
-
-  if (roll < 15 + goldChance) return "gold";
-  if (roll < 15 + specialChance) return "candy";
+  if (remainingRoll < diamondChance) return "diamond";
+  if (remainingRoll < diamondChance + goldChance) return "gold";
 
   return "normal";
 }
+
 
 function getRelic(id){return RELICS.find(r=>r.id===id)}
 function countRelic(id,variant){return game.inventory.filter(r=>r.id===id&&r.variant===variant).length}
@@ -715,14 +719,34 @@ function showReveal(relic, variant) {
 
 function closeReveal(){$("revealOverlay").classList.remove("show")}
 
+
 function chooseRelic(packName){
  let pool=RELICS.filter(r=>r.pack===packName);
  if(!pool.length){
   const pack=PACKS.find(p=>p.name===packName);
   pool=RELICS.filter(r=>r.rarity===(pack?.rarity||"Common"));
  }
+
+ const event=relicRushEvent;
+ const luckMultiplier=Number(event?.rareLuckMultiplier)||1;
+
+ if(luckMultiplier>1 && pool.length>1){
+  const rarePool=pool.filter(r=>{
+   const rarity=String(r.rarity||"").toLowerCase();
+   return rarity!=="common";
+  });
+
+  if(rarePool.length){
+   const chance=Math.min(0.95,0.25*(luckMultiplier-1));
+   if(Math.random()<chance){
+    return rarePool[Math.floor(Math.random()*rarePool.length)];
+   }
+  }
+ }
+
  return pool[Math.floor(Math.random()*pool.length)]||RELICS[0];
 }
+
 function openPack(packName){
  const pack=PACKS.find(p=>p.name===packName);
  if(!pack){toast("Pack not found.");return}
@@ -1496,10 +1520,12 @@ function renderAll(){
 }
 
 
+
 const TRADING_ENDPOINT = "/.netlify/functions/trading";
 
 async function tradingApi(action, payload = {}, needsLogin = true) {
-  const token = sessionStorage.getItem("relicRushTradingToken") || "";
+  const token =
+    sessionStorage.getItem("relicRushTradingToken") || "";
 
   if (needsLogin && !token) {
     throw new Error("Log in to your trading account first.");
@@ -1509,18 +1535,32 @@ async function tradingApi(action, payload = {}, needsLogin = true) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(needsLogin ? { Authorization: "Bearer " + token } : {})
+      ...(needsLogin ? {
+        Authorization: "Bearer " + token
+      } : {})
     },
     body: JSON.stringify({ action, ...payload })
   });
 
-  const data = await response.json();
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(
+      "Trading server returned an invalid response. Check the Netlify function."
+    );
+  }
 
   if (!response.ok || !data.ok) {
-  alert("Code error (" + response.status + "): " + (data.error || JSON.stringify(data)));
-}
+    throw new Error(
+      data.error || `Trading request failed (${response.status}).`
+    );
+  }
 
   return data;
+}
+
 }
 
 function tradeMessage(message, error = false) {
@@ -2202,6 +2242,42 @@ document.getElementById("clearGlobalAnnouncementBtn")
     }
   });
 
+/* Relic Rush event luck fix */
+function chooseRelic(packName) {
+  let pool = RELICS.filter(r => r.pack === packName);
+
+  if (!pool.length) {
+    const pack = PACKS.find(p => p.name === packName);
+    pool = RELICS.filter(
+      r => r.rarity === (pack?.rarity || "Common")
+    );
+  }
+
+  if (!pool.length) return RELICS[0];
+
+  const event = relicRushEvent;
+  const active = event &&
+    Date.parse(event.endAt) > Date.now() &&
+    (!event.startAt || Date.parse(event.startAt) <= Date.now());
+
+  const type = String(event?.eventType || "both").toLowerCase();
+  const multiplier = active && ["luck", "both", "all"].includes(type)
+    ? Math.max(1, Number(event.rareLuckMultiplier) || 1.5)
+    : 1;
+
+  if (multiplier > 1) {
+    const rarePool = pool.filter(
+      r => String(r.rarity || "").toLowerCase() !== "common"
+    );
+
+    if (rarePool.length && Math.random() < Math.min(0.75, 0.25 * (multiplier - 1))) {
+      return rarePool[Math.floor(Math.random() * rarePool.length)];
+    }
+  }
+
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 renderAll();
 updateAdminLauncher();
 
@@ -2212,5 +2288,25 @@ setInterval(() => {
 }, 1000);
 
 </script>
+
+<!-- How to Play -->
+<section id="howToPlaySection" style="max-width:700px;margin:20px auto;padding:16px;background:#100a28;border:1px solid #8b35ff;border-radius:14px;color:white;">
+  <button type="button" onclick="document.getElementById('howToPlayGuide').hidden = !document.getElementById('howToPlayGuide').hidden"
+    style="width:100%;padding:14px;background:#8b35ff;color:white;border:0;border-radius:10px;font-size:17px;font-weight:bold;cursor:pointer;">
+    📖 How to Play Relic Rush
+  </button>
+
+  <div id="howToPlayGuide" hidden style="padding:12px 4px;line-height:1.7;">
+    <h3>🎮 Welcome to Relic Rush!</h3>
+    <p><b>🪙 Earn coins:</b> Play the game and complete activities to earn coins.</p>
+    <p><b>📦 Open packs:</b> Spend coins to discover collectible relics.</p>
+    <p><b>💎 Build your collection:</b> Find relics with different rarities and special variants.</p>
+    <p><b>🏪 Sell and upgrade:</b> Sell relics for coins and buy upgrades to improve your progress.</p>
+    <p><b>🤝 Trade:</b> Create a trading account to manage your online inventory and trade with other players.</p>
+    <p><b>🎁 Events and rewards:</b> Check for special events, daily rewards, and seasonal prizes.</p>
+    <p><b>⭐ Goal:</b> Collect as many relics as you can and discover the rarest ones!</p>
+  </div>
+</section>
+
 </body>
 </html>
