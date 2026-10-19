@@ -86,10 +86,14 @@ export default async (request) => {
   if (request.method === "GET") {
     try {
       const event = await events.get("current", { type: "json" });
+      
       const savedNotice = await announcements.get("latest", { type: "json" });
-const notice = savedNotice && Date.parse(savedNotice.expiresAt) > Date.now()
-  ? savedNotice
-  : null;
+      const notice = savedNotice &&
+        (!savedNotice.expiresAt ||
+          Date.parse(savedNotice.expiresAt) > Date.now())
+          ? savedNotice
+          : null;
+
       const now = Date.now();
 
       return json(200, {
