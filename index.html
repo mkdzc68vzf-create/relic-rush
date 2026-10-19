@@ -337,6 +337,44 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
 
 <div id="eventAdminStatus" class="notice"
   role="status" style="display:none;overflow-wrap:anywhere"></div>
+ 
+<h3 style="margin-top:20px">📢 Global Screen Announcement</h3>
+<p class="small">Send a temporary message to everyone playing Relic Rush.</p>
+
+<label for="globalAnnouncementMessage">Message</label>
+<textarea
+  id="globalAnnouncementMessage"
+  class="full"
+  rows="3"
+  maxlength="300"
+  placeholder="Hey everyone! A new event starts soon!"
+></textarea>
+
+<label for="globalAnnouncementDuration">Show for</label>
+<select id="globalAnnouncementDuration" class="full" style="width:100%">
+  <option value="10">10 seconds</option>
+  <option value="30" selected>30 seconds</option>
+  <option value="60">1 minute</option>
+  <option value="120">2 minutes</option>
+  <option value="300">5 minutes</option>
+  <option value="600">10 minutes</option>
+  <option value="3600">1 hour</option>
+</select>
+
+<button class="btn full" id="sendGlobalAnnouncementBtn" type="button">
+  Send to All Players
+</button>
+
+<button class="btn secondary full" id="clearGlobalAnnouncementBtn" type="button">
+  Clear Announcement
+</button>
+
+<div
+  id="globalAnnouncementStatus"
+  class="notice"
+  role="status"
+  style="display:none;overflow-wrap:anywhere"
+></div>
 
 <h3 style="margin-top:20px">🎁 Giveaway Code Generator</h3>
 <p class="small">Create worldwide redeemable coin or relic codes.</p>
@@ -1852,6 +1890,7 @@ window.addEventListener("resize", updateAdminLauncher);
 
 /* RELIC RUSH EVENTS */
 let relicRushEvent = null;
+let relicRushAnnouncement = null;
 
 async function loadRelicRushEvent() {
   try {
@@ -1863,12 +1902,21 @@ async function loadRelicRushEvent() {
 
     if (data.ok) {
       relicRushEvent = data.event || null;
+
+      relicRushAnnouncement =
+        data.announcement?.expiresAt &&
+        Date.parse(data.announcement.expiresAt) > Date.now()
+          ? data.announcement
+          : null;
+
       renderRelicRushEventBanner();
+      renderGlobalAnnouncement();
     }
   } catch (error) {
     console.error("Could not load Relic Rush event:", error);
   }
 }
+
 
 function renderRelicRushEventBanner() {
   let banner = document.getElementById("relicRushEventBanner");
@@ -1909,6 +1957,41 @@ function renderRelicRushEventBanner() {
   updateRelicRushEventTimer();
 }
 
+function renderGlobalAnnouncement() {
+  let banner = document.getElementById("globalAnnouncementBanner");
+
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "globalAnnouncementBanner";
+    banner.style.cssText =
+      "position:fixed;top:12px;left:50%;transform:translateX(-50%);" +
+      "width:calc(100% - 24px);max-width:650px;box-sizing:border-box;" +
+      "padding:16px;border:2px solid #ffca55;border-radius:14px;" +
+      "background:#100a28;color:#fff;text-align:center;" +
+      "z-index:99999;box-shadow:0 6px 24px #0008;";
+
+    document.body.appendChild(banner);
+  }
+
+  if (!relicRushAnnouncement) {
+    banner.style.display = "none";
+    return;
+  }
+
+  banner.style.display = "block";
+  banner.replaceChildren();
+
+  const title = document.createElement("strong");
+  title.textContent = relicRushAnnouncement.title || "📢 Announcement";
+
+  const message = document.createElement("p");
+  message.textContent = relicRushAnnouncement.message;
+  message.style.whiteSpace = "pre-wrap";
+  message.style.overflowWrap = "anywhere";
+
+  banner.append(title, message);
+}
+
 function updateRelicRushEventTimer() {
   const timer = document.getElementById("relicRushEventTimer");
   if (!timer || !relicRushEvent) return;
@@ -1935,6 +2018,7 @@ function updateRelicRushEventTimer() {
 
 loadRelicRushEvent();
 setInterval(updateRelicRushEventTimer, 1000);
+setInterval(loadRelicRushEvent, 15000);
 
 /* RELIC RUSH EVENT ADMIN CONTROLS */
 async function sendRelicRushEventAction(action, extra = {}) {
@@ -2050,7 +2134,74 @@ document.getElementById("eventEndBtn")?.addEventListener("click", () => {
   }
 });
 
-  
+
+async function sendGlobalAnnouncement(action) {
+  const status = document.getElementById("globalAnnouncementStatus");
+  const messageInput = document.getElementById("globalAnnouncementMessage");
+  const durationInput = document.getElementById("globalAnnouncementDuration");
+  const token = sessionStorage.getItem("relicRushAdminToken");
+
+  function showStatus(message) {
+    if (!status) return;
+    status.textContent = message;
+    status.style.display = "block";
+  }
+
+  if (!token) {
+    showStatus("Please log in to the admin panel first.");
+    return;
+  }
+
+  const message = messageInput?.value.trim() || "";
+
+  if (action === "announce" && !message) {
+    showStatus("Enter a message first.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/.netlify/functions/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action,
+        token,
+        message,
+        durationSeconds: Number(durationInput?.value || 30)
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      showStatus(data.error || "Announcement request failed.");
+      return;
+    }
+
+    showStatus(
+      action === "announce"
+        ? "Announcement sent successfully!"
+        : "Announcement cleared."
+    );
+
+    if (action === "announce" && messageInput) {
+      messageInput.value = "";
+    }
+  } catch (error) {
+    showStatus("Connection error. Please try again.");
+  }
+}
+
+document.getElementById("sendGlobalAnnouncementBtn")
+  ?.addEventListener("click", () => sendGlobalAnnouncement("announce"));
+
+document.getElementById("clearGlobalAnnouncementBtn")
+  ?.addEventListener("click", () => {
+    if (confirm("Clear the announcement for all players?")) {
+      sendGlobalAnnouncement("clearAnnouncement");
+    }
+  });
+
 renderAll();
 updateAdminLauncher();
 
