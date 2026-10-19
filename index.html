@@ -294,6 +294,22 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
 <label for="eventMessage">Announcement</label>
 <input id="eventMessage" class="full" type="text"
   maxlength="240" placeholder="Double coins and better rare relic luck!">
+ 
+<label for="eventMessage">Announcement</label>
+<input id="eventMessage" class="full" type="text"
+  maxlength="240" placeholder="Double coins and better rare relic luck!">
+
+<!-- NEW EVENT SELECTOR -->
+<label for="eventType">Event Type</label>
+<select id="eventType" class="full" style="width:100%">
+  <option value="luck">🍀 Rare Relic Luck — 1.5×</option>
+  <option value="coins">🪙 Double Coins — 2×</option>
+  <option value="both">🎉 Lucky Rush — Both Boosts</option>
+</select>
+
+<label for="eventDuration">Duration (minutes)</label>
+<input id="eventDuration" class="full" type="number"
+  min="1" max="10080" value="30">
 
 <label for="eventDuration">Duration (minutes)</label>
 <input id="eventDuration" class="full" type="number"
