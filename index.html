@@ -283,55 +283,66 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
 <input id="adminCommandInput" class="full" type="text" placeholder="Enter admin command" autocomplete="off">
 <button class="btn full" id="adminRunCommandBtn">Run Command</button>
 <div id="adminCommandStatus" class="notice" role="status" style="display:none;overflow-wrap:anywhere"></div>
-    <h3 style="margin-top:20px">🎁 Giveaway Code Generator</h3>
-    <p class="small">Requires your authenticated Netlify admin function and create-code function.</p>
-    <select id="adminVariant" class="full" style="width:100%;margin-top:8px">
-  <option value="normal">Normal</option>
-  <option value="diamond">💎 Diamond (+65% value)</option>
-  <option value="gold">🌟 Gold (5x value)</option>
-  <option value="candy">🍬 Candy Corn (2x value)</option>
+    
+<h3 style="margin-top:20px">🎁 Giveaway Code Generator</h3>
+<p class="small">Create worldwide redeemable coin or relic codes.</p>
+
+<label for="adminRewardType">Reward Type</label>
+<select id="adminRewardType" class="full" style="width:100%">
+  <option value="coins">Coins</option>
+  <option value="relics">Relics</option>
 </select>
-    <label for="adminUses" class="small">Worldwide redemption limit</label>
-    <input id="adminUses" type="number" min="1" max="100000" value="50" class="full" style="width:100%">
-    <div id="adminRelicOptions">
+
+<label for="adminReward" class="small">Reward Amount</label>
+<input id="adminReward" type="number" min="1" max="1000000"
+  value="500" class="full" style="width:100%">
+
+<label for="adminUses" class="small">Worldwide Redemption Limit</label>
+<input id="adminUses" type="number" min="1" max="100000"
+  value="50" class="full" style="width:100%">
+
+<div id="adminRelicOptions">
   <label for="adminCodeRelic">Choose Relic</label>
-  <select id="adminCodeRelic" class="input full">
-  <option value="r0">Pebble</option>
-  <option value="r1">Tiny Crown</option>
-  <option value="r2">Crystal</option>
-  <option value="r3">Moon Charm</option>
-  <option value="r4">Ocean Pearl</option>
-  <option value="r5">Flame Heart</option>
-  <option value="r6">Shadow Mask</option>
-  <option value="r7">Golden Apple</option>
-  <option value="r8">Ancient Rune</option>
-  <option value="r9">Dragon Egg</option>
-  <option value="r10">Galaxy Orb</option>
-  <option value="r11">Royal Scepter</option>
-  <option value="r12">Celestial Star</option>
-  <option value="r13">Void Crystal</option>
-  <option value="r14">Prismatic Heart</option>
-  <option value="r15">Eternal Relic</option>
-  <option value="r16">Candy Pumpkin</option>
-  <option value="r17">Ghost Lantern</option>
-  <option value="r18">Witch Hat</option>
-  <option value="r19">Haunted Skull</option>
-  <option value="r20">Treasure Chest</option>
-  <option value="r21">Frost Crown</option>
-  <option value="r22">Inferno Core</option>
-  <option value="r23">Ultimate Relic</option>
-</select>
+  <select id="adminCodeRelic" class="full" style="width:100%">
+    <option value="r0">Pebble</option>
+    <option value="r1">Tiny Crown</option>
+    <option value="r2">Crystal</option>
+    <option value="r3">Moon Charm</option>
+    <option value="r4">Ocean Pearl</option>
+    <option value="r5">Flame Heart</option>
+    <option value="r6">Shadow Mask</option>
+    <option value="r7">Golden Apple</option>
+    <option value="r8">Ancient Rune</option>
+    <option value="r9">Dragon Egg</option>
+    <option value="r10">Galaxy Orb</option>
+    <option value="r11">Royal Scepter</option>
+    <option value="r12">Celestial Star</option>
+    <option value="r13">Void Crystal</option>
+    <option value="r14">Prismatic Heart</option>
+    <option value="r15">Eternal Relic</option>
+    <option value="r16">Candy Pumpkin</option>
+    <option value="r17">Ghost Lantern</option>
+    <option value="r18">Witch Hat</option>
+    <option value="r19">Haunted Skull</option>
+    <option value="r20">Treasure Chest</option>
+    <option value="r21">Frost Crown</option>
+    <option value="r22">Inferno Core</option>
+    <option value="r23">Ultimate Relic</option>
+  </select>
+
   <label for="adminCodeVariant">Relic Variant</label>
-  <select id="adminCodeVariant" class="input full">
+  <select id="adminCodeVariant" class="full" style="width:100%">
     <option value="normal">Normal</option>
-    <option value="gold">Gold</option>
-    <option value="candy">Candy</option>
+    <option value="diamond">💎 Diamond</option>
+    <option value="gold">🌟 Gold</option>
+    <option value="candy">🍬 Candy Corn</option>
   </select>
 </div>
 
 <button class="btn full" id="adminMakeCodeBtn">
   Generate Worldwide Code
 </button>
+
     <div id="adminCodeResult" class="notice" style="display:none;overflow-wrap:anywhere"></div>
     <button class="btn secondary full" id="adminLogoutBtn">Logout</button>
   </div>
