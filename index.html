@@ -283,7 +283,45 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
 <input id="adminCommandInput" class="full" type="text" placeholder="Enter admin command" autocomplete="off">
 <button class="btn full" id="adminRunCommandBtn">Run Command</button>
 <div id="adminCommandStatus" class="notice" role="status" style="display:none;overflow-wrap:anywhere"></div>
-    
+
+<h3 style="margin-top:20px">🎉 Global Events Manager</h3>
+<p class="small">Manage live events for all players.</p>
+
+<label for="eventTitle">Event Title</label>
+<input id="eventTitle" class="full" type="text"
+  maxlength="80" placeholder="Example: Halloween Luck Rush">
+
+<label for="eventMessage">Announcement</label>
+<input id="eventMessage" class="full" type="text"
+  maxlength="240" placeholder="Double coins and better rare relic luck!">
+
+<label for="eventDuration">Duration (minutes)</label>
+<input id="eventDuration" class="full" type="number"
+  min="1" max="10080" value="30">
+
+<button class="btn full" id="eventStartBtn" type="button">
+  Start Event
+</button>
+
+<h3 style="margin-top:16px">📅 Schedule an Event</h3>
+
+<label for="eventStartAt">Start time</label>
+<input id="eventStartAt" class="full" type="datetime-local">
+
+<label for="eventEndAt">End time</label>
+<input id="eventEndAt" class="full" type="datetime-local">
+
+<button class="btn full" id="eventScheduleBtn" type="button">
+  Schedule Event
+</button>
+
+<button class="btn secondary full" id="eventEndBtn" type="button">
+  End Current Event
+</button>
+
+<div id="eventAdminStatus" class="notice"
+  role="status" style="display:none;overflow-wrap:anywhere"></div>
+
 <h3 style="margin-top:20px">🎁 Giveaway Code Generator</h3>
 <p class="small">Create worldwide redeemable coin or relic codes.</p>
 
@@ -1882,6 +1920,110 @@ function updateRelicRushEventTimer() {
 loadRelicRushEvent();
 setInterval(updateRelicRushEventTimer, 1000);
 
+/* RELIC RUSH EVENT ADMIN CONTROLS */
+async function sendRelicRushEventAction(action, extra = {}) {
+  const status = document.getElementById("eventAdminStatus");
+
+  function showStatus(message) {
+    if (status) {
+      status.style.display = "block";
+      status.textContent = message;
+    }
+  }
+
+  const token = sessionStorage.getItem("relicRushAdminToken");
+
+  if (!token) {
+    showStatus("Please log in to the admin panel again.");
+    return;
+  }
+
+  const payload = { action, token, ...extra };
+
+  try {
+    showStatus("Working...");
+
+    const response = await fetch("/.netlify/functions/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      showStatus(data.error || "Event request failed.");
+      return;
+    }
+
+    showStatus(
+      action === "end"
+        ? "Event ended successfully."
+        : action === "schedule"
+          ? "Event scheduled successfully."
+          : "Event started successfully."
+    );
+
+    await loadRelicRushEvent();
+  } catch (error) {
+    console.error("Event action failed:", error);
+    showStatus("Could not contact the event server. Try again.");
+  }
+}
+
+document.getElementById("eventStartBtn")?.addEventListener("click", () => {
+  const title = document.getElementById("eventTitle").value.trim();
+  const message = document.getElementById("eventMessage").value.trim();
+  const durationMinutes = Number(
+    document.getElementById("eventDuration").value
+  );
+
+  if (!title || !message) {
+    alert("Enter an event title and announcement.");
+    return;
+  }
+
+  if (!Number.isInteger(durationMinutes) ||
+      durationMinutes < 1 || durationMinutes > 10080) {
+    alert("Duration must be between 1 and 10080 minutes.");
+    return;
+  }
+
+  sendRelicRushEventAction("start", {
+    title,
+    message,
+    durationMinutes
+  });
+});
+
+document.getElementById("eventScheduleBtn")?.addEventListener("click", () => {
+  const startValue = document.getElementById("eventStartAt").value;
+  const endValue = document.getElementById("eventEndAt").value;
+  const title = document.getElementById("eventTitle").value.trim();
+  const message = document.getElementById("eventMessage").value.trim();
+
+  if (!title || !message || !startValue || !endValue) {
+    alert("Enter the event title, announcement, start time, and end time.");
+    return;
+  }
+
+  const startAt = new Date(startValue).toISOString();
+  const endAt = new Date(endValue).toISOString();
+
+  if (Date.parse(endAt) <= Date.parse(startAt)) {
+    alert("The end time must be after the start time.");
+    return;
+  }
+
+  sendRelicRushEventAction("schedule", { title, message, startAt, endAt });
+});
+
+document.getElementById("eventEndBtn")?.addEventListener("click", () => {
+  if (confirm("End the current event for all players?")) {
+    sendRelicRushEventAction("end");
+  }
+});
+  
 renderAll();
 updateAdminLauncher();
 
