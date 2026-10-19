@@ -296,32 +296,31 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
     <div id="adminRelicOptions">
   <label for="adminCodeRelic">Choose Relic</label>
   <select id="adminCodeRelic" class="input full">
-    <option value="r0">Relic 1 (r0)</option>
-    <option value="r1">Relic 2 (r1)</option>
-    <option value="r2">Relic 3 (r2)</option>
-    <option value="r3">Relic 4 (r3)</option>
-    <option value="r4">Relic 5 (r4)</option>
-    <option value="r5">Relic 6 (r5)</option>
-    <option value="r6">Relic 7 (r6)</option>
-    <option value="r7">Relic 8 (r7)</option>
-    <option value="r8">Relic 9 (r8)</option>
-    <option value="r9">Relic 10 (r9)</option>
-    <option value="r10">Relic 11 (r10)</option>
-    <option value="r11">Relic 12 (r11)</option>
-    <option value="r12">Relic 13 (r12)</option>
-    <option value="r13">Relic 14 (r13)</option>
-    <option value="r14">Relic 15 (r14)</option>
-    <option value="r15">Relic 16 (r15)</option>
-    <option value="r16">Relic 17 (r16)</option>
-    <option value="r17">Relic 18 (r17)</option>
-    <option value="r18">Relic 19 (r18)</option>
-    <option value="r19">Relic 20 (r19)</option>
-    <option value="r20">Relic 21 (r20)</option>
-    <option value="r21">Relic 22 (r21)</option>
-    <option value="r22">Relic 23 (r22)</option>
-    <option value="r23">Relic 24 (r23)</option>
-  </select>
-
+  <option value="r0">Pebble</option>
+  <option value="r1">Tiny Crown</option>
+  <option value="r2">Crystal</option>
+  <option value="r3">Moon Charm</option>
+  <option value="r4">Ocean Pearl</option>
+  <option value="r5">Flame Heart</option>
+  <option value="r6">Shadow Mask</option>
+  <option value="r7">Golden Apple</option>
+  <option value="r8">Ancient Rune</option>
+  <option value="r9">Dragon Egg</option>
+  <option value="r10">Galaxy Orb</option>
+  <option value="r11">Royal Scepter</option>
+  <option value="r12">Celestial Star</option>
+  <option value="r13">Void Crystal</option>
+  <option value="r14">Prismatic Heart</option>
+  <option value="r15">Eternal Relic</option>
+  <option value="r16">Candy Pumpkin</option>
+  <option value="r17">Ghost Lantern</option>
+  <option value="r18">Witch Hat</option>
+  <option value="r19">Haunted Skull</option>
+  <option value="r20">Treasure Chest</option>
+  <option value="r21">Frost Crown</option>
+  <option value="r22">Inferno Core</option>
+  <option value="r23">Ultimate Relic</option>
+</select>
   <label for="adminCodeVariant">Relic Variant</label>
   <select id="adminCodeVariant" class="input full">
     <option value="normal">Normal</option>
@@ -1306,9 +1305,9 @@ async function tradingApi(action, payload = {}, needsLogin = true) {
 
   const data = await response.json();
 
-  if (!response.ok || data.ok === false) {
-    throw new Error(data.error || data.message || "Trading request failed.");
-  }
+  if (!response.ok || !data.ok) {
+  alert("Code error (" + response.status + "): " + (data.error || JSON.stringify(data)));
+}
 
   return data;
 }
