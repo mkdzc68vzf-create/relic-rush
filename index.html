@@ -1654,7 +1654,7 @@ if (button.dataset.tradingAction) {
     }
   } catch (err) {
     console.error("Relic Rush error:", err);
-    toast("Something went wrong. Check the console for details.");
+    toast("ERROR: " + (err?.message || String(err)));
   }
 });
 
