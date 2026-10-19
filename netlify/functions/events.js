@@ -219,8 +219,17 @@ export default async (request) => {
       enabled: true,
       startAt: new Date(body.startAt).toISOString(),
       endAt: new Date(body.endAt).toISOString(),
-      rareLuckMultiplier: 1.5,
-      coinMultiplier: 2,
+      eventType: ["luck", "coins", "both"].includes(body.eventType)
+  ? body.eventType
+  : "both",
+
+rareLuckMultiplier: ["luck", "both"].includes(body.eventType)
+  ? 1.5
+  : 1,
+
+coinMultiplier: ["coins", "both"].includes(body.eventType)
+  ? 2
+  : 1,
       automaticRewards: [],
       claimableRewards: [],
       createdAt: new Date().toISOString()
