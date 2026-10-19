@@ -2006,10 +2006,10 @@ document.getElementById("eventStartBtn")?.addEventListener("click", () => {
   }
 
   sendRelicRushEventAction("start", {
-    title,
-    message,
-    durationMinutes
-  });
+  title,
+  message,
+  durationMinutes,
+  eventType: document.getElementById("eventType").value
 });
 
 document.getElementById("eventScheduleBtn")?.addEventListener("click", () => {
@@ -2031,7 +2031,12 @@ document.getElementById("eventScheduleBtn")?.addEventListener("click", () => {
     return;
   }
 
-  sendRelicRushEventAction("schedule", { title, message, startAt, endAt });
+  sendRelicRushEventAction("schedule", {
+  title,
+  message,
+  startAt,
+  endAt,
+  eventType: document.getElementById("eventType").value
 });
 
 document.getElementById("eventEndBtn")?.addEventListener("click", () => {
