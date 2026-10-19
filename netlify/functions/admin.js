@@ -145,17 +145,14 @@ if (
     return json(500, {ok:false,error:"RELIC_RUSH_ADMIN_CODE is empty."});
   }
 
-  if (!safeEqual(body.code.trim(), adminCode)) {
-    return json(401, {
-      ok: false,
-      error: "Password mismatch.",
-      diagnostic: {
-        receivedLength: body.code.length,
-        receivedTrimmedLength: body.code.trim().length,
-        configuredLength: adminCode.length
-      }
-    });
-  }
+  
+if (!safeEqual(body.code.trim(), adminCode)) {
+  return json(401, {
+    ok: false,
+    error: "Incorrect password."
+  });
+}
+
 
     const now = Math.floor(Date.now() / 1000);
     const expiresAt = (now + SESSION_TTL_SECONDS) * 1000;
