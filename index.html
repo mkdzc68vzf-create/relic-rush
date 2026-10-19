@@ -293,7 +293,46 @@ footer{text-align:center;color:#73658e;padding:20px;font-size:12px}
 </select>
     <label for="adminUses" class="small">Worldwide redemption limit</label>
     <input id="adminUses" type="number" min="1" max="100000" value="50" class="full" style="width:100%">
-    <button class="btn full" id="adminMakeCodeBtn">Generate Worldwide Code</button>
+    <div id="adminRelicOptions">
+  <label for="adminCodeRelic">Choose Relic</label>
+  <select id="adminCodeRelic" class="input full">
+    <option value="r0">Relic 1 (r0)</option>
+    <option value="r1">Relic 2 (r1)</option>
+    <option value="r2">Relic 3 (r2)</option>
+    <option value="r3">Relic 4 (r3)</option>
+    <option value="r4">Relic 5 (r4)</option>
+    <option value="r5">Relic 6 (r5)</option>
+    <option value="r6">Relic 7 (r6)</option>
+    <option value="r7">Relic 8 (r7)</option>
+    <option value="r8">Relic 9 (r8)</option>
+    <option value="r9">Relic 10 (r9)</option>
+    <option value="r10">Relic 11 (r10)</option>
+    <option value="r11">Relic 12 (r11)</option>
+    <option value="r12">Relic 13 (r12)</option>
+    <option value="r13">Relic 14 (r13)</option>
+    <option value="r14">Relic 15 (r14)</option>
+    <option value="r15">Relic 16 (r15)</option>
+    <option value="r16">Relic 17 (r16)</option>
+    <option value="r17">Relic 18 (r17)</option>
+    <option value="r18">Relic 19 (r18)</option>
+    <option value="r19">Relic 20 (r19)</option>
+    <option value="r20">Relic 21 (r20)</option>
+    <option value="r21">Relic 22 (r21)</option>
+    <option value="r22">Relic 23 (r22)</option>
+    <option value="r23">Relic 24 (r23)</option>
+  </select>
+
+  <label for="adminCodeVariant">Relic Variant</label>
+  <select id="adminCodeVariant" class="input full">
+    <option value="normal">Normal</option>
+    <option value="gold">Gold</option>
+    <option value="candy">Candy</option>
+  </select>
+</div>
+
+<button class="btn full" id="adminMakeCodeBtn">
+  Generate Worldwide Code
+</button>
     <div id="adminCodeResult" class="notice" style="display:none;overflow-wrap:anywhere"></div>
     <button class="btn secondary full" id="adminLogoutBtn">Logout</button>
   </div>
@@ -1056,133 +1095,22 @@ function adminGiveRelic(){
 
 
  
-async function adminGenerateCode() {
-  const token = adminToken();
+function updateAdminRelicOptions() {
+  const rewardType = document.getElementById("adminRewardType");
+  const relicOptions = document.getElementById("adminRelicOptions");
 
-  if (!token) {
-    toast("Log in again before creating codes.");
-    return;
-  }
+  if (!rewardType || !relicOptions) return;
 
-  const rewardType = $("adminRewardType").value;
-  const rewardAmount = Number($("adminReward").value);
-  const maxRedemptions = Number($("adminUses").value);
-  const resultBox = $("adminCodeResult");
-  const button = $("adminMakeCodeBtn");
-
-  if (!["coins", "relics"].includes(rewardType)) {
-    toast("Choose coins or relics.");
-    return;
-  }
-
-  if (
-    !Number.isSafeInteger(rewardAmount) ||
-    rewardAmount < 1 ||
-    rewardAmount > (rewardType === "relics" ? 100000 : 1000000)
-  ) {
-    toast(
-      rewardType === "relics"
-        ? "Relic copies must be between 1 and 100,000."
-        : "Coins must be between 1 and 1,000,000."
-    );
-    return;
-  }
-
-  if (
-    !Number.isSafeInteger(maxRedemptions) ||
-    maxRedemptions < 1 ||
-    maxRedemptions > 100000
-  ) {
-    toast("Uses must be between 1 and 100,000.");
-    return;
-  }
-
-  let relicId;
-  let variant;
-
-  if (rewardType === "relics") {
-    relicId = $("adminCodeRelic").value;
-    variant = $("adminCodeVariant").value;
-
-    if (!/^r(?:[0-9]|1[0-9]|2[0-3])$/.test(relicId)) {
-      toast("Choose a valid relic.");
-      return;
-    }
-
-    if (!["normal", "gold", "candy"].includes(variant)) {
-      toast("Choose a supported relic variant.");
-      return;
-    }
-  }
-
-  if (button) button.disabled = true;
-
-  resultBox.style.display = "block";
-  resultBox.textContent = "Creating giveaway code...";
-
-  try {
-    const payload = {
-      action: "createCode",
-      token,
-      rewardType,
-      rewardAmount,
-      maxRedemptions
-    };
-
-    if (rewardType === "coins") {
-      payload.rewardCoins = rewardAmount;
-    } else {
-      payload.relicId = relicId;
-      payload.variant = variant;
-    }
-
-    const response = await fetch("/.netlify/functions/admin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.ok) {
-      throw new Error(
-        data.error || `Request failed (${response.status})`
-      );
-    }
-
-    resultBox.replaceChildren();
-
-    const message = document.createElement("p");
-    message.textContent = rewardType === "coins"
-      ? `Code: ${data.code} — ${rewardAmount.toLocaleString()} coins — ${maxRedemptions} uses`
-      : `Code: ${data.code} — ${rewardAmount.toLocaleString()} copies of ${relicId} (${variant}) — ${maxRedemptions} uses`;
-
-    const copyButton = document.createElement("button");
-    copyButton.type = "button";
-    copyButton.textContent = "Copy Code";
-
-    copyButton.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(data.code);
-        toast("Code copied!");
-      } catch {
-        toast("Copy failed. Select and copy the code manually.");
-      }
-    });
-
-    resultBox.append(message, copyButton);
-    resultBox.style.display = "block";
-
-    toast("Giveaway code created!");
-  } catch (error) {
-    resultBox.textContent = "Could not create code: " + error.message;
-    toast(error.message);
-  } finally {
-    if (button) button.disabled = false;
-  }
+  relicOptions.style.display =
+    rewardType.value === "relics" ? "block" : "none";
 }
+
+document.getElementById("adminRewardType")?.addEventListener(
+  "change",
+  updateAdminRelicOptions
+);
+
+updateAdminRelicOptions();
 
 
 
