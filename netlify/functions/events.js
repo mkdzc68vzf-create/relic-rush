@@ -86,7 +86,10 @@ export default async (request) => {
   if (request.method === "GET") {
     try {
       const event = await events.get("current", { type: "json" });
-      const notice = await announcements.get("latest", { type: "json" });
+      const savedNotice = await announcements.get("latest", { type: "json" });
+const notice = savedNotice && Date.parse(savedNotice.expiresAt) > Date.now()
+  ? savedNotice
+  : null;
       const now = Date.now();
 
       return json(200, {
@@ -125,6 +128,48 @@ export default async (request) => {
       ok: false,
       error: "Admin session expired. Log in again."
     });
+  }
+  
+  if (body.action === "announce") {
+    const message = typeof body.message === "string"
+      ? body.message.trim().slice(0, 300)
+      : "";
+
+    const durationSeconds = Number(body.durationSeconds ?? 30);
+
+    if (!message) {
+      return json(400, {
+        ok: false,
+        error: "Enter an announcement message."
+      });
+    }
+
+    if (!Number.isInteger(durationSeconds) ||
+        durationSeconds < 5 || durationSeconds > 3600) {
+      return json(400, {
+        ok: false,
+        error: "Duration must be 5 to 3600 seconds."
+      });
+    }
+
+    const now = Date.now();
+
+    const notice = {
+      id: crypto.randomUUID(),
+      title: "📢 Message from the Admin",
+      message,
+      createdAt: new Date(now).toISOString(),
+      expiresAt: new Date(now + durationSeconds * 1000).toISOString()
+    };
+
+    await announcements.setJSON("latest", notice);
+
+    return json(200, { ok: true, announcement: notice });
+  }
+
+  if (body.action === "clearAnnouncement") {
+    await announcements.delete("latest");
+    return json(200, { ok: true });
   }
 
   if (body.action === "start") {
