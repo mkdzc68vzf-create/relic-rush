@@ -1795,6 +1795,93 @@ function updateAdminLauncher() {
 window.addEventListener("scroll", updateAdminLauncher, { passive: true });
 window.addEventListener("resize", updateAdminLauncher);
 
+
+/* RELIC RUSH EVENTS */
+let relicRushEvent = null;
+
+async function loadRelicRushEvent() {
+  try {
+    const response = await fetch("/.netlify/functions/events", {
+      cache: "no-store"
+    });
+
+    const data = await response.json();
+
+    if (data.ok) {
+      relicRushEvent = data.event || null;
+      renderRelicRushEventBanner();
+    }
+  } catch (error) {
+    console.error("Could not load Relic Rush event:", error);
+  }
+}
+
+function renderRelicRushEventBanner() {
+  let banner = document.getElementById("relicRushEventBanner");
+
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "relicRushEventBanner";
+    banner.style.cssText =
+      "margin:12px auto;padding:14px;max-width:700px;" +
+      "border:1px solid #8b35ff;border-radius:12px;" +
+      "background:#100a28;color:#fff;text-align:center;";
+
+    const main = document.querySelector("main") ||
+      document.querySelector("#home") ||
+      document.body;
+
+    main.prepend(banner);
+  }
+
+  if (!relicRushEvent) {
+    banner.style.display = "none";
+    return;
+  }
+
+  banner.style.display = "block";
+  banner.innerHTML = "";
+
+  const title = document.createElement("h3");
+  title.textContent = "🎉 " + relicRushEvent.title;
+
+  const message = document.createElement("p");
+  message.textContent = relicRushEvent.message;
+
+  const timer = document.createElement("p");
+  timer.id = "relicRushEventTimer";
+
+  banner.append(title, message, timer);
+  updateRelicRushEventTimer();
+}
+
+function updateRelicRushEventTimer() {
+  const timer = document.getElementById("relicRushEventTimer");
+  if (!timer || !relicRushEvent) return;
+
+  const remaining = Date.parse(relicRushEvent.endAt) - Date.now();
+
+  if (remaining <= 0) {
+    timer.textContent = "Event ended — refresh to update.";
+    return;
+  }
+
+  const totalSeconds = Math.floor(remaining / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  timer.textContent =
+    "⏳ Time left: " +
+    String(hours).padStart(2, "0") + ":" +
+    String(minutes).padStart(2, "0") + ":" +
+    String(seconds).padStart(2, "0") +
+    " | 🍀 Rare luck: 1.5× | 🪙 Coins: 2×";
+}
+
+loadRelicRushEvent();
+setInterval(updateRelicRushEventTimer, 1000);
+
 renderAll();
 updateAdminLauncher();
 
