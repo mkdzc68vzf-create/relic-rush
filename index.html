@@ -1104,6 +1104,114 @@ function adminGiveRelic(){
 }
 
 
+async function adminGenerateCode() {
+  const token = adminToken();
+
+  if (!token) {
+    toast("Log in again before creating codes.");
+    return;
+  }
+
+  const rewardType = $("adminRewardType").value;
+  const rewardAmount = Number($("adminReward").value);
+  const maxRedemptions = Number($("adminUses").value);
+  const resultBox = $("adminCodeResult");
+  const button = $("adminMakeCodeBtn");
+
+  if (!["coins", "relics"].includes(rewardType)) {
+    toast("Choose a valid reward type.");
+    return;
+  }
+
+  if (!Number.isSafeInteger(rewardAmount) ||
+      rewardAmount < 1 || rewardAmount > 1000000) {
+    toast("Enter a reward amount from 1 to 1,000,000.");
+    return;
+  }
+
+  if (!Number.isSafeInteger(maxRedemptions) ||
+      maxRedemptions < 1 || maxRedemptions > 100000) {
+    toast("Enter a redemption limit from 1 to 100,000.");
+    return;
+  }
+
+  const payload = {
+    action: "createCode",
+    token,
+    rewardType,
+    rewardAmount,
+    maxRedemptions
+  };
+
+  if (rewardType === "coins") {
+    payload.rewardCoins = rewardAmount;
+  } else {
+    payload.relicId = $("adminCodeRelic").value;
+    payload.variant = $("adminCodeVariant").value;
+
+    if (!/^r(?:[0-9]|1[0-9]|2[0-3])$/.test(payload.relicId)) {
+      toast("Choose a valid relic.");
+      return;
+    }
+
+    if (!["normal", "diamond", "gold", "candy"].includes(payload.variant)) {
+      toast("Choose a valid relic variant.");
+      return;
+    }
+  }
+
+  button.disabled = true;
+  button.textContent = "Generating...";
+  resultBox.style.display = "block";
+  resultBox.textContent = "Creating worldwide code...";
+  resultBox.style.color = "var(--text)";
+
+  try {
+    const response = await fetch("/.netlify/functions/admin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(
+        data.error || `Request failed (${response.status})`
+      );
+    }
+
+    const code = data.code || data.redeemCode;
+
+    if (!code) {
+      throw new Error(
+        "The server succeeded but did not return a code. Check the admin function response."
+      );
+    }
+
+    resultBox.textContent =
+      "✅ Worldwide Code: " + code +
+      "\nReward: " + rewardAmount +
+      (rewardType === "coins"
+        ? " coins"
+        : " " + payload.variant + " relic(s)") +
+      "\nRedemption limit: " + maxRedemptions;
+
+    resultBox.style.color = "var(--green)";
+    toast("Worldwide code created!");
+
+  } catch (err) {
+    console.error("Giveaway code error:", err);
+    resultBox.textContent = "ERROR: " + (err.message || String(err));
+    resultBox.style.color = "#ff9bb2";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Generate Worldwide Code";
+  }
+}
+
  
 function updateAdminRelicOptions() {
   const rewardType = document.getElementById("adminRewardType");
