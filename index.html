@@ -1987,12 +1987,14 @@ async function sendRelicRushEventAction(action, extra = {}) {
   }
 }
 
+
 document.getElementById("eventStartBtn")?.addEventListener("click", () => {
   const title = document.getElementById("eventTitle").value.trim();
   const message = document.getElementById("eventMessage").value.trim();
   const durationMinutes = Number(
     document.getElementById("eventDuration").value
   );
+  const eventType = document.getElementById("eventType").value;
 
   if (!title || !message) {
     alert("Enter an event title and announcement.");
@@ -2006,10 +2008,11 @@ document.getElementById("eventStartBtn")?.addEventListener("click", () => {
   }
 
   sendRelicRushEventAction("start", {
-  title,
-  message,
-  durationMinutes,
-  eventType: document.getElementById("eventType").value
+    title,
+    message,
+    durationMinutes,
+    eventType
+  });
 });
 
 document.getElementById("eventScheduleBtn")?.addEventListener("click", () => {
@@ -2017,6 +2020,7 @@ document.getElementById("eventScheduleBtn")?.addEventListener("click", () => {
   const endValue = document.getElementById("eventEndAt").value;
   const title = document.getElementById("eventTitle").value.trim();
   const message = document.getElementById("eventMessage").value.trim();
+  const eventType = document.getElementById("eventType").value;
 
   if (!title || !message || !startValue || !endValue) {
     alert("Enter the event title, announcement, start time, and end time.");
@@ -2032,11 +2036,12 @@ document.getElementById("eventScheduleBtn")?.addEventListener("click", () => {
   }
 
   sendRelicRushEventAction("schedule", {
-  title,
-  message,
-  startAt,
-  endAt,
-  eventType: document.getElementById("eventType").value
+    title,
+    message,
+    startAt,
+    endAt,
+    eventType
+  });
 });
 
 document.getElementById("eventEndBtn")?.addEventListener("click", () => {
@@ -2044,6 +2049,7 @@ document.getElementById("eventEndBtn")?.addEventListener("click", () => {
     sendRelicRushEventAction("end");
   }
 });
+
   
 renderAll();
 updateAdminLauncher();
