@@ -2654,5 +2654,61 @@ setInterval(() => {
 })();
 </script>
 
+<script>
+(function () {
+  function shortenMoney(value) {
+    var number = Number(String(value).replace(/[$,\s]/g, ""));
+
+    if (!Number.isFinite(number)) return value;
+
+    var abs = Math.abs(number);
+    var suffix = "";
+
+    if (abs >= 1000000000) {
+      number = number / 1000000000;
+      suffix = "B";
+    } else if (abs >= 1000000) {
+      number = number / 1000000;
+      suffix = "M";
+    } else if (abs >= 1000) {
+      number = number / 1000;
+      suffix = "K";
+    } else {
+      return value;
+    }
+
+    return number.toFixed(1).replace(/\.0$/, "") + suffix;
+  }
+
+  function updateMoney() {
+    var ids = ["coins", "packCoins", "shopCoins"];
+
+    ids.forEach(function (id) {
+      var element = document.getElementById(id);
+      if (!element) return;
+
+      var original = element.textContent.trim();
+      var shortened = shortenMoney(original);
+
+      if (shortened !== original) {
+        element.textContent = shortened;
+      }
+    });
+  }
+
+  updateMoney();
+
+  var observer = new MutationObserver(function () {
+    updateMoney();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+})();
+</script>
+
 </body>
 </html>
