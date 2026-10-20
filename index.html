@@ -2278,8 +2278,115 @@ function chooseRelic(packName) {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+function renderAdminExclusiveRelics() {
+  game.adminRelics = game.adminRelics || [];
+
+  const select = document.getElementById("adminExclusiveGrantSelect");
+  const list = document.getElementById("adminExclusiveList");
+
+  if (!select || !list) return;
+
+  select.innerHTML =
+    '<option value="">Select an admin relic to grant</option>';
+
+  game.adminRelics.forEach(relic => {
+    const option = document.createElement("option");
+    option.value = relic.id;
+    option.textContent = relic.icon + " " + relic.name;
+    select.appendChild(option);
+  });
+
+  list.innerHTML = "";
+
+  game.adminRelics.forEach(relic => {
+    const item = document.createElement("p");
+    item.textContent =
+      relic.icon + " " + relic.name + " — " +
+      relic.rarity + " — " + relic.value + " coins";
+    list.appendChild(item);
+  });
+}
+
+function createAdminExclusiveRelic() {
+  if (!sessionStorage.getItem("relicRushAdminToken")) {
+    alert("Log in to the admin panel first.");
+    return;
+  }
+
+  const name = document.getElementById("adminExclusiveName").value.trim();
+  const icon = document.getElementById("adminExclusiveEmoji").value.trim();
+  const rarity = document.getElementById("adminExclusiveRarity").value;
+  const value = Number(document.getElementById("adminExclusiveValue").value);
+  const message = document.getElementById("adminExclusiveMessage");
+
+  if (!name || !icon || !Number.isFinite(value) || value < 0) {
+    message.textContent = "Enter a name, emoji, and valid coin value.";
+    return;
+  }
+
+  game.adminRelics = game.adminRelics || [];
+
+  if (game.adminRelics.some(r => r.name.toLowerCase() === name.toLowerCase())) {
+    message.textContent = "That relic name already exists.";
+    return;
+  }
+
+  const relic = {
+    id: "admin_" + Date.now(),
+    name,
+    icon,
+    rarity,
+    value,
+    pack: "Admin Exclusive",
+    adminExclusive: true
+  };
+
+  game.adminRelics.push(relic);
+  save();
+  renderAdminExclusiveRelics();
+
+  message.textContent = "Admin relic created!";
+}
+
+function grantAdminExclusiveRelic() {
+  if (!sessionStorage.getItem("relicRushAdminToken")) {
+    alert("Log in to the admin panel first.");
+    return;
+  }
+
+  const id = document.getElementById("adminExclusiveGrantSelect").value;
+  const relic = (game.adminRelics || []).find(r => r.id === id);
+
+  if (!relic) {
+    document.getElementById("adminExclusiveMessage").textContent =
+      "Create and select a relic first.";
+    return;
+  }
+
+  addRelic(relic, "normal");
+  save();
+  renderAll();
+
+  document.getElementById("adminExclusiveMessage").textContent =
+    relic.name + " added to your inventory!";
+}
+
+
+renderAdminExclusiveRelics();
+
+window.addEventListener("load", () => {
+  const panel = document.getElementById("adminExclusivePanel");
+  const adminControls = document.getElementById("adminControls");
+
+  if (panel && adminControls) {
+    adminControls.appendChild(panel);
+    renderAdminExclusiveRelics();
+  }
+});
+
 renderAll();
 updateAdminLauncher();
+
 
 setInterval(() => {
   if (document.getElementById("shop")?.classList.contains("active")) {
@@ -2440,6 +2547,56 @@ setInterval(() => {
   });
 })();
 </script>
+
+<!-- ADMIN EXCLUSIVE RELICS -->
+<div id="adminExclusivePanel" class="card" style="margin-top:14px">
+  <h3>👑 Admin Exclusive Relics</h3>
+  <p class="small">Create special relics that never appear in normal packs.</p>
+
+  <input id="adminExclusiveName" class="full"
+    placeholder="Relic name">
+
+  <input id="adminExclusiveEmoji" class="full"
+    style="margin-top:8px"
+    placeholder="Emoji (example: 👑)">
+
+  <select id="adminExclusiveRarity" class="full"
+    style="margin-top:8px">
+    <option value="Common">Common</option>
+    <option value="Rare">Rare</option>
+    <option value="Epic">Epic</option>
+    <option value="Legendary">Legendary</option>
+    <option value="Mythic">Mythic</option>
+    <option value="Secret">Secret</option>
+    <option value="Admin Exclusive">Admin Exclusive</option>
+  </select>
+
+  <input id="adminExclusiveValue" class="full"
+    style="margin-top:8px"
+    type="number" min="0" value="1000"
+    placeholder="Coin value">
+
+  <button class="btn full" type="button"
+    onclick="createAdminExclusiveRelic()"
+    style="margin-top:10px">
+    ➕ Create Admin Relic
+  </button>
+
+  <hr>
+
+  <select id="adminExclusiveGrantSelect" class="full">
+    <option value="">Select an admin relic to grant</option>
+  </select>
+
+  <button class="btn full" type="button"
+    onclick="grantAdminExclusiveRelic()"
+    style="margin-top:8px">
+    🎁 Grant to My Inventory
+  </button>
+
+  <div id="adminExclusiveList" style="margin-top:12px"></div>
+  <p class="small" id="adminExclusiveMessage"></p>
+</div>
 
 </body>
 </html>
