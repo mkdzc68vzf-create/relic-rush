@@ -2308,5 +2308,138 @@ setInterval(() => {
   </div>
 </section>
 
+<style>
+  #rrWelcomeOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(3, 1, 12, 0.88);
+  }
+
+  #rrWelcomeOverlay.rr-welcome-open {
+    display: flex;
+  }
+
+  #rrWelcomeCard {
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px;
+    border: 1px solid #8b35ff;
+    border-radius: 20px;
+    background: #100a28;
+    color: #fff;
+    box-shadow: 0 0 35px rgba(139, 53, 255, 0.3);
+    font-family: inherit;
+  }
+
+  #rrWelcomeCard h2 {
+    text-align: center;
+    margin-top: 0;
+    color: #c084fc;
+  }
+
+  #rrWelcomeCard .rr-welcome-item {
+    padding: 10px 12px;
+    margin: 9px 0;
+    border-radius: 10px;
+    background: #1b1237;
+  }
+
+  #rrWelcomeCard .rr-welcome-item strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  #rrWelcomeCard .rr-welcome-item p {
+    margin: 0;
+    color: #ddd6fe;
+    font-size: 14px;
+  }
+
+  #rrWelcomeCard button {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px;
+    border: 0;
+    border-radius: 10px;
+    background: #8b35ff;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+
+<div id="rrWelcomeOverlay" role="dialog"
+     aria-modal="true" aria-labelledby="rrWelcomeTitle">
+  <div id="rrWelcomeCard">
+    <h2 id="rrWelcomeTitle">💎 Welcome to Relic Rush!</h2>
+    <p style="text-align:center;color:#c4b5fd">
+      Your adventure starts here!
+    </p>
+
+    <div class="rr-welcome-item">
+      <strong>🪙 Earn Coins</strong>
+      <p>Play, battle zombies, and collect rewards.</p>
+    </div>
+
+    <div class="rr-welcome-item">
+      <strong>📦 Open Packs</strong>
+      <p>Spend coins to discover collectible relics.</p>
+    </div>
+
+    <div class="rr-welcome-item">
+      <strong>💎 Collect Rare Relics</strong>
+      <p>Discover special variants and grow your collection.</p>
+    </div>
+
+    <div class="rr-welcome-item">
+      <strong>⚔️ Fight Zombies</strong>
+      <p>Battle enemies, survive waves, and upgrade your stats.</p>
+    </div>
+
+    <div class="rr-welcome-item">
+      <strong>🏆 Explore More</strong>
+      <p>Discover achievements, seasonal rewards, events, and trading.</p>
+    </div>
+
+    <button type="button" id="rrWelcomePlay">
+      LET'S PLAY!
+    </button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const overlay = document.getElementById("rrWelcomeOverlay");
+  const playButton = document.getElementById("rrWelcomePlay");
+  if (!overlay || !playButton) return;
+
+  try {
+    if (localStorage.getItem("rrWelcomeSeen") !== "yes") {
+      overlay.classList.add("rr-welcome-open");
+    }
+  } catch (error) {
+    overlay.classList.add("rr-welcome-open");
+  }
+
+  playButton.addEventListener("click", function () {
+    try {
+      localStorage.setItem("rrWelcomeSeen", "yes");
+    } catch (error) {
+      // The popup can still close if storage is unavailable.
+    }
+    overlay.classList.remove("rr-welcome-open");
+  });
+})();
+</script>
+
 </body>
 </html>
